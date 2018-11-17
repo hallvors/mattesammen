@@ -98,6 +98,16 @@ div#count {
   animation-name: shaky;
 }
 
+.flash {
+  position: fixed;
+  bottom: 10%;
+  left: 20%;
+  right: 20%;
+  background: yellow;
+  opacity: 0.7;
+  border-radius: 40px;
+}
+
 @media screen and (min-width: 900px) {
   body {
     font-size: 3em;
@@ -108,5 +118,6 @@ div#count {
     text-align: justify;
     letter-spacing: 0.5em;
   }
-
+  .col1 {float: left; width: 45%}
+  .col2 {float: right; width: 45%;}
 }

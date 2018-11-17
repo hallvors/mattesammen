@@ -157,14 +157,21 @@ function considerUppingLevel() {
   // going level up is harder at higher levels, easier at low ones
   if ((level === 0 || level === 1) && avg < 4000) {
     level++;
+    flashLevelUp(level);
     return;
   }
 
   if (timingLog.length >= level * 1.2 && avg < 4500) {
     level ++;
+    flashLevelUp(level);
     timingLog.length = 0;
     params.end = level + 2;
   }
+}
+
+function flashLevelUp(level) {
+  var el = elm('div', {'class': 'flash'}, [document.createTextNode('Nivå opp! Nytt nivå: ' + level)], document.body);
+  setTimeout(function(){el.parentNode.removeChild(el)}, 1200);
 }
 
 window.onload = nextTask;
