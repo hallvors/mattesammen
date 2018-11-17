@@ -141,7 +141,7 @@ function considerUppingLevel() {
     timingLog.shift();
   }
   var total = timingLog
-  .reduce((total, current) => total + current, 0);
+  .reduce(function(total, current){return total + current}, 0);
   var avg = total / timingLog.length;
   console.log(avg);
   if (timingLog.length >= 20 && avg < 4500) {
