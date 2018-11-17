@@ -28,7 +28,6 @@ function mount(server) {
         throw err;
       }
     });
-    client.release(); // TODO ???
   });
 }
 
