@@ -28,6 +28,7 @@ function mount(server) {
         throw err;
       }
     });
+    client.release(); // TODO ???
   });
 }
 
@@ -49,14 +50,18 @@ function handleConnection(ws) {
     ws.on("correct-answer", msg => {
       console.log(msg);
       return config.getDatabaseClient().then(client => {
-        return client.query(
-          `
-          UPDATE student_sessions
-          SET completed_tasks = completed_tasks + 1, level = $1::integer
-          WHERE id = $2::integer
-        `,
-          [msg.level, decoded.id]
-        );
+        return Promise.resolve()
+        .then(() => {
+          client.query(
+            `
+            UPDATE student_sessions
+            SET completed_tasks = completed_tasks + 1, level = $1::integer
+            WHERE id = $2::integer
+          `,
+            [msg.level, decoded.id]
+          );
+        })
+        .then(() => client.release());
       });
     });
   } else {

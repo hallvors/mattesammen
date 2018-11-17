@@ -34,7 +34,7 @@ function main(req, res, next) {
       [token.id]
     )
     .then(result => {
-      console.log(result);
+      client.release();
       if (result.length) {
         return res.render('admin_school_screen', {
           layout: 'main',
@@ -47,10 +47,6 @@ function main(req, res, next) {
         res.send('ikke gyldig tilgang, prøv å laste på nytt')
       }
     });
-  })
-  .then(result => {
-    res.json(result);
-    client.release();
   });
 }
 
@@ -66,6 +62,7 @@ function status(req, res, next) {
         [token.classId]
       )
       .then(results => {
+        client.release();
         return res.render('admin_school_screen', {
           layout: 'main',
           school: token.school,
