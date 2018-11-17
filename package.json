@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "App for å løse gangestykker sammen, med felles statistikk",
   "scripts": {
-    "start": "PORT=3015  DATABASE_URL=http://localhost:5432/gangesammen node index.js"
+    "start": "node index.js",
+    "startdev": "PORT=3015  DATABASE_URL=http://localhost:5432/gangesammen node index.js"
   },
   "main": "index.js",
   "repository": "https://git.heroku.com/gangesammen.git",
