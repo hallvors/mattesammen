@@ -72,7 +72,7 @@ function handleAnswer(evt) {
   var correct = answerElm.getAttribute("data-answer");
   var log = document.getElementById("log");
   if (parseInt(answerElm.value) === parseInt(correct)) {
-    let duration = Date.now() - startTime;
+    var duration = Date.now() - startTime;
     elm('p', {}, [document.createTextNode('⭐ ' + problem)], log);
     document.getElementById("stars").className = "bounce";
     socket.emit("correct-answer", { level, name, duration });
