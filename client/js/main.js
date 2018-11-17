@@ -146,6 +146,7 @@ function considerUppingLevel() {
   console.log(avg);
   if (timingLog.length >= 20 && avg < 4500) {
     level ++;
+    timingLog.length = 0;
     params.end = level + 2;
   }
 }
