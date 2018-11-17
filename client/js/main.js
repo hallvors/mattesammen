@@ -98,7 +98,7 @@ function createNormalMultiplicationTask(div, num1, num2, answer) {
           type: "number",
           name: "answer",
           "data-answer": answer,
-          "data-question": `${num1} * ${num2} = ${answer}`,
+          "data-question": num1 + ' * ' + num2 + ' = ' + answer,
           autofocus: true
         }),
         elm("button", { type: "submit", class: "positive-btn" }, [
@@ -122,7 +122,7 @@ function createMissingNumMultiplicationTask(div, num1, num2, answer) {
           type: "number",
           name: "answer",
           "data-answer": num2,
-          "data-question": `${num1} * ${num2} = ${answer}`,
+          "data-question": num1 + ' * ' + num2 + ' = ' + answer,
           autofocus: true
         }),
         document.createTextNode(" = " + answer),
