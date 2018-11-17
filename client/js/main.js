@@ -33,7 +33,7 @@ function nextTask() {
   var num1 = getRandomArbitrary(params.start, params.end);
   var num2 = getRandomArbitrary(params.start, params.end);
   var answer = num1 * num2;
-  var type = level < 3 ? 1 : getRandomArbitrary(1, 2);
+  var type = level < 3 ? 1 : getRandomArbitrary(1, 3);
   document.getElementById("stars").className = "";
   startTime = Date.now();
 
@@ -75,7 +75,7 @@ function handleAnswer(evt) {
     var duration = Date.now() - startTime;
     elm('p', {}, [document.createTextNode('⭐ ' + problem)], log);
     document.getElementById("stars").className = "bounce";
-    socket.emit("correct-answer", { level, name, duration });
+    socket.emit("correct-answer", { level: level, name: name, duration: duration });
     setTimeout(nextTask, 600);
     timingLog.push(duration);
     considerUppingLevel();
