@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css?family=Forum|Mali');
+* {
+  font-family: Georgia, Arial, sans-serif;
+}
+h1, h2 {
+  font-family: 'Mali', cursive;
+}
+h1 {
+  font-size: 1.2em;
+}
+
+body {
+  margin: 10% 15%;
+}
+
+input, select {
+  padding: 10px;
+  font-size: 1.1em;
+  vertical-align: text-bottom;
+}
+
+.positive-btn {
+  background-color: darkgreen;
+  color: #eee;
+  padding: 10px;
+  vertical-align: text-bottom;
+  font-size: 1.1em;
+  line-height: 1.1em;
+}
+p, .the_task {
+  vertical-align: text-bottom;
+  line-height: 1.1em;
+  font-size: 1.1em;
+}
+
+p.instruksjon, #log {
+  font-size: 0.8em;
+  text-align: justify;
+}
+
+@keyframes jumpy {
+30% {transform: translateY(-8px);}
+50% {transform: translateY(0px);}
+50% {transform: translateY(-9px);}
+100% {transform: translateY(0px);}
+}
+
+@keyframes shaky {
+30% {transform: translateX(-12px);}
+50% {transform: translateX(0px);}
+50% {transform: translateX(-12px);}
+100% {transform: translateX(0px);}
+}
+
+#stars.bounce span{
+  animation-name: jumpy;
+}
+
+#stars span, .the_task input {
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  animation-duration: 150ms;
+  animation-iteration-count: 4;
+}
+
+#stars {
+  font-size: 2em;
+  text-align: justify;
+  letter-spacing: 0.8em;
+}
+
+#stars span {
+  display: inline-block;
+}
+
+#stars span.first {
+  animation-delay: 0.2s;
+}
+#stars span.second {
+  animation-delay: 0.3s;
+}
+#stars span.third {
+  animation-delay: 0.4s;
+}
+#stars span.fourth {
+  animation-delay: 0.5s;
+}
+
+.the_task input {
+  width: 35%;
+}
+
+.shaky input {
+  animation-name: shaky;
+}
+
+@media screen and (min-width: 900px) {
+  body {
+    font-size: 3em;
+    margin: 15% 25%;
+  }
+  #stars {
+    font-size: 1em;
+    text-align: justify;
+    letter-spacing: 0.5em;
+  }
+
+}

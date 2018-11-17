@@ -1,0 +1,29 @@
+<div>
+	<h1>⭐ 🌟 Velkommen ⭐ 🌟</h1>
+	<h2>Klasse {{className}} fra {{school}} har til nå gjort <span id="count">0</span> mattestykker!</h2>
+
+  <p>Kode for tilgang: <b>{{classId}}</b></p>
+  <p>
+    Alle som er inne: <span id="students">(laster inn)</span>
+  </p>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io('{{{socketConnectURL}}}');
+  socket.on('state', function(payload) {
+    console.log(payload);
+    payload = JSON.parse(payload);
+    if (payload.data.totals) {
+      document.getElementById('count').firstChild.data = payload.data.totals;
+    }
+    if (payload.data.students) {
+      document.getElementById('students').firstChild.data = payload.data.students
+      .map(student => student.name)
+      .join(', ');
+    }
+  });
+</script>
+
+<form method="post" action="/api/quit">
+  <button type="submit">x</button>
+</form>
