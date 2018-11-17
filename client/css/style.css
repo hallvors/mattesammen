@@ -38,6 +38,10 @@ p.instruksjon, #log {
   text-align: justify;
 }
 
+div#count {
+  font-size: 4em;
+}
+
 @keyframes jumpy {
 30% {transform: translateY(-8px);}
 50% {transform: translateY(0px);}

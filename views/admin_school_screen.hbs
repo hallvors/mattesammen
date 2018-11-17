@@ -1,10 +1,13 @@
 <div>
-	<h1>⭐ 🌟 Velkommen 🌟 ⭐ </h1>
-	<h2>Klasse {{className}} fra {{school}} har til nå gjort <span id="count">0</span> mattestykker!</h2>
+	<h1>⭐ 🌟 {{className}} 🌟 ⭐ </h1>
+	<p>fra {{school}}</p>
 
-  <p>Kode for tilgang: <b>{{classId}}</b></p>
-  <p>
-    Alle som er inne: <span id="students">(laster inn)</span>
+  <div id="count">0</div> 
+  <p>mattestykker!</h2>
+
+  <p class="instruksjon">Kode for tilgang: <b>{{classId}}</b></p>
+  <p class="instruksjon">
+    Alle som er inne: <ol id="students"><li>(laster inn)</li></ol>
   </p>
 </div>
 <script src="/socket.io/socket.io.js"></script>
@@ -17,9 +20,9 @@
       document.getElementById('count').firstChild.data = payload.data.totals;
     }
     if (payload.data.students) {
-      document.getElementById('students').firstChild.data = payload.data.students
+      document.getElementById('students').innerHTML = '<li>' + payload.data.students
       .map(student => student.name)
-      .join(', ');
+      .join('</li><li>');
     }
   });
 </script>

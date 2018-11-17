@@ -1,6 +1,8 @@
 var params;
 var timingLog = [];
 var startTime;
+var doneQuestions = {};
+
 function handleConnect() {
   console.log(arguments);
 }
@@ -75,9 +77,10 @@ function handleAnswer(evt) {
     var duration = Date.now() - startTime;
     elm('p', {}, [document.createTextNode('⭐ ' + problem)], log);
     document.getElementById("stars").className = "bounce";
-    socket.emit("correct-answer", { level: level, name: name, duration: duration });
+    socket.emit("correct-answer", { level: level, name: name, duration: duration, problem: problem });
     setTimeout(nextTask, 600);
     timingLog.push(duration);
+    doneQuestions[problem].duration = duration;
     considerUppingLevel();
   } else {
     document.getElementById("stars").className = "";
@@ -108,6 +111,9 @@ function createNormalMultiplicationTask(div, num1, num2, answer) {
     ],
     div
   );
+  doneQuestions[num1 + ' * ' + num2 + ' = ' + answer] = {
+    seen: true
+  };
   document.getElementsByName('answer')[0].focus();
 }
 
@@ -133,6 +139,10 @@ function createMissingNumMultiplicationTask(div, num1, num2, answer) {
     ],
     div
   );
+  doneQuestions[num1 + ' * ' + num2 + ' = ' + answer] = {
+    seen: true
+  };
+
   document.getElementsByName('answer')[0].focus();
 }
 
@@ -144,7 +154,13 @@ function considerUppingLevel() {
   .reduce(function(total, current){return total + current}, 0);
   var avg = total / timingLog.length;
   console.log(avg);
-  if (timingLog.length >= 20 && avg < 4500) {
+  // going level up is harder at higher levels, easier at low ones
+  if ((level === 0 || level === 1) && avg < 4000) {
+    level++;
+    return;
+  }
+
+  if (timingLog.length >= level * 1.2 && avg < 4500) {
     level ++;
     timingLog.length = 0;
     params.end = level + 2;
