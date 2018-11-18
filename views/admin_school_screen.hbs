@@ -9,6 +9,53 @@
   <div class="col1">
   <div id="count">0</div> 
   <p>stykker!</p>
+  <div id="timer">0:00 <br>
+    <button id="startClock">Start klokke</button>
+    <button id="resetClock">Tilbakestill klokke</button>
+    <script type="text/javascript">
+  (function() {
+    var seconds = 0;
+    var interval;
+    var running = false;
+
+    function resetClock() {
+      seconds = 0;
+      updateUI();
+    };
+
+    function incrementClock() {
+      seconds++;
+      updateUI();
+    }
+
+    function updateUI() {
+      var hours = Math.round(seconds / 3600);
+      var minutes = Math.round((seconds - hours * 3600) / 60);
+      var secs = Math.round(seconds - hours * 3600 - minutes * 60);
+      document.getElementById("timer").firstChild.data =
+        "" +
+        (hours ? hours : "") +
+        minutes +
+        ":" +
+        String(100 + secs).substr(-2);
+    }
+
+     function toggleClock(evt) {
+      if (running) {
+        running = false;
+        clearInterval(interval);
+        evt.target.firstChild.data = "Start klokke";
+      } else {
+        running = true;
+        interval = setInterval(incrementClock, 1000);
+        evt.target.firstChild.data = "Stopp klokke";
+      }
+    };
+    document.getElementById('startClock').onclick = toggleClock;
+    document.getElementById('resetClock').onclick = resetClock;
+  })();
+    </script>
+  </div>
   </div>
   <div class="col2">
   <p class="instruksjon">

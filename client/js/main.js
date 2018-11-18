@@ -1,4 +1,3 @@
-var params;
 var timingLog = [];
 var startTime;
 var doneQuestions = {};
@@ -32,8 +31,9 @@ function nextTask() {
   var div = document.getElementById("tasks");
   div.innerHTML = "";
   div.className = "";
+  var secondNumIncrement = level >= 2 ? level / 2 : 0;
   var num1 = getRandomArbitrary(params.start, params.end);
-  var num2 = getRandomArbitrary(params.start, params.end);
+  var num2 = getRandomArbitrary(params.start, params.end + secondNumIncrement);
   var problem = formatProblem(num1, num2);
   // half-hearted attempt at down-prioritising stuff this student knows well
   // the higher the level, the more we want to avoid well-known stuff
@@ -44,7 +44,7 @@ function nextTask() {
     doneQuestions[problem].known
   ) {
     num1 = getRandomArbitrary(params.start, params.end);
-    num2 = getRandomArbitrary(params.start, params.end);
+    num2 = getRandomArbitrary(params.start, params.end + secondNumIncrement);
     problem = formatProblem(num1, num2);
     attempts--;
   }
@@ -285,6 +285,7 @@ function levelUp() {
   flashLevelUp(level);
   timingLog.length = 0;
   params.end = level + 2;
+  params.start = Math.max(1, level - 5);
 }
 
 function flashLevelUp(level) {

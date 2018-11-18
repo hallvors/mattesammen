@@ -51,7 +51,7 @@ p.instruksjon, #log {
 }
 
 div#count {
-  font-size: 4em;
+  font-size: 3em;
 }
 
 @keyframes jumpy {
@@ -127,7 +127,7 @@ div#count {
 
 .grid button {
   flex: 1 1 30%;
-  font-size: 1.1em;
+  font-size: 1em;
 }
 
 .grid-2 button {
@@ -140,7 +140,7 @@ div#count {
 .gridbtn {
   background: transparent;
   border-radius: 5px;
-  padding: 15px;
+  padding: 10px;
   border-style: solid;
 }
 

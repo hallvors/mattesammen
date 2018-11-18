@@ -20,12 +20,12 @@
   var socket = io('{{{socketConnectURL}}}');
   var name = '{{name}}';
   var school = '{{school}}';
-  var level = {{level}};
+  var level = {{#if level}}{{level}}{{else}}0{{/if}};
   var className = '{{className}}';
   var id = {{id}};
   var classId = {{classId}};
   var params = {
-    start: 1,
+    start: 0,
     end: level + 2,
   };
 </script>
