@@ -126,15 +126,15 @@ div#count {
 }
 
 .grid button {
-  flex: 1 1 33%;
+  flex: 1 1 30%;
   font-size: 1.1em;
 }
 
 .grid-2 button {
-  flex-basis: 50%;
+  flex-basis: 45%;
 }
 .grid-4 button {
-  flex-basis: 25%;
+  flex-basis: 20%;
 }
 
 .gridbtn {

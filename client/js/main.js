@@ -188,7 +188,7 @@ function createMissingNumMultiplicationTask(div, num1, num2, answer) {
 
 function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
   var problem = formatProblem(num1, num2);
-  var gridsize = level <= 5 ? 2 : 3;
+  var gridsize = level <= 5 ? 3 : 4;
   var selectedAnswers = [];
   var numbers = [];
   for (var i = 0; i < gridsize * gridsize; i++) {
