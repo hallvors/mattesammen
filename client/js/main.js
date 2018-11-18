@@ -119,7 +119,11 @@ function handleCorrectAnswer(problem) {
     problem: problem
   });
   setTimeout(nextTask, 600);
-  timingLog.push(duration);
+  // 1 minute threshold, more likely to be "away from computer"
+  // than "struggled to find answer"
+  if (duration < 60000) {
+    timingLog.push(duration);
+  }
   doneQuestions[problem].duration = duration;
   if (duration < 3000) {
     doneQuestions[problem].known = true;
