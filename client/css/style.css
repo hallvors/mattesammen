@@ -7,10 +7,22 @@ h1, h2 {
 }
 h1 {
   font-size: 1.2em;
+  margin: 0;
+}
+h2 {
+  font-size: 1.05em;
+  margin: 0;
 }
 
 body {
-  margin: 10% 15%;
+  margin: 10% 5%;
+  border-radius: 60px;
+}
+.header {
+  border-radius: 60px;
+  text-align: center;
+  background: #eee;
+  border: 6px solid gold;
 }
 
 input, select {
@@ -69,8 +81,7 @@ div#count {
 
 #stars {
   font-size: 2em;
-  text-align: justify;
-  letter-spacing: 0.8em;
+  text-align: center;
 }
 
 #stars span {
@@ -100,7 +111,7 @@ div#count {
 
 .flash {
   position: fixed;
-  bottom: 10%;
+  top: 5%;
   left: 20%;
   right: 20%;
   background: yellow;
@@ -108,16 +119,45 @@ div#count {
   border-radius: 40px;
 }
 
+.grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.grid button {
+  flex: 1 1 33%;
+  font-size: 1.1em;
+}
+
+.grid-2 button {
+  flex-basis: 50%;
+}
+.grid-4 button {
+  flex-basis: 25%;
+}
+
+.gridbtn {
+  background: transparent;
+  border-radius: 5px;
+  padding: 15px;
+  border-style: solid;
+}
+
+.gridbtn.selected {
+  border-color: green;
+  border-width: 3px;
+}
+
 @media screen and (min-width: 900px) {
   body {
     font-size: 3em;
-    margin: 15% 25%;
+    margin: 5% 25%;
   }
   #stars {
     font-size: 1em;
-    text-align: justify;
-    letter-spacing: 0.5em;
+    letter-spacing: 0.4em;
   }
-  .col1 {float: left; width: 45%}
-  .col2 {float: right; width: 45%;}
+  .col1 {float: left; width: 45%; margin-right: 4%; border-right: 1px solid #eee}
+  .col2 {float: right; width: 45%; margin-left: 5%;}
 }

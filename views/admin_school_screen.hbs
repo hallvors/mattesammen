@@ -1,15 +1,19 @@
 <div>
+  <form method="post" action="/api/quit" class="header">
+    <button type="submit" style="float: right;" title="Logg ut">x</button>
+    <h1>⭐ 🌟 {{className}} 🌟 ⭐ </h1>
+    <h2>fra {{school}}</h2>
+    <div class="instruksjon">Kode: <b>{{classId}}</b></div>
+  </form>
+    
   <div class="col1">
-	<h1>⭐ 🌟 {{className}} 🌟 ⭐ </h1>
-	<p>fra {{school}}</p>
-
   <div id="count">0</div> 
-  <p>mattestykker!</p>
+  <p>stykker!</p>
   </div>
   <div class="col2">
-  <p class="instruksjon">Kode for tilgang: <b>{{classId}}</b></p>
   <p class="instruksjon">
-    Alle som er inne: <ol id="students"><li>(laster inn)</li></ol>
+    <h2>Elever:</h2>
+    <ul id="students"><li>(laster inn)</li></ul>
   </p>
 </div>
 </div>
@@ -30,6 +34,3 @@
   });
 </script>
 
-<form method="post" action="/api/quit">
-  <button type="submit">x</button>
-</form>
