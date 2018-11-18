@@ -108,9 +108,9 @@ function handleCorrectAnswer(problem) {
     // user picked two *other* numbers with same product
     doneQuestions[problem] = {seen: true};
   }
-  var log = document.getElementById("log");
+  // var log = document.getElementById("log");
   var duration = Date.now() - startTime;
-  elm("p", {}, [document.createTextNode("⭐ " + problem)], log);
+  // elm("p", {}, [document.createTextNode("⭐ " + problem)], log);
   document.getElementById("stars").className = "bounce";
   socket.emit("correct-answer", {
     level: level,
@@ -209,7 +209,6 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
   }
   if (replaceFirst) {
     i = getRandomArbitrary(0, numbers.length);
-    console.log(numbers.length, 'inserting '+num1+' at ' + i + ', replacing ' + numbers[i])
     numbers.splice(i, 1, num1);
   }
   if (replaceOtherToo) {
@@ -218,7 +217,6 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
       // Whoopsie.. Do not remove num1 to insert num2..!
       i = i < numbers.length - 1 ? i + 1 : 0;
     }
-    console.log(numbers.length, 'inserting '+num2+' at ' + i + ', replacing ' + numbers[i])
     numbers.splice(i, 1, num2);
   }
   elm(
