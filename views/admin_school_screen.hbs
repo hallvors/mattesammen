@@ -29,13 +29,13 @@
     }
 
     function updateUI() {
-      var hours = Math.round(seconds / 3600);
-      var minutes = Math.round((seconds - hours * 3600) / 60);
-      var secs = Math.round(seconds - hours * 3600 - minutes * 60);
+      var hours = Math.floor(seconds / 3600);
+      var minutes = Math.floor((seconds - hours * 3600) / 60);
+      var secs = Math.floor(seconds - hours * 3600 - minutes * 60);
       document.getElementById("timer").firstChild.data =
         "" +
-        (hours ? hours : "") +
-        minutes +
+        (hours ? hours + ":" : "") +
+        (hours ? String(100 + minutes).substr(-2) : minutes) +
         ":" +
         String(100 + secs).substr(-2);
     }
