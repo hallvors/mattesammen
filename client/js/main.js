@@ -268,7 +268,7 @@ function considerUppingLevel() {
   }, 0);
   var avg = total / timingLog.length;
   // going level up is harder at higher levels, easier at low ones
-  if ((level === 0 || level === 1) && avg < 4000) {
+  if ((level === 0 || level === 1) && avg < 6000) {
     return levelUp();
   }
   if ((level === 3 || level === 4) && timingLog.length >= level * 2 && avg < 3500) {
