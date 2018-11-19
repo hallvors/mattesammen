@@ -279,7 +279,9 @@ function considerUppingLevel() {
   // * less than 4,5 seconds of consideration per problem on average
   // * students who have completed lots of problems at this level get
   // level'ed up with worse average.
+  // Students with very low avg rise faster
   if (
+    (avg < 2500 && timingLog.length >= level * 1.5) ||
     (avg < 4500 && timingLog.length >= level * 2.5) ||
     (avg < 5500 && timingLog.length >= level * 5)
   ) {
