@@ -108,9 +108,11 @@ function handleCorrectAnswer(problem) {
     // user picked two *other* numbers with same product
     doneQuestions[problem] = {seen: true};
   }
-  // var log = document.getElementById("log");
+  var log = document.getElementById("log");
   var duration = Date.now() - startTime;
-  // elm("p", {}, [document.createTextNode("⭐ " + problem)], log);
+  if (log.firstChild) {
+    log.insertBefore(elm("p", {}, [document.createTextNode("⭐ " + problem)]), log.firstChild);
+  }
   document.getElementById("stars").className = "bounce";
   socket.emit("correct-answer", {
     level: level,
@@ -269,14 +271,17 @@ function considerUppingLevel() {
   if ((level === 0 || level === 1) && avg < 4000) {
     return levelUp();
   }
-  // for levels above 1, we require
-  // * a certain number of problems completed (> level * 1.2)
+  if ((level === 3 || level === 4) && timingLog.length >= level * 2 && avg < 3500) {
+    return levelUp();
+  }
+  // for levels above 4, we require
+  // * a certain number of problems completed (> level * 2.3)
   // * less than 4,5 seconds of consideration per problem on average
   // * students who have completed lots of problems at this level get
   // level'ed up with worse average.
   if (
-    (timingLog.length >= level * 1.2 && avg < 4500) ||
-    (timingLog.length >= level * 2.5 && avg < 5500)
+    (avg < 4500 && timingLog.length >= level * 2.5) ||
+    (avg < 5500 && timingLog.length >= level * 5)
   ) {
     levelUp();
   }
