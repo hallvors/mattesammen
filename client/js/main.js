@@ -120,7 +120,6 @@ function handleCorrectAnswer(problem) {
     duration: duration,
     problem: problem
   });
-  setTimeout(nextTask, 600);
   // 1 minute threshold, more likely to be "away from computer"
   // than "struggled to find answer"
   if (duration < 60000) {
@@ -131,6 +130,7 @@ function handleCorrectAnswer(problem) {
     doneQuestions[problem].known = true;
   }
   considerUppingLevel();
+  nextTask();
 }
 
 function createNormalMultiplicationTask(div, num1, num2, answer) {
@@ -268,7 +268,10 @@ function considerUppingLevel() {
   }, 0);
   var avg = total / timingLog.length;
   // going level up is harder at higher levels, easier at low ones
-  if ((level === 0 || level === 1) && avg < 6000) {
+  if (level === 0) {
+    return levelUp();
+  }
+  if (level === 1 && avg < 6000) {
     return levelUp();
   }
   if ((level === 3 || level === 4) && timingLog.length >= level * 2 && avg < 3500) {
