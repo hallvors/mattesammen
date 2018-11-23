@@ -146,7 +146,8 @@ div#count {
 
 .gridbtn.selected {
   border-color: green;
-  border-width: 3px;
+  border-width: 5px;
+  background: #eee;
 }
 
 @media screen and (min-width: 900px) {

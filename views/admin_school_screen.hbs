@@ -1,7 +1,16 @@
 <div>
   <form method="post" action="/api/quit" class="header">
     <button type="submit" style="float: right;" title="Logg ut">x</button>
-    <h1>⭐ 🌟 {{className}} 🌟 ⭐ </h1>
+    <div id="stars">
+      <h1>
+          <span class="first">⭐</span>
+          <span class="second">🌟</span>
+          <span class="third">{{className}}</span>
+          <span class="fourth">🌟</span>
+          <span class="third">⭐</span>
+        </div>
+      </h1>
+    </div>
     <h2>fra {{school}}</h2>
     <div class="instruksjon">Klassekode: <b>{{classId}}</b></div>
   </form>
@@ -68,11 +77,13 @@
 <script>
   var socket = io('{{{socketConnectURL}}}');
   socket.on('state', function(payload) {
-    console.log(payload);
     payload = JSON.parse(payload);
     if (payload.data.totals) {
       document.getElementById('count').firstChild.data = payload.data.totals;
     }
+    document.getElementById("stars").className = "bounce";
+    setTimeout(function(){document.getElementById("stars").className = "";}, 800);
+
     if (payload.data.students) {
       document.getElementById('students').innerHTML = '<li>' + payload.data.students
       .map(student => student.name)

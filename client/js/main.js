@@ -23,7 +23,7 @@ socket.on("error", handleError);
 socket.on("disconnect", handleDisconnect);
 socket.on("reconnect", handleReconnect);
 
-function getRandomArbitrary(min, max) {
+function getRandomWholeNumber(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
@@ -32,8 +32,11 @@ function nextTask() {
   div.innerHTML = "";
   div.className = "";
   var secondNumIncrement = level >= 2 ? level / 2 : 0;
-  var num1 = getRandomArbitrary(params.start, params.end);
-  var num2 = getRandomArbitrary(params.start, params.end + secondNumIncrement);
+  var num1 = getRandomWholeNumber(params.start, params.end);
+  var num2 = getRandomWholeNumber(
+    params.start,
+    params.end + secondNumIncrement
+  );
   var problem = formatProblem(num1, num2);
   // half-hearted attempt at down-prioritising stuff this student knows well
   // the higher the level, the more we want to avoid well-known stuff
@@ -43,14 +46,13 @@ function nextTask() {
     doneQuestions[problem] &&
     doneQuestions[problem].known
   ) {
-    num1 = getRandomArbitrary(params.start, params.end);
-    num2 = getRandomArbitrary(params.start, params.end + secondNumIncrement);
+    num1 = getRandomWholeNumber(params.start, params.end);
+    num2 = getRandomWholeNumber(params.start, params.end + secondNumIncrement);
     problem = formatProblem(num1, num2);
     attempts--;
   }
   var answer = num1 * num2;
-  var type = level < 3 ? 1 : getRandomArbitrary(1, 4);
-  document.getElementById("stars").className = "";
+  var type = level < 3 ? 1 : getRandomWholeNumber(1, 4);
   startTime = Date.now();
 
   switch (type) {
@@ -106,14 +108,19 @@ function handleCorrectAnswer(problem) {
   if (!doneQuestions[problem]) {
     // only happens in pick-two-numbers mode where
     // user picked two *other* numbers with same product
-    doneQuestions[problem] = {seen: true};
+    doneQuestions[problem] = { seen: true };
   }
   var log = document.getElementById("log");
   var duration = Date.now() - startTime;
   if (log.firstChild) {
-    log.insertBefore(elm("p", {}, [document.createTextNode("⭐ " + problem)]), log.firstChild);
+    log.insertBefore(
+      elm("p", {}, [document.createTextNode("⭐ " + problem)]),
+      log.firstChild
+    );
   }
+  document.getElementById("count").firstChild.data = log.childNodes.length - 1;
   document.getElementById("stars").className = "bounce";
+  setTimeout(function(){document.getElementById("stars").className = "";}, 800);
   socket.emit("correct-answer", {
     level: level,
     name: name,
@@ -198,11 +205,10 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
   var selectedAnswers = [];
   var numbers = [];
   for (var i = 0; i < gridsize * gridsize; i++) {
-    numbers.push(getRandomArbitrary(0, Math.max(num1, num2) + gridsize));
+    numbers.push(getRandomWholeNumber(0, Math.max(num1, num2) + gridsize));
   }
   // if the numbers we want happen not to be in this array,
   // replace random ones with the ones we need
-  // (Check second number before we insert first in case they are same)
   var replaceFirst = numbers.indexOf(num1) === -1;
   var replaceOtherToo = numbers.indexOf(num2) === -1;
   // If both numbers are the same, our checks can fool us..
@@ -210,31 +216,37 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
     replaceOtherToo = true;
   }
   if (replaceFirst) {
-    i = getRandomArbitrary(0, numbers.length);
+    i = getRandomWholeNumber(0, numbers.length);
     numbers.splice(i, 1, num1);
   }
   if (replaceOtherToo) {
-    i = getRandomArbitrary(0, numbers.length);
+    i = getRandomWholeNumber(0, numbers.length);
     if (numbers[i] === num1) {
       // Whoopsie.. Do not remove num1 to insert num2..!
-      i = i < numbers.length - 1 ? i + 1 : 0;
+      i = i < numbers.length - 2 ? i + 1 : 0;
     }
     numbers.splice(i, 1, num2);
   }
   elm(
     "form",
-    { onsubmit: handleAnswer, 'class': 'grid grid-' + gridsize },
-    [document.createTextNode('Finn to tall du kan multiplisere for å få ' + answer)].concat(numbers.map(function(num) {
-      return elm(
-        "button",
-        {
-          type: "button",
-          onclick: handlePartialAnswer(num1, num2, selectedAnswers),
-          class: "gridbtn unselected"
-        },
-        [document.createTextNode(num)]
-      );
-    })),
+    { onsubmit: handleAnswer, class: "grid grid-" + gridsize },
+    [
+      document.createTextNode(
+        "Finn to tall du kan multiplisere for å få " + answer
+      )
+    ].concat(
+      numbers.map(function(num) {
+        return elm(
+          "button",
+          {
+            type: "button",
+            onclick: handlePartialAnswer(num1, num2, selectedAnswers),
+            class: "gridbtn unselected"
+          },
+          [document.createTextNode(num)]
+        );
+      })
+    ),
     div
   );
   //elm('p', {}, [document.createTextNode(' = ' + answer)], div);
@@ -254,10 +266,12 @@ function handlePartialAnswer(num1, num2, selectedAnswers) {
     if (
       selectedAnswers.length === 2 &&
       ((selectedAnswers.indexOf(num1) > -1 &&
-      selectedAnswers.indexOf(num2) > -1) ||
-      selectedAnswers[0] * selectedAnswers[1] === num1 * num2)
+        selectedAnswers.indexOf(num2) > -1) ||
+        selectedAnswers[0] * selectedAnswers[1] === num1 * num2)
     ) {
-      handleCorrectAnswer(formatProblem(selectedAnswers[0], selectedAnswers[1]));
+      handleCorrectAnswer(
+        formatProblem(selectedAnswers[0], selectedAnswers[1])
+      );
     }
   };
 }
@@ -274,7 +288,11 @@ function considerUppingLevel() {
   if (level === 1 && avg < 6000) {
     return levelUp();
   }
-  if ((level === 3 || level === 4) && timingLog.length >= level * 2 && avg < 3500) {
+  if (
+    (level === 3 || level === 4) &&
+    timingLog.length >= level * 2 &&
+    avg < 3500
+  ) {
     return levelUp();
   }
   // for levels above 4, we require
