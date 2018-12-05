@@ -9,7 +9,7 @@ Enkel nettside for å stimulere til mengdetrening i matematikk i klasse-sammenhe
 ## Bruk
 
 1. Lærer går først til [administrasjons-sida](https://gangesammen.herokuapp.com/adm) og skriver inn navn på skole (for eksempel "Sted skole") og klasse (for eksempel "5A"). Skjermen som da kommer opp, kan elevene se på smartboard e.l.
-2. Elevene går deretter til gangesammen.herokuapp.com og skriver inn klasse-kode (tall som står på administrasjons-skjermen) og navn eller nick
+2. Elevene går deretter til [https://gangesammen.herokuapp.com](gangesammen.herokuapp.com) og skriver inn klasse-kode (tall som står på administrasjons-skjermen) og navn eller nick
 3. Elevene får da oppgaver som må løses fortløpende. Lærer kan velge å bruke stoppeklokke-funksjonen på administrasjons-skjermen til å ta tida.
 4. Administrasjons-skjerm holdes automatisk oppdatert med navn på elevene som er inne og antall oppgaver klassen har løst til sammen.
 
