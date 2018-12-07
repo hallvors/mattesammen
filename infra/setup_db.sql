@@ -2,7 +2,7 @@ CREATE TABLE school_classes (
   id serial PRIMARY KEY,
   school varchar(100) NOT NULL,
   class_name varchar(8) NOT NULL,
-  math_type varchar(20),
+  math_type varchar(20)
 );
 
 CREATE TABLE student_sessions (
