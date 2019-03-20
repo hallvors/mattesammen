@@ -6,13 +6,13 @@ const config = require('./config');
 const jwt = require('jsonwebtoken');
 const {decodeToken} = require('./utils');
 
-router.post('/schools/create', createClass);
+router.post('/schools/create', createClassSession);
 router.post('/taskdone', calcDone);
 router.post('/quit', endSession);
 router.post('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
 
-function createClass(req, res, next) {
+function createClassSession(req, res, next) {
   return config.getDatabaseClient()
   .then(client => {
     return Promise.resolve()
@@ -27,10 +27,10 @@ function createClass(req, res, next) {
         }
 
         return client.query(
-          `INSERT INTO school_classes (school, class_name)
-            VALUES ($1::text, $2::text)
+          `INSERT INTO school_classes (school, class_name, session_type)
+            VALUES ($1::text, $2::text, $3::text)
             RETURNING *
-          `, [req.body.school, req.body.className]
+          `, [req.body.school, req.body.className, req.body.session_type]
         )
       });
     })
@@ -69,6 +69,7 @@ function studentPreInit(req, res, next) {
         classId: res1.rows[0].id,
         school: res1.rows[0].school,
         className: res1.rows[0].class_name,
+        sessionType: res1.rows[0].session_type,
       }, config.jwtSecret));
       client.release();
       res.redirect(301, '/student/navn');

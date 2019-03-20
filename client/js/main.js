@@ -2,6 +2,21 @@ var timingLog = [];
 var startTime;
 var doneQuestions = {};
 
+const SIGNS = {
+  addisjon: '+',
+  subtraksjon: '-',
+  multiplikasjon: '*',
+  divisjon: '/',
+};
+
+const VERBS = {
+  addisjon: 'addere',
+  subtraksjon: 'subtrahere',
+  multiplikasjon: 'multiplisere',
+  divisjon: 'dividere',
+};
+
+
 function handleConnect() {
   console.log(arguments);
 }
@@ -29,6 +44,7 @@ function getRandomWholeNumber(min, max) {
 
 function nextTask() {
   var div = document.getElementById("tasks");
+  var sessionType = window.sessionType;
   div.innerHTML = "";
   div.className = "";
   var secondNumIncrement = level >= 2 ? level / 2 : 0;
@@ -37,7 +53,7 @@ function nextTask() {
     params.start,
     params.end + secondNumIncrement
   );
-  var problem = formatProblem(num1, num2);
+  var problem = formatProblem(sessionType, num1, num2);
   // half-hearted attempt at down-prioritising stuff this student knows well
   // the higher the level, the more we want to avoid well-known stuff
   var attempts = level;
@@ -48,25 +64,40 @@ function nextTask() {
   ) {
     num1 = getRandomWholeNumber(params.start, params.end);
     num2 = getRandomWholeNumber(params.start, params.end + secondNumIncrement);
-    problem = formatProblem(num1, num2);
+    problem = formatProblem(sessionType, num1, num2);
     attempts--;
   }
-  var answer = num1 * num2;
+  var answer = getAnswer(sessionType, num1, num2);
   var type = level < 3 ? 1 : getRandomWholeNumber(1, 4);
   startTime = Date.now();
 
   switch (type) {
     case 1:
-      return createNormalMultiplicationTask(div, num1, num2, answer);
+      return createNormalMathTask(div, sessionType, num1, num2, answer);
     case 2:
-      return createMissingNumMultiplicationTask(div, num1, num2, answer);
+      return createMissingNumMathTask(div, sessionType, num1, num2, answer);
     case 3:
-      return createFindNumbersMultiplicationTask(div, num1, num2, answer);
+      return createFindNumbersMathTask(div, sessionType, num1, num2, answer);
   }
 }
 
-function formatProblem(num1, num2) {
-  return num1 + " * " + num2 + " = " + num1 * num2;
+function getAnswer(type, num1, num2) {
+  switch(type) {
+    case 'addisjon':
+      return num1 + num2;
+    case 'subtraksjon':
+      return num1 - num2;
+    case 'multiplikasjon':
+      return num1 * num2;
+    case 'divisjon':
+      return num1 / num2;
+    default:
+      throw new Error('unknown type');
+  }
+}
+
+function formatProblem(type, num1, num2) {
+  return num1 + ' ' + SIGNS[type] + ' ' + num2 + " = " + getAnswer(type, num1, num2);
 }
 
 function elm(tag, props, children, parent) {
@@ -140,14 +171,14 @@ function handleCorrectAnswer(problem) {
   nextTask();
 }
 
-function createNormalMultiplicationTask(div, num1, num2, answer) {
-  var problem = formatProblem(num1, num2);
+function createNormalMathTask(div, type, num1, num2, answer) {
+  var problem = formatProblem(type, num1, num2);
   elm(
     "form",
     { onsubmit: handleAnswer },
     [
       elm("p", { class: "the_task" }, [
-        document.createTextNode(num1 + " * " + num2 + " = "),
+        document.createTextNode(num1 + ' ' + SIGNS[type] + ' ' + num2 + " = "),
         elm("input", {
           type: "number",
           name: "answer",
@@ -169,14 +200,14 @@ function createNormalMultiplicationTask(div, num1, num2, answer) {
   document.getElementsByName("answer")[0].focus();
 }
 
-function createMissingNumMultiplicationTask(div, num1, num2, answer) {
-  var problem = formatProblem(num1, num2);
+function createMissingNumMathTask(div, type, num1, num2, answer) {
+  var problem = formatProblem(type, num1, num2);
   elm(
     "form",
     { onsubmit: handleAnswer },
     [
       elm("p", { class: "the_task" }, [
-        document.createTextNode(num1 + " * "),
+        document.createTextNode(num1 + ' ' + SIGNS[type] + ' '),
         elm("input", {
           type: "number",
           name: "answer",
@@ -199,8 +230,8 @@ function createMissingNumMultiplicationTask(div, num1, num2, answer) {
   document.getElementsByName("answer")[0].focus();
 }
 
-function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
-  var problem = formatProblem(num1, num2);
+function createFindNumbersMathTask(div, type, num1, num2, answer) {
+  var problem = formatProblem(type, num1, num2);
   var gridsize = level <= 5 ? 3 : 4;
   var selectedAnswers = [];
   var numbers = [];
@@ -232,7 +263,7 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
     { onsubmit: handleAnswer, class: "grid grid-" + gridsize },
     [
       document.createTextNode(
-        "Finn to tall du kan multiplisere for å få " + answer
+        "Finn to tall du kan " + VERBS[type] + " for å få " + answer
       )
     ].concat(
       numbers.map(function(num) {
@@ -240,7 +271,7 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
           "button",
           {
             type: "button",
-            onclick: handlePartialAnswer(num1, num2, selectedAnswers),
+            onclick: handlePartialAnswer(type, num1, num2, selectedAnswers),
             class: "gridbtn unselected"
           },
           [document.createTextNode(num)]
@@ -252,7 +283,7 @@ function createFindNumbersMultiplicationTask(div, num1, num2, answer) {
   //elm('p', {}, [document.createTextNode(' = ' + answer)], div);
 }
 
-function handlePartialAnswer(num1, num2, selectedAnswers) {
+function handlePartialAnswer(type, num1, num2, selectedAnswers) {
   return function(evt) {
     var elm = evt.target;
     var num = parseInt(evt.target.firstChild.data);
@@ -263,14 +294,16 @@ function handlePartialAnswer(num1, num2, selectedAnswers) {
       elm.className = "gridbtn unselected";
       selectedAnswers.splice(selectedAnswers.indexOf(num), 1);
     }
+    // three cases: correct numbers in correct order, correct numbers in any order for task
+    // where order does not matter, OTHER numbers that give the same answer.. Best to just
+    // do a calculation and compare output..
+    var correctAnswer = getAnswer(type, selectedAnswers[0], selectedAnswers[1]) === getAnswer(type, num1, num2)
     if (
       selectedAnswers.length === 2 &&
-      ((selectedAnswers.indexOf(num1) > -1 &&
-        selectedAnswers.indexOf(num2) > -1) ||
-        selectedAnswers[0] * selectedAnswers[1] === num1 * num2)
+      correctAnswer
     ) {
       handleCorrectAnswer(
-        formatProblem(selectedAnswers[0], selectedAnswers[1])
+        formatProblem(type, selectedAnswers[0], selectedAnswers[1])
       );
     }
   };

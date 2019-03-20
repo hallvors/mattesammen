@@ -1,9 +1,23 @@
 
 <h1>Velkommen til mattesammen!</h1>
 <form method="post" action="/api/schools/create">
-  <p><input type="text" name="school" placeholder="Navn skole" required></p>
+  <p><input type="text" name="school" placeholder="Navn skole" maxlength="100" required></p>
   <p>
-    <input type="text" name="className" style="width: 40%" placeholder="1A" required>
+    <input type="text" name="className" style="width: 40%" placeholder="1A" maxlength="8" required>
+  </p>
+  <p>
+    Hvilket rom skal elevene bruke i dag?
+    <br>
+    <select name="session_type">
+      <option value="addisjon">Addisjonsrommet</option>
+      <option value="subtraksjon">Subtraksjonsrommet</option>
+      <option value="multiplikasjon">Multiplikasjonsrommet</option>
+      <option value="divisjon">Divisjonsrommet</option>
+      <option value="geobingo">Geometribingorommet</option>
+    </select>
+  </p>
+  <p>
+
     <button type="submit" class="default-btn positive-btn">Start ✔</button>
   </p>
   <p class="instruksjon">
