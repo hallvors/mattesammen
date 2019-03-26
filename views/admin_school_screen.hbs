@@ -80,6 +80,10 @@
     }
   });
 
+  socket.on('bingo', function(data) {
+    alert('Bingo! ' + data.name );
+  });
+
 </script>
 
 {{/if}}

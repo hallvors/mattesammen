@@ -190,6 +190,7 @@ function listenForDbUpdates(tokenData, ws) {
   pgEvents.on("notification", updateState);
   pgEvents.on("new-bingo-answer", msg => ws.emit('new-bingo-answer', msg));
   pgEvents.on('bingo-card-update', msg => ws.emit('bingo-card-update', msg));
+  pgEvents.on('bingo', msg => ws.emit('bingo', msg));
 
   ws.on("disconnect", () => {
     pgEvents.removeListener("notification", updateState);
