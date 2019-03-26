@@ -76,6 +76,7 @@
         div = elm.appendChild(document.createElement('div'));
         div.className = 'mini-bingo-board';
       }
+      div.innerHTML = '';
       createAndFillGrid(div, data.cards);
     }
   });
