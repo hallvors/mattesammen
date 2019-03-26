@@ -43,12 +43,15 @@ function classroom(req, res, next) {
         [token.id]
       )
       .then(results => {
-        client.release()
+        console.log(results.rows[0])
+        client.release();
+        let sessionType = results.rows[0]['session_type'];
+        let data = config.types.find(type => type.mathType === sessionType);
         let socketConnectURL = '/?token=' + jwt.sign(res.locals.token, config.jwtSecret);
         return res.render('student_tasks_screen', Object.assign({
           layout: 'main',
           socketConnectURL,
-        }, token, results.rows[0]));
+        }, {token}, results.rows[0], data));
       })
       .catch(err => {
         client.release();

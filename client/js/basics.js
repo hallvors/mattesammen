@@ -2,49 +2,15 @@ var timingLog = [];
 var startTime;
 var doneQuestions = {};
 
-const SIGNS = {
-  addisjon: '+',
-  subtraksjon: '-',
-  multiplikasjon: '*',
-  divisjon: '/',
-};
-
-const VERBS = {
-  addisjon: 'addere',
-  subtraksjon: 'subtrahere',
-  multiplikasjon: 'multiplisere',
-  divisjon: 'dividere',
-};
-
-
-function handleConnect() {
-  console.log(arguments);
-}
-
-function handleError() {
-  console.log(arguments);
-}
-
-function handleDisconnect() {
-  console.log(arguments);
-}
-
-function handleReconnect() {
-  console.log(arguments);
-}
-
-socket.on("connect", handleConnect);
-socket.on("error", handleError);
-socket.on("disconnect", handleDisconnect);
-socket.on("reconnect", handleReconnect);
-
-function getRandomWholeNumber(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
+var supportedTypes = ['addisjon', 'subtraksjon', 'multiplikasjon', 'divisjon'];
 
 function nextTask() {
   var div = document.getElementById("tasks");
   var sessionType = window.sessionType;
+  if (!supportedTypes.includes(sessionType)) {
+    // this session type is not supported by main.js
+    throw new Error('Not supported: ' + sessionType);
+  }
   div.innerHTML = "";
   div.className = "";
   var secondNumIncrement = level >= 2 ? level / 2 : 0;
@@ -53,6 +19,11 @@ function nextTask() {
     params.start,
     params.end + secondNumIncrement
   );
+  if (orderIsImportant(sessionType)) {
+    if (num1 < num2) { // make sure num1 is greater if order matters..
+      num1 = [num2, num2 = num1][0];
+    }
+  }
   var problem = formatProblem(sessionType, num1, num2);
   // half-hearted attempt at down-prioritising stuff this student knows well
   // the higher the level, the more we want to avoid well-known stuff
@@ -64,6 +35,11 @@ function nextTask() {
   ) {
     num1 = getRandomWholeNumber(params.start, params.end);
     num2 = getRandomWholeNumber(params.start, params.end + secondNumIncrement);
+    if (orderIsImportant(sessionType)) {
+      if (num1 < num2) { // make sure num1 is greater if order matters..
+        num1 = [num2, num2 = num1][0];
+      }
+    }
     problem = formatProblem(sessionType, num1, num2);
     attempts--;
   }
@@ -97,7 +73,11 @@ function getAnswer(type, num1, num2) {
 }
 
 function formatProblem(type, num1, num2) {
-  return num1 + ' ' + SIGNS[type] + ' ' + num2 + " = " + getAnswer(type, num1, num2);
+  return num1 + ' ' + SIGN + ' ' + num2 + " = " + getAnswer(type, num1, num2);
+}
+
+function orderIsImportant(type) {
+  return type === 'subtraksjon' || type === 'divisjon';
 }
 
 function elm(tag, props, children, parent) {
@@ -178,7 +158,7 @@ function createNormalMathTask(div, type, num1, num2, answer) {
     { onsubmit: handleAnswer },
     [
       elm("p", { class: "the_task" }, [
-        document.createTextNode(num1 + ' ' + SIGNS[type] + ' ' + num2 + " = "),
+        document.createTextNode(num1 + ' ' + SIGN + ' ' + num2 + " = "),
         elm("input", {
           type: "number",
           name: "answer",
@@ -207,7 +187,7 @@ function createMissingNumMathTask(div, type, num1, num2, answer) {
     { onsubmit: handleAnswer },
     [
       elm("p", { class: "the_task" }, [
-        document.createTextNode(num1 + ' ' + SIGNS[type] + ' '),
+        document.createTextNode(num1 + ' ' + SIGN + ' '),
         elm("input", {
           type: "number",
           name: "answer",
@@ -263,7 +243,7 @@ function createFindNumbersMathTask(div, type, num1, num2, answer) {
     { onsubmit: handleAnswer, class: "grid grid-" + gridsize },
     [
       document.createTextNode(
-        "Finn to tall du kan " + VERBS[type] + " for å få " + answer
+        "Finn to tall du kan " + VERB + " for å få " + answer
       )
     ].concat(
       numbers.map(function(num) {

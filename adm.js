@@ -24,7 +24,8 @@ function main(req, res, next) {
 
   } else {
     return res.render('admin_first_screen', {
-      layout: 'main'
+      layout: 'main',
+      types: config.types,
     });
   }
   return config.getDatabaseClient()
@@ -38,7 +39,7 @@ function main(req, res, next) {
       if (result.length) {
         return res.render('admin_school_screen', {
           layout: 'main',
-          details: result[0]
+          details: result[0],
         });
       } else {
         res.cookie('token', '', {
@@ -70,6 +71,8 @@ function status(req, res, next) {
           classId: token.classId,
           details: results.rows[0],
           socketConnectURL: '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
+          bingo: results.rows[0].session_type === 'geobingo',
+          shapeTypes: JSON.stringify(config.SHAPE_DESCS),
         });
       });
     });
