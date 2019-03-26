@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const {decodeToken} = require('./utils');
 
 router.post('/schools/create', createClassSession);
-router.post('/taskdone', calcDone);
 router.post('/quit', endSession);
 router.post('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
@@ -18,8 +17,9 @@ function createClassSession(req, res, next) {
     return Promise.resolve()
     .then(() => {
       return client.query(
-        `SELECT * FROM school_classes WHERE school = $1::text AND class_name = $2::text`,
-        [req.body.school, req.body.className]
+        `SELECT * FROM school_classes
+        WHERE school = $1::text AND class_name = $2::text AND session_type = $3::text`,
+        [req.body.school, req.body.className, req.body.session_type]
       )
       .then(result => {
         if (result.rows.length) {
@@ -45,9 +45,6 @@ function createClassSession(req, res, next) {
       res.redirect(301, '/adm/status');
     });
   });
-}
-
-function calcDone(req, res, next) {
 }
 
 function studentPreInit(req, res, next) {

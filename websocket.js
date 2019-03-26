@@ -47,7 +47,7 @@ function handleConnection(ws) {
     sendFirstData(decoded, ws);
 
     ws.on("correct-answer", msg => {
-      console.log(msg);
+      console.log('correct-answer', msg);
       return config.getDatabaseClient().then(client => {
         return Promise.resolve()
         .then(() => {
@@ -60,9 +60,47 @@ function handleConnection(ws) {
             [msg.level, decoded.id]
           );
         })
-        .then(() => client.release());
+        .then(() => client.release())
+        .then(() => {
+          if (msg.cards) { // Bingo data!
+            pgEvents.emit('bingo-card-update', {
+              id: decoded.id,
+              name: decoded.nick,
+              cards: msg.cards
+            });
+          }
+        });
       });
     });
+    // Geometry-bingo-related data
+    ws.on("new-bingo-answer", msg => {
+      console.log(msg, decoded.classId === msg.classId);
+      if (decoded.classId === msg.classId) {
+        console.log('will emit new-bingo-answer')
+        pgEvents.emit('new-bingo-answer', msg);
+      }
+    });
+    ws.on("bingo", msg => {
+      console.log(msg);
+      if (msg.classId !== decoded.classId) {
+        return;
+      }
+      return config.getDatabaseClient().then(client => {
+        return Promise.resolve()
+        .then(() => {
+          client.query(
+            `
+            UPDATE student_sessions
+            SET level = $1::integer
+            WHERE id = $2::integer
+          `,
+            [msg.level, decoded.id]
+          );
+        })
+        .then(() => client.release());
+      });
+      pgEvents.emit("bingo", {id: decoded.id, nick: decoded.nick});
+    })
   } else {
     debug(`no token provided`);
     sendError(ws, "No token");
@@ -86,7 +124,6 @@ function getState(tokenData) {
         FROM student_sessions
         WHERE class_id = $1::integer
           AND session_date::date = $2::date
-          AND completed_tasks > 0
         `,
             [tokenData.classId, new Date]
           )
@@ -142,7 +179,7 @@ function listenForDbUpdates(tokenData, ws) {
         console.log("will send state", data);
         let state = JSON.stringify({ type: "state", data: data });
         debug(`State: ${state}`);
-        ws.emit("state", state);
+        ws.emit("state", Object.assign(state, msg));
       })
       .catch(err => {
         console.log(err);
@@ -151,6 +188,8 @@ function listenForDbUpdates(tokenData, ws) {
   };
 
   pgEvents.on("notification", updateState);
+  pgEvents.on("new-bingo-answer", msg => ws.emit('new-bingo-answer', msg));
+  pgEvents.on('bingo-card-update', msg => ws.emit('bingo-card-update', msg));
 
   ws.on("disconnect", () => {
     pgEvents.removeListener("notification", updateState);

@@ -14,6 +14,55 @@ pool.on("error", (err, client) => {
   process.exit(-1);
 });
 
+const SESSION_TYPES = [
+   {
+    mathType: 'addisjon',
+    title: 'Addisjonsrommet',
+    sign: '+',
+    verb: 'addere',
+    jsFiles: ['/js/basics.js'],
+  },
+  {
+    mathType: 'subtraksjon',
+    title: 'Subtraksjonsrommet',
+    sign: '-',
+    verb: 'subtrahere',
+    jsFiles: ['/js/basics.js'],
+  },
+  {
+    mathType: 'multiplikasjon',
+    title: 'Multiplikasjonsrommet',
+    sign: '*',
+    verb: 'multiplisere',
+    jsFiles: ['/js/basics.js'],
+  },
+  {
+    mathType: 'divisjon',
+    title: 'Divisjonsrommet',
+    sign: '/',
+    verb: 'dividere',
+    jsFiles: ['/js/basics.js'],
+  },
+  {
+    mathType: 'geobingo',
+    title: 'Geometribingorommet',
+    jsFiles: [
+      '/js/raphael.js',
+      '/js/geobingo.js',
+    ]
+  }
+];
+
+const SHAPE_DESCS = {
+  circle: 'en sirkel',
+  square: 'et kvadrat',
+  rectangle: 'et rektangel',
+  triangle1: 'en likesidet trekant',
+  triangle2: 'en rettvinklet trekant',
+  poly5: 'en femkant',
+  poly6: 'en sekskant',
+}
+
 function getDatabaseClient() {
   return Promise.resolve(pool.connect());
 }
@@ -21,5 +70,7 @@ function getDatabaseClient() {
 module.exports = {
   getDatabaseClient,
   jwtSecret: "wewagfbsignmq1309r",
-  cookieSecret: "342aetsrydhgwewnrepofinsm39r"
+  cookieSecret: "342aetsrydhgwewnrepofinsm39r",
+  types: SESSION_TYPES,
+  SHAPE_DESCS,
 };
