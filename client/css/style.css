@@ -159,6 +159,11 @@ div#count {
   background: #eee;
 }
 
+.mini-bingo-board {
+  display: inline-block;
+  max-width: 260px;
+}
+
 @media screen and (min-width: 900px) {
   body {
     font-size: 3em;
