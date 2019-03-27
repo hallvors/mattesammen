@@ -15,40 +15,18 @@ function main(req, res, next) {
   if (req.cookies.token) {
     try {
       token = jwt.verify(req.cookies.token, config.jwtSecret);
+      console.log(`decoded: ${JSON.stringify(token)}`);
       // Valid token, just enter "classroom"
-      res.redirect(301, '/adm/status');
+      return res.redirect(301, '/adm/status');
     } catch (err) {
       return next(new Error('Invalid token'));
     }
-    console.log(`decoded: ${JSON.stringify(token)}`);
-
   } else {
     return res.render('admin_first_screen', {
       layout: 'main',
       types: config.types,
     });
   }
-  return config.getDatabaseClient()
-  .then(client => {
-    return client.query(
-      `SELECT * FROM school_classes WHERE id = $1::integer`,
-      [token.id]
-    )
-    .then(result => {
-      client.release();
-      if (result.length) {
-        return res.render('admin_school_screen', {
-          layout: 'main',
-          details: result[0],
-        });
-      } else {
-        res.cookie('token', '', {
-          expires: new Date(-100000)
-        });
-        res.send('ikke gyldig tilgang, prøv å laste på nytt')
-      }
-    });
-  });
 }
 
 function status(req, res, next) {
@@ -58,7 +36,7 @@ function status(req, res, next) {
     .then(client => {
       return client.query(
         `SELECT * FROM school_classes sc
-          JOIN student_sessions s ON s.class_id = sc.id
+          LEFT JOIN student_sessions s ON s.class_id = sc.id
           WHERE sc.id = $1::integer`,
         [token.classId]
       )
