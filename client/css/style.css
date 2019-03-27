@@ -164,12 +164,13 @@ div#count {
 }
 
 .bingo #students {
-  list-style-type: none;
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .bingo #students li {
+  list-style-type: none;
   flex: 0 1 20%;
 }
 
