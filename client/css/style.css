@@ -159,6 +159,21 @@ div#count {
   background: #eee;
 }
 
+.bingo p.instruksjon {
+  text-align: center;
+}
+
+.bingo #students {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.bingo #students li {
+  list-style-type: none;
+  flex: 0 1 20%;
+}
+
 /*.mini-bingo-board {
   display: inline-block;
   max-width: 260px;

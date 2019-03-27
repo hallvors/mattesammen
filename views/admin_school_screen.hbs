@@ -8,7 +8,6 @@
   var studentElmMapping = {};
   socket.on('state', function(payload) {
     payload = JSON.parse(payload);
-    console.log(payload)
     if (payload.data.totals) {
       document.getElementById('count').firstChild.data = payload.data.totals;
     }
@@ -29,7 +28,7 @@
 </script>
 
 
-<div>
+<div {{#if bingo}}class="bingo"{{/if}}>
   <form method="post" action="/api/quit" class="header">
     <button type="submit" style="float: right;" title="Logg ut">x</button>
     <div id="stars">
@@ -39,18 +38,16 @@
           <span class="third">{{className}}</span>
           <span class="fourth">🌟</span>
           <span class="third">⭐</span>
-        </div>
-        <div class="class-code-label">Klassekode: <b>{{classId}}</b></div>
       </h1>
     </div>
     <h2>fra {{school}}</h2>
+    <div class="class-code-label">Klassekode: <b>{{classId}}</b></div>
   </form>
  
 {{#if bingo}}
-<h3>Bingo!</h3>
 <div class="instruksjon">
   <span id="geodesc"></span>
-  <br /><button type="submit" class="default-btn positive-btn" id="nextbingo">✔</button>
+  <br /><button type="submit" class="default-btn positive-btn" id="nextbingo">Neste figur ✔</button>
 </div>
 <script src="/js/shared.js"></script>
 <script src="/js/raphael.js"></script>
@@ -67,7 +64,6 @@
   }
 
   socket.on('bingo-card-update', function(data) {
-    console.log(data);
     var name = data.name;
     if (studentElmMapping[name]) {
       var elm = studentElmMapping[name];
@@ -86,8 +82,12 @@
   });
 
 </script>
+<div id="count">0</div>
 
-{{/if}}
+<ul id="students"></ul>
+
+
+{{else}}
   <div class="col1">
   <div id="count">0</div> 
   <p>svar!</p>
@@ -146,4 +146,5 @@
     <ul id="students"></ul>
   </p>
 </div>
+{{/if}}
 </div>
