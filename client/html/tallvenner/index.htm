@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tallvenner</title>
+    <meta charset="utf8" />
+    <style type="text/css">
+      html, body {
+        height: 100%
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+      }
+      body {position: relative;}
+      #dragboard, #answers {
+        position: fixed;
+        left: 0;
+        right: 0;
+      }
+      #dragboard img {
+        height: auto;
+        position: absolute;
+        user-select: none;
+      }
+      #divider {
+        position: fixed;
+        width: 2%;
+        left: 49%;
+        top: 0;
+        bottom: 50%;
+        background-color: #008;
+        color: #fff;
+        font-size: xx-large;
+        text-align: center;
+        padding-top: 5%;
+      }
+      #dragboard{
+        user-select: none;
+        top: 0;
+        bottom: 50%;
+      }
+      #answers {
+        top: 50%;
+        bottom: 0;
+      }
+      #feedback {
+        background: #ee9;
+        text-align: center;
+        font-size: xx-large;
+      }
+      .card {
+        float: left;
+        width: 50%;
+        min-height: 100px;
+        box-sizing: border-box;
+        text-align: center;
+        padding-top: 5%;
+        font-size: xx-large;
+        border: 2px solid;
+      }
+      #c1 {
+        border-color: red;
+        background: #fdd;
+      }
+      #c2 {
+        border-color: green;
+        background: #cfc;
+      }
+      #c3 {
+        border-color: blue;
+        background: #ddf;
+      }
+      #c4 {
+        border-color: yellow;
+        background: #ffd;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dragboard"></div>
+
+    <div id="divider">+</div>
+
+    <div id="answers">
+      <p id="feedback">
+        Dra bamsene slik at noen er på hver side av pluss-tegnet. Velg det
+        regnestykket som passer.
+      </p>
+      <div class="card" id="c1"></div>
+      <div class="card" id="c2"></div>
+      <div class="card" id="c3"></div>
+      <div class="card" id="c4"></div>
+      <audio autoplay></audio>
+    </div>
+
+    <script type="text/javascript">
+      var teddy = "https://media.giphy.com/media/diAhf8bYer76E/giphy.gif";
+      var sum = 10;
+      var rightAnswers = 0;
+      var wrongAnswers = 0;
+      if (location.search.match(/sum=(\d+)/)) {
+        sum = parseInt(RegExp.$1);
+      }
+
+      var possibilities = [];
+
+      for (i = 0; i < sum; i++) {
+        possibilities.push([i, sum - i]);
+        possibilities.push([sum - i, i]);
+      }
+
+      var successSounds = ['bra', 'flink', 'kjempebra', 'knall', 'perfekt'];
+      var failureSounds = ['ops'];
+      var draggedElm, x, y;
+
+      var board = document.getElementById("dragboard");
+      var imgWidth = parseInt(window.innerWidth / 2 / Math.ceil(sum / 2) * 0.8);
+      for (var i = 0; i < sum; i++) {
+        img = document.createElement("img");
+        img.src = teddy;
+        img.id = "t" + i;
+        img.draggable = true;
+        img.width = imgWidth;
+        board.appendChild(img);
+        img.style.left = (imgWidth * i) + "px";
+        console.log(board.getElementsByTagName('img')[0].offsetHeight)
+        img.style.top = 0;
+        if (i > (sum / 2) - 1) {
+          img.style.left = imgWidth * (i - Math.floor(sum / 2)) + "px";
+          img.style.top = (parseInt(board.offsetHeight / 2) + 20) + "px";
+        }
+        img.addEventListener("dragstart", dragstart, false);
+        img.addEventListener("touchstart", dragstart, false);
+      }
+      updateAnswers();
+
+      function dragstart(e) {
+        if (e.dataTransfer) {
+          draggedElm = e.target;
+          e.dataTransfer.dropEffect = "move";
+          x = e.layerX || 0;
+          y = e.layerY || 0;
+        } else if (e.targetTouches) {
+          var img = e.target;
+          var touch = e.targetTouches[0];
+          img.initalX = parseInt(e.target.style.left);
+          img.initalY = parseInt(e.target.style.top);
+          img.initialTouchX = touch.pageX;
+          img.initialTouchY = touch.pageY;
+        }
+        console.log(e);
+      }
+
+      board.addEventListener(
+        "dragover",
+        function(e) {
+          e.preventDefault();
+        },
+        false
+      );
+      board.addEventListener("drop", drop, false);
+      board.addEventListener("touchend", drop, false);
+      board.addEventListener(
+        "touchcancel",
+        function(e) {
+          var img = e.target;
+          if (img && img.draggable && img.initalX) {
+            img.style.left = img.initalX + "px";
+            img.style.top = img.initalY + "px";
+          }
+        },
+        false
+      );
+
+      board.addEventListener(
+        "touchmove",
+        function(e) {
+          var img = e.target;
+          if (img && img.draggable) {
+            var touch = event.targetTouches[0];
+            img.style.left =
+              img.initalX + (touch.pageX - img.initialTouchX) + "px";
+            img.style.top =
+              img.initalY + (touch.pageY - img.initialTouchY) + "px";
+            event.preventDefault();
+          }
+        },
+        false
+      );
+
+      function drop(e) {
+        e.preventDefault();
+        console.log(e);
+        if (draggedElm) {
+          draggedElm.style.left = e.layerX - x + "px";
+          draggedElm.style.top = e.layerY - y + "px";
+          draggedElm = null;
+        }
+        updateAnswers();
+      }
+
+      function rnd(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function updateAnswers() {
+        var left = 0;
+        var right = 0;
+        var dividerX = document.getElementById("divider").offsetLeft;
+        var board = document.getElementById("dragboard");
+        var cards = document
+          .getElementById("answers")
+          .getElementsByClassName("card");
+        for (
+          var elms = board.getElementsByTagName("img"), i = 0, elm;
+          (elm = elms[i]);
+          i++
+        ) {
+          if (parseInt(elm.style.left) < dividerX) {
+            left++;
+          } else {
+            right++;
+          }
+        }
+        board.setAttribute("data-left", left);
+        board.setAttribute("data-right", right);
+        var answers = [[left, right]];
+        while (answers.length < cards.length) {
+          let itemNr = rnd(0, possibilities.length - 1);
+          if (
+            !answers.find(function(item) {
+              return (
+                item[0] === possibilities[itemNr][0] &&
+                item[1] === possibilities[itemNr][1]
+              );
+            })
+          ) {
+            answers.push(possibilities[itemNr]);
+          }
+        }
+        shuffle(answers);
+        for (i = 0; i < cards.length; i++) {
+          cards[i].textContent = answers[i][0] + " + " + answers[i][1];
+          cards[i].setAttribute("data-left", answers[i][0]);
+          cards[i].setAttribute("data-right", answers[i][1]);
+        }
+      }
+
+      document.getElementById('answers').addEventListener('click', function(e) {
+        var card = e.target;
+        var feedbackStr;
+        var audio = document.getElementsByTagName('audio')[0];
+        var feedback = document.getElementById('feedback');
+        if (card.getAttribute('data-left') == board.getAttribute('data-left') &&
+          card.getAttribute('data-right') === board.getAttribute('data-right') ) {
+          feedbackStr = successSounds[rnd(0, successSounds.length - 1)];
+          audio.src = './sounds/' + feedbackStr + '.wav';
+          feedback.textContent = '★ ★ ' + feedbackStr + ' ★ ★';
+          rightAnswers++;
+        } else {
+          feedback.textContent = 'Ops.. prøv en gang til!'
+          audio.src = './sounds/' + failureSounds[rnd(0, failureSounds.length - 1)] + '.wav';
+          wrongAnswers++;
+        }
+
+      }, false);
+
+      function shuffle(array) {
+        var currentIndex = array.length,
+          temporaryValue,
+          randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+      }
+    </script>
+  </body>
+</html>
