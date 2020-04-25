@@ -15,20 +15,25 @@ const pgEvents = new PGEmitter();
 function mount(server) {
   const wss = socketIO(server, { pingInterval: 1000, pingTimeout: 3000 });
   wss.on("connection", handleConnection);
-  return config.getDatabaseClient().then(client => {
-    client.on("notification", msg => {
-      let payload = JSON.parse(msg.payload);
-      console.log("DB update notification", payload);
-      pgEvents.emit("notification", payload);
-    });
+  function pgConnect() {
+    return config.getDatabaseClient().then(client => {
+      client.on("notification", msg => {
+        let payload = JSON.parse(msg.payload);
+        console.log("DB update notification", payload);
+        pgEvents.emit("notification", payload);
+      });
 
-    client.query("LISTEN student_sessions_event", err => {
-      if (err) {
-        client.release();
-        throw err;
-      }
+      client.query("LISTEN student_sessions_event", err => {
+        if (err) {
+          client.release();
+          throw err;
+        }
+      });
     });
-  });
+    // try to maintain the connection if it drops..
+    client.on('error', () => setTimeout(pgConnect, 1000));
+  }
+  return pgConnect();
 }
 
 function handleConnection(ws) {
