@@ -18,7 +18,7 @@
         right: 0;
       }
       #dragboard img {
-        height: auto;
+        width: auto;
         position: absolute;
         user-select: none;
       }
@@ -27,12 +27,11 @@
         width: 2%;
         left: 49%;
         top: 0;
-        bottom: 50%;
+        bottom: 40%;
         background-color: #008;
         color: #fff;
         font-size: xx-large;
         text-align: center;
-        padding-top: 5%;
       }
       #dragboard{
         user-select: none;
@@ -68,7 +67,7 @@
         height: 22vh;
         box-sizing: border-box;
         text-align: center;
-        padding-top: 5%;
+        padding-top: 15px;
         font-size: xx-large;
         border: 2px solid;
       }
@@ -97,8 +96,7 @@
 
     <div id="answers">
       <p id="feedback">
-        Dra bamsene slik at noen er på hver side av streken. Velg det
-        regnestykket som passer.
+
       </p>
       <div class="card" id="c1"></div>
       <div class="card" id="c2"></div>
@@ -114,40 +112,88 @@
       var wrongAnswers = 0;
       if (location.search.match(/sum=(\d+)/)) {
         sum = parseInt(RegExp.$1);
+        if (sum < 4) {sum = 4;} else if(sum > 50) {sum = 50;}
       }
-
-      var possibilities = [];
-
-      for (i = 0; i < sum; i++) {
-        possibilities.push([i, sum - i]);
-        possibilities.push([sum - i, i]);
-      }
+      var taskTypeIndex = 0;
 
       var successSounds = ['bra', 'flink', 'kjempebra', 'knall', 'perfekt'];
       var failureSounds = ['ops'];
       var draggedElm, x, y;
 
       var board = document.getElementById("dragboard");
-      // width: we want to fill ca half of the screen with two rows of images.
-      var imgWidth = parseInt(window.innerWidth / 2 / Math.ceil(sum / 2) * 0.9);
-      for (var i = 0; i < sum; i++) {
+
+      function renderTeddys(leftNum, rightNum, draggable) {
+        console.log({leftNum, rightNum, draggable})
+        while (board.firstChild){
+          board.removeChild(board.firstChild);
+        }
+        var hwRatio = 1;  // conveniently the img is square
+        var heigh = board.offsetHeight * 0.8;
+        var width = board.offsetWidth;
+        var divider = document.getElementById('divider');
+        var wHalf = (width - divider.offsetWidth) / 2;
+        var rows = 1; // see if they fit in two rows..
+        var teddyHeight = (heigh / rows) * 0.9;
+        var teddyWidth = teddyHeight * hwRatio;
+        var cols = Math.floor(wHalf / teddyWidth);
+        var img;
+        while(leftNum > cols * rows || rightNum > cols * rows) {
+          rows++;
+          teddyHeight = (heigh / rows) * 0.9;
+          teddyWidth = teddyHeight * hwRatio;
+          cols = Math.floor(wHalf / teddyWidth);
+        }
+        while (rows * teddyHeight > heigh) {
+          teddyHeight *= 0.9;
+          teddyWidth = teddyHeight * hwRatio;
+        }
+        // If we just shrank the teddy some more, maybe it will
+        // fit in one less row after all..
+        if (Math.max(leftNum, rightNum) / (rows - 1) * teddyWidth < wHalf) {
+          rows--;
+        }
+        for (var i = 0; i < cols; i++) outer1: {
+          for (var j = 0; j < rows; j++) {
+            if (leftNum) {
+              makeTeddy(teddyHeight,
+                i * teddyHeight,
+                j * teddyHeight + 25,
+                {draggable: draggable}
+              );
+              leftNum--;
+            } else {
+              break outer1;
+            }
+          }
+        }
+        for (var i = 0; i < cols; i++) outer2: {
+          for (var j = 0; j < rows; j++) {
+            if (rightNum) {
+              makeTeddy(teddyHeight,
+                (i * teddyHeight) + divider.offsetLeft + divider.offsetWidth,
+                j * teddyHeight,
+                {draggable: draggable}
+              );
+              rightNum--;
+            } else {
+              break outer2;
+            }
+          }
+        }
+      }
+      function makeTeddy(height, x, y, options) {
         img = document.createElement("img");
         img.src = teddy;
-        img.id = "t" + i;
-        img.draggable = true;
-        img.width = imgWidth;
+        img.draggable = options.draggable;
+        img.style.height = height + 'px';
         board.appendChild(img);
-        img.style.left = (imgWidth * i) + "px";
-        console.log(board.getElementsByTagName('img')[0].offsetHeight)
-        img.style.top = 0;
-        if (i > (sum / 2) - 1) {
-          img.style.left = imgWidth * (i - Math.floor(sum / 2)) + "px";
-          img.style.top = (parseInt(board.offsetHeight / 2) + 20) + "px";
+        if (options.draggable) {
+          img.addEventListener("dragstart", dragstart, false);
+          img.addEventListener("touchstart", dragstart, false);
         }
-        img.addEventListener("dragstart", dragstart, false);
-        img.addEventListener("touchstart", dragstart, false);
+        img.style.top = y + 'px';
+        img.style.left = x + 'px'
       }
-      updateAnswers();
 
       function dragstart(e) {
         if (e.dataTransfer) {
@@ -163,7 +209,6 @@
           img.initialTouchX = touch.pageX;
           img.initialTouchY = touch.pageY;
         }
-        console.log(e);
       }
 
       board.addEventListener(
@@ -205,20 +250,133 @@
 
       function drop(e) {
         e.preventDefault();
-        console.log(e);
+        var localX = e.layerX;
+        var localY = e.layerY;
+        var droppedOnImage = false;
+        if (e.target.tagName === 'IMG') {
+          localX += e.target.offsetLeft;
+          localY += e.target.offsetTop;
+          droppedOnImage = true;
+        }
         if (draggedElm) {
-          draggedElm.style.left = e.layerX - x + "px";
-          draggedElm.style.top = e.layerY - y + "px";
+          draggedElm.style.left = localX - x + "px";
+          draggedElm.style.top = localY - y + "px";
+          if (droppedOnImage) {
+            draggedElm.style.zIndex = parseInt(e.target.style.zIndex || 0) + 1;
+          }
           draggedElm = null;
         }
-        updateAnswers();
+        updateCards();
       }
 
       function rnd(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
-      function updateAnswers() {
+      var taskTypes = [
+        {
+          name: 'drag-and-choose',
+          helprecording: 'hjelp-1',
+          help: 'Velg det regnestykket som passer. Du kan også flytte bamsene og lage dine egne regnestykker.',
+          render: function() {
+            document.getElementById('feedback').textContent = this.help;
+            var list = this.calculateAllPossibilities(sum);
+            var random = list[rnd(0, list.length - 1)];
+            renderTeddys(random[0], random[1], true);
+            updateCards(this.getPossibleAnswers(4));
+          },
+          calculateAllPossibilities: function(sum) {
+              var possibilities = [];
+              for (i = 0; i < sum; i++) {
+                possibilities.push([i, sum - i]);
+                possibilities.push([sum - i, i]);
+              }
+              return possibilities;
+          },
+          getPossibleAnswers: function(num) {
+            var divider = document.getElementById('divider');
+            var left = 0, right = 0;
+            for (
+              var elms = board.getElementsByTagName("img"), i = 0, elm;
+              (elm = elms[i]);
+              i++
+            ) {
+              if (parseInt(elm.style.left) < divider.offsetLeft) {
+                left++;
+              } else {
+                right++;
+              }
+            }
+            var answers = [{
+              left: left,
+              right: right,
+              text: left + ' + ' + right,
+              correct: true,
+            }];
+            var possibilities = this.calculateAllPossibilities(sum);
+            while (answers.length < num) {
+              let itemNr = rnd(0, possibilities.length - 1);
+              if (
+                !answers.find(function(item) {
+                  return (
+                    item.left === possibilities[itemNr][0] &&
+                    item.right === possibilities[itemNr][1]
+                  );
+                })
+              ) {
+                answers.push({
+                  left: possibilities[itemNr][0],
+                  right: possibilities[itemNr][1],
+                  text: possibilities[itemNr][0] + ' + ' + possibilities[itemNr][1],
+                });
+              }
+            }
+            shuffle(answers);
+            return answers;
+          },
+          checkAnswer: function(left, right) {
+            return (left == board.getAttribute('data-left') &&
+              right === board.getAttribute('data-right') ) ||
+              (left == board.getAttribute('data-right') &&
+                right === board.getAttribute('data-left') );
+          }
+        },
+        {
+          name: 'missing-bears',
+          helprecording: 'hjelp-2',
+          help: 'Hvor mange bjørner mangler det her for å få ' + sum + '?',
+          render: function() {
+            document.getElementById('feedback').textContent = this.help;
+            var random = rnd(0, sum);
+            renderTeddys(random, 0, false, false);
+            updateCards(this.getPossibleAnswers(4));
+          },
+          getPossibleAnswers: function(num) {
+            var left = board.getElementsByTagName('img').length;
+            var right = sum - left;
+            var answers = [{left: left, right: right, text: right, correct: true}];
+            while(answers.length < num) {
+              var random = rnd(0, sum);
+              if (!answers.find(function(item){ return item.text === random})) {
+                answers.push({
+                  left: 0, right: 0, text: random
+                });
+              }
+            }
+            return answers;
+          },
+          checkAnswer: function(left, right) {
+            var correct = right === board.getAttribute('data-right');
+            if (correct) {
+              renderTeddys(parseInt(left), parseInt(right), false);
+            }
+            return correct;
+          }
+        }
+      ]
+
+
+      function updateCards() {
         var left = 0;
         var right = 0;
         var dividerX = document.getElementById("divider").offsetLeft;
@@ -226,38 +384,15 @@
         var cards = document
           .getElementById("answers")
           .getElementsByClassName("card");
-        for (
-          var elms = board.getElementsByTagName("img"), i = 0, elm;
-          (elm = elms[i]);
-          i++
-        ) {
-          if (parseInt(elm.style.left) < dividerX) {
-            left++;
-          } else {
-            right++;
-          }
-        }
-        board.setAttribute("data-left", left);
-        board.setAttribute("data-right", right);
-        var answers = [[left, right]];
-        while (answers.length < cards.length) {
-          let itemNr = rnd(0, possibilities.length - 1);
-          if (
-            !answers.find(function(item) {
-              return (
-                item[0] === possibilities[itemNr][0] &&
-                item[1] === possibilities[itemNr][1]
-              );
-            })
-          ) {
-            answers.push(possibilities[itemNr]);
-          }
-        }
-        shuffle(answers);
+        var answers = taskTypes[taskTypeIndex].getPossibleAnswers(cards.length);
         for (i = 0; i < cards.length; i++) {
-          cards[i].textContent = answers[i][0] + " + " + answers[i][1];
-          cards[i].setAttribute("data-left", answers[i][0]);
-          cards[i].setAttribute("data-right", answers[i][1]);
+          cards[i].textContent = answers[i].text;
+          cards[i].setAttribute("data-left", answers[i].left);
+          cards[i].setAttribute("data-right", answers[i].right);
+          if (answers[i].correct) {
+            board.setAttribute("data-left", answers[i].left);
+            board.setAttribute("data-right", answers[i].right);
+          }
         }
       }
 
@@ -266,15 +401,16 @@
         var feedbackStr;
         var audio = document.getElementsByTagName('audio')[0];
         var feedback = document.getElementById('feedback');
-        var correct = (card.getAttribute('data-left') == board.getAttribute('data-left') &&
-          card.getAttribute('data-right') === board.getAttribute('data-right') ) ||
-          (card.getAttribute('data-left') == board.getAttribute('data-right') &&
-            card.getAttribute('data-right') === board.getAttribute('data-left') );
+        var correct = taskTypes[taskTypeIndex].checkAnswer(
+          card.getAttribute('data-left'),
+          card.getAttribute('data-right'),
+        );
         if (correct) {
           feedbackStr = successSounds[rnd(0, successSounds.length - 1)];
           audio.src = '/sounds/' + feedbackStr + '.wav';
           feedback.textContent = '★ ★ ' + feedbackStr + ' ★ ★';
           rightAnswers++;
+          setTimeout(renderNextChallenge, 2000 / (1 + rightAnswers / 100));
         } else {
           feedback.textContent = 'Ops.. prøv en gang til!'
           audio.src = '/sounds/' + failureSounds[rnd(0, failureSounds.length - 1)] + '.wav';
@@ -302,6 +438,14 @@
 
         return array;
       }
+
+      function renderNextChallenge() {
+        if (rightAnswers > 10) { // do some basic ones first..
+          taskTypeIndex = rnd(0, taskTypes.length - 1);
+        }
+        taskTypes[taskTypeIndex].render();
+      }
+      renderNextChallenge();
       successSounds.concat(failureSounds).forEach(function (sound) {
         var head = document.getElementsByTagName('head')[0];
         var meta = head.appendChild(document.createElement('meta'));
