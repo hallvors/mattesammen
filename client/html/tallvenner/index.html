@@ -253,12 +253,12 @@
         if (card.getAttribute('data-left') == board.getAttribute('data-left') &&
           card.getAttribute('data-right') === board.getAttribute('data-right') ) {
           feedbackStr = successSounds[rnd(0, successSounds.length - 1)];
-          audio.src = './sounds/' + feedbackStr + '.wav';
+          audio.src = '/sounds/' + feedbackStr + '.wav';
           feedback.textContent = '★ ★ ' + feedbackStr + ' ★ ★';
           rightAnswers++;
         } else {
           feedback.textContent = 'Ops.. prøv en gang til!'
-          audio.src = './sounds/' + failureSounds[rnd(0, failureSounds.length - 1)] + '.wav';
+          audio.src = '/sounds/' + failureSounds[rnd(0, failureSounds.length - 1)] + '.wav';
           wrongAnswers++;
         }
 
