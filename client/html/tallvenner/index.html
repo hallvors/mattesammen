@@ -283,6 +283,12 @@
 
         return array;
       }
+      successSounds.concat(failureSounds).forEach(function (sound) {
+        var head = document.getElementsByTagName('head')[0];
+        var meta = head.appendChild(document.createElement('meta'));
+        meta.rel = 'preload';
+        meta.href = '/sounds/' + sound + '.wav';
+      });
     </script>
   </body>
 </html>

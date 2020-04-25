@@ -21,6 +21,8 @@ app.use('/favicons', express.static('client/favicons'));
 app.use('/images', express.static('client/images'));
 app.use('/css', express.static('client/css'));
 app.use('/js', express.static('client/js'));
+app.use('/sounds', express.static('client/sounds'));
+app.use('/sider', express.static('client/html'));
 
 const api = require('./api').router;
 app.use('/api', api);
