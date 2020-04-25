@@ -6,7 +6,7 @@
     <meta charset="utf8" />
     <style type="text/css">
       html, body {
-        height: 100%
+        height: 100vh;
         overflow: hidden;
         margin: 0;
         padding: 0;
@@ -37,11 +37,13 @@
       #dragboard{
         user-select: none;
         top: 0;
-        bottom: 50%;
+        bottom: 40%;
       }
       #answers {
-        top: 50%;
+        top: 40%;
         bottom: 0;
+        display: flex;
+        flex-wrap: wrap;
       }
       #feedback {
         background: #ee9;
@@ -49,17 +51,21 @@
         font-size: xx-large;
         padding: 10px;
         margin: 0;
+        flex-grow: 2;
+        flex-basis: 100%;
       }
       @media screen and (orientation:portrait) {
         #feedback {
-          font-size: large;
+          font-size: initial;
+        }
+        body {
+          height: 95vh;
         }
       }
       .card {
-        float: left;
+        flex: 1 0 auto;
         width: 50%;
-        height: 24vh;
-        min-height: 100px;
+        height: 22vh;
         box-sizing: border-box;
         text-align: center;
         padding-top: 5%;
@@ -87,11 +93,11 @@
   <body>
     <div id="dragboard"></div>
 
-    <div id="divider">+</div>
+    <div id="divider"></div>
 
     <div id="answers">
       <p id="feedback">
-        Dra bamsene slik at noen er på hver side av pluss-tegnet. Velg det
+        Dra bamsene slik at noen er på hver side av streken. Velg det
         regnestykket som passer.
       </p>
       <div class="card" id="c1"></div>
@@ -260,8 +266,11 @@
         var feedbackStr;
         var audio = document.getElementsByTagName('audio')[0];
         var feedback = document.getElementById('feedback');
-        if (card.getAttribute('data-left') == board.getAttribute('data-left') &&
-          card.getAttribute('data-right') === board.getAttribute('data-right') ) {
+        var correct = (card.getAttribute('data-left') == board.getAttribute('data-left') &&
+          card.getAttribute('data-right') === board.getAttribute('data-right') ) ||
+          (card.getAttribute('data-left') == board.getAttribute('data-right') &&
+            card.getAttribute('data-right') === board.getAttribute('data-left') );
+        if (correct) {
           feedbackStr = successSounds[rnd(0, successSounds.length - 1)];
           audio.src = '/sounds/' + feedbackStr + '.wav';
           feedback.textContent = '★ ★ ' + feedbackStr + ' ★ ★';
