@@ -87,6 +87,11 @@
         border-color: yellow;
         background: #ffd;
       }
+      #play_help {
+        position: absolute;
+        right: 10px;
+        z-index: 1;
+      }
     </style>
   </head>
   <body>
@@ -96,7 +101,9 @@
 
     <div id="answers">
       <p id="feedback">
-
+        Velkommen!
+        <audio autoplay id="helpaudio">Lyd kan ikke spilles :(</audio>
+        <button onclick="playHelp(event)" id="play_help">🔊</button>
       </p>
       <div class="card" id="c1"></div>
       <div class="card" id="c2"></div>
@@ -116,7 +123,18 @@
       }
       var taskTypeIndex = 0;
 
-      var successSounds = ['bra', 'flink', 'kjempebra', 'knall', 'perfekt'];
+      var successSounds = [
+        'bra',
+        'flink',
+        'kjempebra',
+        'knall',
+        'perfekt',
+        'supert',
+        'superdupert',
+        'du_er_så_flink',
+        'bra_jobba',
+        'veldig_bra'
+      ];
       var failureSounds = ['ops'];
       var draggedElm, x, y;
 
@@ -279,7 +297,7 @@
           helprecording: 'hjelp-1',
           help: 'Velg det regnestykket som passer. Du kan også flytte bamsene og lage dine egne regnestykker.',
           render: function() {
-            document.getElementById('feedback').textContent = this.help;
+            document.getElementById('feedback').firstChild.data = this.help;
             var list = this.calculateAllPossibilities(sum);
             var random = list[rnd(0, list.length - 1)];
             renderTeddys(random[0], random[1], true);
@@ -344,9 +362,9 @@
         {
           name: 'missing-bears',
           helprecording: 'hjelp-2',
-          help: 'Hvor mange bjørner mangler det her for å få ' + sum + '?',
+          help: 'Hvor mange bamser mangler det her for å få ' + sum + '?',
           render: function() {
-            document.getElementById('feedback').textContent = this.help;
+            document.getElementById('feedback').firstChild.data = this.help;
             var random = rnd(0, sum);
             renderTeddys(random, 0, false, false);
             updateCards(this.getPossibleAnswers(4));
@@ -408,11 +426,11 @@
         if (correct) {
           feedbackStr = successSounds[rnd(0, successSounds.length - 1)];
           audio.src = '/sounds/' + feedbackStr + '.wav';
-          feedback.textContent = '★ ★ ' + feedbackStr + ' ★ ★';
+          feedback.firstChild.data = '★ ★ ' + feedbackStr.replace(/_/g, ' ') + ' ★ ★';
           rightAnswers++;
           setTimeout(renderNextChallenge, 2000 / (1 + rightAnswers / 100));
         } else {
-          feedback.textContent = 'Ops.. prøv en gang til!'
+          feedback.firstChild.data = 'Ops.. prøv en gang til!'
           audio.src = '/sounds/' + failureSounds[rnd(0, failureSounds.length - 1)] + '.wav';
           wrongAnswers++;
         }
@@ -452,6 +470,12 @@
         meta.rel = 'preload';
         meta.href = '/sounds/' + sound + '.wav';
       });
+      function playHelp(evt) {
+        document.getElementById('helpaudio').src = '/sounds/' + taskTypes[taskTypeIndex].helprecording + '.wav';
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.cancelBubble = true;
+      }
     </script>
   </body>
 </html>
