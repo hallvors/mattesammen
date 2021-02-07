@@ -203,7 +203,7 @@
 					var paths = finalizedPaths.filter(function (path) {
 						return path.contains(event.point) && path !== initPath;
 					});
-					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'no-drop' : 'pointer';
+					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'no-drop' : 'unset';
 				}
 			}
 
