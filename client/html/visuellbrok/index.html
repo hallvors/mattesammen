@@ -4,44 +4,72 @@
 		<script src="/js/paper-full.min.js"></script>
 
 		<script type="text/paperscript" data-paper-canvas="thecanvas">
+			tool.minDistance = 5;
 			var path;
-			var initPoint;
 			var initPath;
-			var tool;
+			var activeTool;
 			var drawnPaths = [];
 			var finalizedPaths = [];
+			var COLOR_SELECTED = 'lightblue';
+			var COLOR_UNSELECTED = 'white';
 			project.currentStyle.strokeWidth = 4;
+
 			function onMouseDown(event) {
 				var insidePath = finalizedPaths.find(function (path) {
 					return path.contains(event.point);
 				});
-				if (tool === "sirkel" || tool === "kvadrat") {
+				if (activeTool === "sirkel" || activeTool === "kvadrat") {
 					if (insidePath) {
 						return;
 					}
-				} else if (tool === "strek" && insidePath && !insidePath.data.final) {
-					insidePath.data.divisions++;
-					redrawDivisions(insidePath, event.point);
-				} else if (tool === 'farge' && insidePath) {
-					console.log('calls hitTest')
+				} else if (activeTool === "strek" && insidePath) {
+					if (insidePath.data.group) {
+						var selected = 0;
+						insidePath.data.group.children.forEach(function(child) {
+							if (child.data.active) {
+								selected ++;
+							}
+						});
+						if (selected) {
+							var num = prompt('Utvid brøken ... ganger?')
+							if (num) {
+								num = parseInt(num);
+								if (!isNaN(num)) {
+									insidePath.data.divisions = ((insidePath.data.divisions + 1) * num) - 1;
+									redrawDivisions(insidePath, event.point, num);
+								}
+							}
+						} else {
+							insidePath.data.divisions++;
+							redrawDivisions(insidePath, event.point);
+						}
+					}
+				} else if (activeTool === 'farge' && insidePath) {
 					var result = project.hitTest(event.point);
-					console.log(result)
 					if (result) {
 						if(result.item.data.active) {
-							result.item.fillColor = 'white';
+							result.item.fillColor = COLOR_UNSELECTED;
 							result.item.data.active = false;
 						} else {
-							result.item.fillColor = 'lightblue';
+							result.item.fillColor = COLOR_SELECTED;
 							result.item.data.active = true;
 						}
 					}
+				} else if (activeTool === 'flytt' && insidePath) {
+					initPath = insidePath;
 				}
-				initPoint = event.point;
 			}
 
-			function redrawDivisions(path, point) {
+			function redrawDivisions(path, point, expandsBy) {
 				console.log("redraw", path, point);
 				var divisions = path.data.divisions;
+				var selected = path.data.group.children.map(function(child) {
+					if (expandsBy) {
+						return Array(expandsBy).fill(child.data.active)
+					}
+					return child.data.active
+				})
+				.flat();
 				path.data.group.removeChildren();
 				if (divisions === 0) {
 					return;
@@ -50,18 +78,17 @@
 					var distance = path.length / (divisions + 1);
 					var nearestPoint = path.getNearestPoint(point);
 					var initialPoint = nearestPoint;
-	console.log(path.getOffsetOf(nearestPoint), divisions, distance)
 					for (var i = 0; i < divisions + 1; i++) {
 						// draws from center to circle
 						var line = new Path(path.interiorPoint, nearestPoint);
 						line.strokeColor = "darkblue";
-						line.fillColor = "white";
+						line.data.active = selected[i];
+						line.fillColor = selected[i] ? COLOR_SELECTED : COLOR_UNSELECTED;
 						path.data.group.addChild(line);
 						// for best fit to circle, we draw the line in parts
 						for(var j = 1; j <= 3; j++) {
 							var firstOffset = wrap(((distance / 6) * 1) + path.getOffsetOf(nearestPoint) , path.length);
 							var nextOffset = wrap(((distance / 6) * 2) + path.getOffsetOf(nearestPoint), path.length);
-							console.log({firstOffset: firstOffset, nextOffset: nextOffset, i:i, j: j}, path.getPointAt(firstOffset), path.getPointAt(nextOffset));
 							line.curveTo(path.getPointAt(firstOffset), path.getPointAt(nextOffset))
 							nearestPoint = path.getPointAt(nextOffset);
 						}
@@ -95,6 +122,7 @@
 					var rowHeight = sideLength / rows;
 					var columnWidth = sideLength / columns;
 					console.log({cells: cells, rows: rows, columns: columns, rowHeight: rowHeight, columnWidth: columnWidth})
+					var cellIdx = 0;
 					for (var i = 0; i < rows; i++) {
 						// outer loop for rows
 						for (var j = 0; j < columns; j++) {
@@ -109,20 +137,22 @@
 							];
 							var line = new Path(points);
 							line.strokeColor = 'darkblue';
-							line.fillColor = 'white';
+							line.data.active = selected[cellIdx];
+							line.fillColor = selected[cellIdx] ? COLOR_SELECTED : COLOR_UNSELECTED;
 							path.data.group.addChild(line);
+							cellIdx++;
 						}
 					}
 				}
 			}
 
 			function onMouseDrag(event) {
-				if (tool && initPoint) {
-					var diffX = Math.abs(event.point.x - initPoint.x);
-					var diffY = Math.abs(event.point.y - initPoint.y);
+				if (['sirkel', 'kvadrat'].includes(activeTool) && event.downPoint) {
+					var diffX = Math.abs(event.point.x - event.downPoint.x);
+					var diffY = Math.abs(event.point.y - event.downPoint.y);
 					var maxDiff = Math.max(diffX, diffY);
 					var newPath = new Path.Circle({
-						center: initPoint,
+						center: event.downPoint,
 						radius: maxDiff,
 					});
 					if (
@@ -130,22 +160,21 @@
 							return path.intersects(newPath);
 						})
 					) {
-						console.log("collides with existing!");
 						return;
 					}
 
-					if (tool === "sirkel") {
+					if (activeTool === "sirkel") {
 						var path = new Path.Circle({
-							center: initPoint,
+							center: event.downPoint,
 							radius: maxDiff,
 							strokeColor: 'black',
 							fillColor: 'white'
 						})
-						path.data.type = tool;
+						path.data.type = activeTool;
 						drawnPaths.push(path);
-					} else if (tool === "kvadrat") {
-						var x = initPoint.x - maxDiff / 2;
-						var y = initPoint.y - maxDiff / 2;
+					} else if (activeTool === "kvadrat") {
+						var x = event.downPoint.x - maxDiff / 2;
+						var y = event.downPoint.y - maxDiff / 2;
 						var rect = new Rectangle(
 							new Point(x, y),
 							new Size(maxDiff, maxDiff)
@@ -153,7 +182,7 @@
 						var path = new Path.Rectangle(rect);
 						path.strokeColor = 'black';
 						path.fillColor = 'white';
-						path.data.type = tool;
+						path.data.type = activeTool;
 						drawnPaths.push(path);
 					}
 
@@ -168,20 +197,69 @@
 					drawnPaths = drawnPaths.filter(function (path) {
 						return Boolean(path._parent);
 					});
+				} else if (activeTool === 'flytt' && initPath) {
+					initPath.position += event.delta;
+					initPath.data.group.position += event.delta;
+					var paths = finalizedPaths.filter(function (path) {
+						return path.contains(event.point) && path !== initPath;
+					});
+					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'no-drop' : 'pointer';
 				}
 			}
 
 			function onMouseUp(event) {
-				console.log("up!", tool);
 				drawnPaths.forEach(function (path) {
-					if (!path.data.divisions) {
+					if (typeof path.data.divisions === 'undefined') {
 						path.data.divisions = 0;
-						path.data.final = false;
+						path.data.selected = 0;
 						path.data.group = new Group();
+						path.data.group.blendMode = 'darken';
+						path.blendMode = 'darken';
 					}
 				});
+				if (initPath) {
+					var paths = finalizedPaths.filter(function (path) {
+						return path.contains(event.point) && path !== initPath;
+					});
+					if (paths[0] && paths[0].data.divisions === initPath.data.divisions) {
+						var dropPath = paths[0];
+						var numerator = dropPath.data.group.children.concat(initPath.data.group.children).reduce(function(sum, current){
+							return current.data.active ? sum + 1 : sum;
+						}, 0);
+						dropPath.data.group.children.forEach(function(path){
+							if (numerator) {
+								path.data.active = true;
+								path.fillColor = COLOR_SELECTED;
+								numerator--;
+							} else {
+								path.data.active = false;
+								path.fillColor = COLOR_UNSELECTED;
+							}
+						});
+						if (numerator) { // sum is greater than one
+							initPath.data.group.children.forEach(function(path){
+								if (numerator) {
+									path.data.active = true;
+									path.fillColor = COLOR_SELECTED;
+									numerator--;
+								} else {
+									path.data.active = false;
+									path.fillColor = COLOR_UNSELECTED;
+								}
+							});
+							initPath.position.x += dropPath.bounds.width;
+							initPath.data.group.position.x += dropPath.bounds.width;
+						} else {
+							initPath.data.group.removeChildren();
+							initPath.remove();
+							finalizedPaths = finalizedPaths.filter(function(path) {
+								return Boolean(path._parent);
+							});
+						}
+					}
 
-				initPoint = null;
+					initPath = null;
+				}
 				finalizedPaths = finalizedPaths.concat(drawnPaths);
 				drawnPaths = [];
 			}
@@ -199,13 +277,13 @@
 		function deActivate(){document.querySelector('.active').className = '';}
 		function activate(evt) {
 			deActivate();
-			tool = evt.target.id;
+			activeTool = evt.target.id;
 			evt.target.className = 'active';
 		}
-		['sirkel', 'strek', 'kvadrat', 'farge'].forEach(function(prop) {
+		['sirkel', 'strek', 'kvadrat', 'farge', 'flytt'].forEach(function(prop) {
 			document.getElementById(prop).onclick = activate;
 		});
-		tool = 'sirkel';
+		activeTool = 'sirkel';
 		document.getElementById('sirkel').className = 'active';
 		</script>
 	</head>
@@ -236,6 +314,7 @@
 <button id="kvadrat">tegn kvadrat</button>
 <button id="strek">del opp</button>
 <button id="farge">fargelegg</button>
+<button id="flytt">flytt</button>
 <button id="reset">slett alt</button>
 </div>
 		<canvas
