@@ -176,11 +176,11 @@
 						path.data.type = activeTool;
 						drawnPaths.push(path);
 					} else if (activeTool === "kvadrat") {
-						var x = event.downPoint.x - maxDiff / 2;
-						var y = event.downPoint.y - maxDiff / 2;
+						var x = event.downPoint.x - (maxDiff / 2);
+						var y = event.downPoint.y - (maxDiff / 2);
 						var rect = new Rectangle(
 							new Point(x, y),
-							new Size(maxDiff, maxDiff)
+							new Size(maxDiff*1.5, maxDiff*1.5)
 						);
 						var path = new Path.Rectangle(rect);
 						path.strokeColor = 'black';
