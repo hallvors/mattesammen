@@ -253,29 +253,36 @@
 							initPath.position.x += dropPath.bounds.width;
 							initPath.data.group.position.x += dropPath.bounds.width;
 						} else {
-							initPath.data.group.removeChildren();
-							initPath.remove();
-							finalizedPaths = finalizedPaths.filter(function(path) {
-								return Boolean(path._parent);
-							});
+							remove(initPath);
 						}
 					}
 
 					initPath = null;
+				} else if(activeTool === 'slett') {
+					var insidePath = finalizedPaths.find(function (path) {
+						return path.contains(event.point);
+					});
+					remove(insidePath);
 				}
 				finalizedPaths = finalizedPaths.concat(drawnPaths);
 				drawnPaths = [];
+				document.body.style.cursor = 'auto';
 			}
 			function wrap(num, max) {
 				return num < max ? num : Math.abs(max - num);
 			}
 			function resetAll() {
-			finalizedPaths.forEach(function(path){
+				finalizedPaths.forEach(remove);
+			}
+
+		function remove(path) {
 			path.data.group.removeChildren();
 			path.remove();
-		});
-			finalizedPaths = [];
+			finalizedPaths = finalizedPaths.filter(function(path) {
+				return Boolean(path._parent);
+			});
 		}
+
 		document.getElementById('reset').onclick = resetAll;
 		function deActivate(){document.querySelector('.active').className = '';}
 		function activate(evt) {
@@ -283,7 +290,7 @@
 			activeTool = evt.target.id;
 			evt.target.className = 'active';
 		}
-		['sirkel', 'strek', 'kvadrat', 'farge', 'flytt'].forEach(function(prop) {
+		['sirkel', 'strek', 'kvadrat', 'farge', 'flytt', 'slett'].forEach(function(prop) {
 			document.getElementById(prop).onclick = activate;
 		});
 		activeTool = 'sirkel';
@@ -318,6 +325,7 @@
 <button id="strek">del opp</button>
 <button id="farge">fargelegg</button>
 <button id="flytt">flytt</button>
+<button id="slett">slett</button>
 <button id="reset">slett alt</button>
 </div>
 		<canvas
