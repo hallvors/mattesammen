@@ -58,7 +58,14 @@
 						}
 					}
 				} else if (activeTool === 'flytt' && insidePath) {
-					initPath = insidePath;
+					if (event.modifiers.control || event.modifiers.command) {
+						initPath = insidePath.clone();
+						initPath.data.group = insidePath.data.group.clone();
+						finalizedPaths.push(initPath);
+					} else {
+						initPath = insidePath;
+					}
+
 					document.body.style.cursor = 'grabbing';
 				}
 			}
