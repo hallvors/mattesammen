@@ -59,6 +59,7 @@
 					}
 				} else if (activeTool === 'flytt' && insidePath) {
 					initPath = insidePath;
+					document.body.style.cursor = 'grabbing';
 				}
 			}
 
@@ -205,7 +206,7 @@
 					var paths = finalizedPaths.filter(function (path) {
 						return path.contains(event.point) && path !== initPath;
 					});
-					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'no-drop' : 'unset';
+					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'not-allowed' : 'grabbing';
 				}
 			}
 
@@ -219,7 +220,7 @@
 						path.blendMode = 'darken';
 					}
 				});
-				if (initPath) {
+				if (initPath && activeTool === 'flytt') { // move, drag-drop (addition)
 					var paths = finalizedPaths.filter(function (path) {
 						return path.contains(event.point) && path !== initPath;
 					});
