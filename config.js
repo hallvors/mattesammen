@@ -4,7 +4,9 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: NODE_ENV !== "development",
+  ssl: NODE_ENV !== "development" ? {
+    rejectUnauthorized: false
+  } : false,
 });
 
 const jwtSecret = process.env.ZIQ_JWT_SECRET;
@@ -16,6 +18,15 @@ pool.on("error", (err, client) => {
   console.error("Unexpected error on idle client", err);
   process.exit(-1);
 });
+
+function getDatabaseClient() {
+  return Promise.resolve(pool.connect())
+  .catch(err => {
+    console.error('database connection failure')
+    console.error(err);
+    return Promise.reject(err.message);
+  });
+}
 
 const SESSION_TYPES = [
    {
@@ -64,10 +75,6 @@ const SHAPE_DESCS = {
   triangle2: 'en rettvinklet trekant',
   poly5: 'en femkant',
   poly6: 'en sekskant',
-}
-
-function getDatabaseClient() {
-  return Promise.resolve(pool.connect());
 }
 
 module.exports = {
