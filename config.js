@@ -7,6 +7,9 @@ const pool = new Pool({
   ssl: NODE_ENV !== "development",
 });
 
+const jwtSecret = process.env.ZIQ_JWT_SECRET;
+const cookieSecret = process.env.ZIQ_COOKIE_SECRET;
+
 // the pool with emit an error on behalf of any idle clients
 // it contains if a backend error or network partition happens
 pool.on("error", (err, client) => {
@@ -69,8 +72,8 @@ function getDatabaseClient() {
 
 module.exports = {
   getDatabaseClient,
-  jwtSecret: "wewagfbsignmq1309r",
-  cookieSecret: "342aetsrydhgwewnrepofinsm39r",
+  jwtSecret,
+  cookieSecret,
   types: SESSION_TYPES,
   SHAPE_DESCS,
 };
