@@ -116,6 +116,14 @@ function handleConnection(ws) {
           })
       })
     })
+    ws.on('new-fraction-task', (msg) => {
+      console.log(msg, decoded.classId === msg.classId)
+      if (decoded.classId === msg.classId) {
+        console.log('will emit new-fraction-task')
+        pgEvents.emit('new-fraction-task', msg)
+      }
+    })
+
   } else {
     debug(`no token provided`)
     sendError(ws, 'No token')
