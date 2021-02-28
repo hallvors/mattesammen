@@ -16,8 +16,8 @@
 			var COLOR_UNSELECTED = 'white';
 			var COLOR_ERROR = 'red';
 			var COLOR_PIECE_STROKE = 'darkblue';
+			var showFrac = document.getElementById('showFrac');
 			project.currentStyle.strokeWidth = 4;
-
 			function onMouseDown(event) {
 				var insidePath = finalizedPaths.find(function (path) {
 					return path.contains(event.point);
@@ -244,7 +244,24 @@
 						return path.contains(event.point) && path !== initPath;
 					});
 					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'not-allowed' : 'grabbing';
-				}
+				} 
+			}
+
+			function onMouseMove(event) {
+				if (activeTool === 'vis') {
+					var insidePath = finalizedPaths.find(function (path) {
+						return path.contains(event.point);
+					});
+					if (insidePath) {
+						showFrac.style.display = 'block';
+						showFrac.style.left = (event.point.x + 5) + 'px';
+						showFrac.style.top = (event.point.y + 5) + 'px';
+						showFrac.getElementsByTagName('span')[0].innerText = getNumerator(insidePath);
+						showFrac.getElementsByTagName('span')[1].innerText = insidePath.data.divisions + 1;
+					} else {
+						showFrac.style.display = 'none';
+					}
+				}	
 			}
 
 			function onMouseUp(event) {
@@ -327,11 +344,43 @@
 			activeTool = evt.target.id;
 			evt.target.className = 'active';
 		}
-		['sirkel', 'delopp', 'reduser', 'kvadrat', 'farge', 'flytt', 'slett'].forEach(function(prop) {
+		['sirkel', 'delopp', 'reduser', 'kvadrat', 'farge', 'flytt', 'vis', 'slett'].forEach(function(prop) {
 			document.getElementById(prop).onclick = activate;
 		});
 		activeTool = 'sirkel';
 		document.getElementById('sirkel').className = 'active';
+
+		function serializeState() {
+			var state = {fractions: []};
+			state.dataurl = document.getElementById('thecanvas').toDataURL();
+			var paths = finalizedPaths.concat([]);
+			paths.sort(function(a, b) {
+				if (a.bounds.x < b.bounds.x && a.bounds.y < b.bounds.y) {
+					return -1;
+				}
+				if (a.bounds.x > b.bounds.x && a.bounds.y > b.bounds.y) {
+					return 1;
+				}
+				if (a.bounds.y < b.bounds.y) {
+					return -1;
+				}
+				if (a.bounds.x < b.bounds.x) {
+					return -1;
+				}
+				return 1;
+			});
+
+			paths.forEach(function(path) {
+				var fraction = {denominator: path.data.divisions + 1};
+				fraction.numerator = getNumerator(path);
+				state.fractions.push(fraction)
+			});
+			return state;
+		}
+
+		function getNumerator(path) {
+			return path.data.group.children.filter(function(child){return child.data.active}).length
+		}
 		</script>
 	</head>
 	<body>
@@ -355,6 +404,20 @@
 		padding: 1em;
 		flex: 0 1 auto;
 	}
+	#showFrac {
+		position: fixed;
+		display: none;
+		background-color: rgba(255, 255, 255, 0.7);
+		border: 0.5em solid rgba(255, 255, 255, 0.3);
+	}
+	#showFrac *:first-child {
+		border-bottom: 2px solid black;
+	}
+	#showFrac * {
+		padding: 1em;
+		display: block;
+	}
+
 </style>
 <div id="toolbar">
 <button id="sirkel">tegn sirkel</button>
@@ -363,6 +426,7 @@
 <button id="reduser">færre deler</button>
 <button id="farge">fargelegg</button>
 <button id="flytt">flytt</button>
+<button id="vis">vis brøk</button>
 <button id="slett">slett</button>
 <button id="reset">slett alt</button>
 </div>
@@ -371,5 +435,9 @@
 			resize
 			style="width: 100%; height: 100%;"
 		></canvas>
+		<div id="showFrac">
+			<span></span>
+			<span></span>
+		</div>
 	</body>
 </html>
