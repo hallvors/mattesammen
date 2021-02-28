@@ -5,6 +5,14 @@
 		<title>Hei brøk!</title>
 		<script src="/js/paper-full.min.js"></script>
 
+		<script>
+			function onDiagramChange(state) {
+				if (top!==self) {
+					top.postMessage(state, location.origin);
+				}
+			}
+		</script>
+
 		<script type="text/paperscript" data-paper-canvas="thecanvas">
 			tool.minDistance = 5;
 			var path;
@@ -321,6 +329,7 @@
 				finalizedPaths = finalizedPaths.concat(drawnPaths);
 				drawnPaths = [];
 				document.body.style.cursor = 'auto';
+				window.onDiagramChange(serializeState());
 			}
 			function wrap(num, max) {
 				return num < max ? num : Math.abs(max - num);
