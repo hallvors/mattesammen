@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hypofyse-spillet</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      #hormone-list {
+        color: grey;
+        text-align: center;
+      }
+      #staging,
+      #characters {
+        text-align: center;
+        margin-top: 2%;
+        padding-top: 2%;
+        border-top: 12px dashed rgba(255, 0, 55, 0.8);
+      }
+      #staging {
+        min-height: 3.8em;
+      }
+      #characters div {
+        width: 50%;
+        float: left;
+        color: #ccc;
+      }
+      #characters div p.activated {
+        color: #000;
+      }
+      .hormone {
+        display: inline-block;
+        padding: 0.5em;
+        margin: 0.5em;
+        font-size: large;
+        border: 1px solid grey;
+        border-radius: 10%;
+      }
+      .hormone.moving {
+        transition-property: top left font-size;
+        transition-duration: 2s;
+      }
+      #female:before {
+        content: 'Kvinne';
+        position: absolute;
+        left: 0;
+        font-size: x-large;
+        background-color: yellow;
+        color: #000;
+        transform: rotate(-30deg);
+      }
+      #male:before {
+        content: 'Mann';
+        position: absolute;
+        right: 0;
+        font-size: x-large;
+        background-color: yellow;
+        color: #000;
+        transform: rotate(30deg);
+      }
+    </style>
+  </head>
+  <div id="hormone-list"></div>
+
+  <div id="staging"></div>
+  <div id="characters">
+    <div id="female"></div>
+    <div id="male"></div>
+  </div>
+
+  <script>
+    var hormones = [
+      { long: 'thyreoideastimulerende hormon', short: 'TSH' },
+      { long: 'somatotropin', short: 'VH' },
+      { long: 'adrenokortikotropt hormon', short: 'ACTH' },
+      { long: 'follikkelstimulerende hormon', short: 'FSH' },
+      { long: 'luteiniserende hormon', short: 'LH' },
+      { long: 'prolaktin', short: 'PRL' },
+      { long: 'antidiuretisk hormon', short: 'ADH' },
+      { long: 'oksytocin', short: 'O' },
+    ]
+
+    function cloneTargetToStaging(evt) {
+      var elm = document
+        .getElementById('staging')
+        .appendChild(evt.target.cloneNode(true))
+      elm.onclick = function (evt) {
+        evt.target.parentNode.removeChild(evt.target)
+      }
+    }
+
+    var listElm = document.getElementById('hormone-list')
+    hormones.forEach(function (hormone) {
+      var span = listElm.appendChild(document.createElement('span'))
+      span.className = 'hormone'
+      span.appendChild(
+        document.createTextNode(hormone.long + ' (' + hormone.short + ')'),
+      )
+      span.dataset.short = hormone.short
+      span.onclick = cloneTargetToStaging
+    })
+
+    var developmentsMen = [
+      { desc: 'hår på brystkassa', triggers: [] },
+      { desc: 'testikler og penis vokser', triggers: ['VH', 'FSH'] },
+      { desc: 'stemmeskifte', triggers: ['TSH'] },
+      { desc: 'skjeggvekst', triggers: [] },
+      { desc: 'bredere skuldre', triggers: [] },
+      { desc: 'større muskler', triggers: [] },
+    ]
+
+    var developmentsWomen = [
+      { desc: 'eggstokkene vokser', triggers: ['FSH', 'LH'] },
+      { desc: 'bryst utvikles', triggers: ['O', 'PRL'] },
+      { desc: 'livmor vokser', triggers: [] },
+      { desc: 'menstruasjon', triggers: ['FSH', 'LH'] },
+      { desc: 'bredere hofter', triggers: [] },
+      { desc: 'stemmen forandrer seg', triggers: [] },
+    ]
+
+    var developmentsBoth = [
+      { desc: 'blir høyere', triggers: ['VH'] },
+      { desc: 'knoklene vokser', triggers: ['VH'] },
+      { desc: 'hår under armene', triggers: [] },
+      { desc: 'hårvekst ved kjønnsorgan', triggers: [] },
+      { desc: 'voksnere ansikt', triggers: [] },
+      { desc: 'større lunger', triggers: [] },
+      { desc: 'lengre armer', triggers: ['VH'] },
+      { desc: 'kviser (acne)', triggers: [] },
+    ]
+
+    var m = document.getElementById('male')
+    var f = document.getElementById('female')
+    var maleTraits = shuffle(developmentsBoth.concat(developmentsMen))
+    var femaleTraits = shuffle(developmentsBoth.concat(developmentsWomen))
+
+    ;[
+      [m, maleTraits],
+      [f, femaleTraits],
+    ].forEach(function (data) {
+      var elm = data[0]
+      data[1].forEach(function (trait) {
+        while (trait.triggers.length < 2) {
+          trait.triggers.push(hormones[random(0, hormones.length - 1)].short)
+        }
+        var p = elm.appendChild(document.createElement('p'))
+        p.appendChild(document.createTextNode(trait.desc))
+        p.dataset.triggers = trait.triggers.join('-')
+      })
+    })
+
+    m.onclick = makeTargetTraitHandler(m)
+    f.onclick = makeTargetTraitHandler(f)
+
+    function makeTargetTraitHandler(parentTargetElm) {
+      return function (evt) {
+        var elm = document.getElementById('staging')
+        var elms = elm.querySelectorAll('span')
+        var triggers = [].map.call(elms, function (elm) {
+          return elm.dataset.short
+        })
+        var target =
+          findByTriggers(parentTargetElm, triggers.join('-')) ||
+          findByTriggers(parentTargetElm, triggers.reverse().join('-'))
+        var rect
+
+        if (target) {
+          var rect = target.getBoundingClientRect()
+        }
+        for (var i = 0; i < elms.length; i++) {
+          var thisRect = elms[i].getBoundingClientRect()
+          // set initial position
+          elms[i].classList.add('moving')
+          elms[i].style.fontSize = 'small'
+          elms[i].addEventListener(
+            'transitionend',
+            postTransition(target, elms),
+            false,
+          )
+
+          if (target && rect) {
+            elms[i].style.position = 'absolute'
+            elms[i].style.top = thisRect.top + 'px'
+            elms[i].style.left = thisRect.left + 'px'
+
+            elms[i].style.top = rect.top + 'px'
+            console.log(rect.left, rect.right)
+            elms[i].style.left =
+              (rect.right > window.innerWidth * 0.6
+                ? rect.left * 1.5
+                : rect.right / 2) + 'px'
+          }
+        }
+      }
+    }
+
+    function postTransition(target) {
+      return function (evt) {
+        if (target) {
+          target.classList.add('activated')
+          evt.target.classList.remove('moving')
+          evt.target.style.position = null
+          target.appendChild(evt.target)
+        } else {
+          evt.target.parentElement.removeChild(evt.target)
+        }
+      }
+    }
+    function findByTriggers(parent, ab) {
+      var elms = parent.getElementsByTagName('p')
+      for (var i = 0; i < elms.length; i++) {
+        if (
+          elms[i].dataset.triggers === ab &&
+          !/activated/.test(elms[i].className)
+        ) {
+          return elms[i]
+        }
+      }
+    }
+
+    function shuffle(array) {
+      var m = array.length,
+        t,
+        i
+
+      // While there remain elements to shuffle…
+      while (m) {
+        // Pick a remaining element…
+        i = Math.floor(Math.random() * m--)
+
+        // And swap it with the current element.
+        t = array[m]
+        array[m] = array[i]
+        array[i] = t
+      }
+
+      return array
+    }
+
+    function random(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min
+    }
+  </script>
+</html>
