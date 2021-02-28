@@ -11,8 +11,10 @@ var level = 1
 function init() {
   var div = document.getElementById('tasks')
   div.style.marginTop = '15px'
+  div.style.height = '100%';
   var iframe = div.appendChild(document.createElement('iframe'))
   iframe.style.width = iframe.style.height = '100%'
+  iframe.style.minHeight = '400px;'
   iframe.src = '/sider/visuellbrok/'
   window.addEventListener(
     'message',
