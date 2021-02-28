@@ -1,4 +1,6 @@
-
+/*
+Functions used on both admin- and pupil-screens
+*/
 function handleConnect() {
   console.log(arguments);
 }
@@ -19,6 +21,11 @@ socket.on("connect", handleConnect);
 socket.on("error", handleError);
 socket.on("disconnect", handleDisconnect);
 socket.on("reconnect", handleReconnect);
+
+function bounceStars() {
+  document.getElementById("stars").className = "bounce";
+  setTimeout(function(){document.getElementById("stars").className = "";}, 800);
+}
 
 function getRandomWholeNumber(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;

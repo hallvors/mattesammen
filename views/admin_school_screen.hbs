@@ -88,6 +88,78 @@
 
 
 {{else}}
+{{#if fractions}}
+<div class="col1">
+  <div id="fraction-task">
+    <span></span>
+    <span></span>
+  </div>
+  <div id="fraction-answers">
+
+  </div>
+  </div>
+  <div class="col2">
+  <p class="instruksjon">
+    <h2>Elever:</h2>
+    <ul id="students"></ul>
+  </p>
+</div>
+<style>
+  #fraction-task {
+    font-size: large;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 0.5em solid rgba(255, 255, 255, 0.3);
+  }
+  #fraction-task *:first-child {
+    border-bottom: 2px solid black;
+  }
+  #fraction-task * {
+    padding: 1em;
+    display: block;
+  }
+
+</style>
+  <script>
+  var level = 2;
+  var fractionTaskElm = document.getElementById('fraction-task');
+  var answers;
+  var startTime;
+  var lastTotal = 0;
+  var tasksOnLevel = 0;
+  function nextTask() {
+    if (lastTotal < 1.5 * 60 * 1000 || tasksOnLevel > level) {
+      level ++;
+      tasksOnLevel = 0;
+    } else {
+      tasksOnLevel++;
+    }
+    lastTotal = 0;
+    answers = 0;
+    startTime = Date.now();
+
+    var a = getRandomWholeNumber(1, level);
+    var b = getRandomWholeNumber(1, level);
+    var numerator = Math.min(a,b);
+    var denominator = Math.max(a,b);
+    fractionTaskElm.getElementsByTagName('span')[0].innerText = numerator;
+    fractionTaskElm.getElementsByTagName('span')[1].innerText = denominator;
+    socket.emit('new-fraction-task', {answer: [{numerator: numerator, denominator: denominator}], classId: {{classId}} });
+  }
+
+  socket.on('fractions-answer', function(data) {
+    var studentNum = Object.keys(studentElmMapping).length;
+    var div = document.getElementById('fraction-answer');
+    div.appendChild(document.createElement('img')).src = data.dataurl;
+    if (answers === studentNum) {
+      bounceStars();
+      lastTotal = startTime - Date.now();
+      setTimeout(nextTask, 1000);
+    }
+  });
+  window.addEventListener('load', nextTask)
+  </script>
+
+{{else}}
   <div class="col1">
   <div id="count">0</div> 
   <p>svar!</p>
@@ -146,5 +218,6 @@
     <ul id="students"></ul>
   </p>
 </div>
+{{/if}}
 {{/if}}
 </div>

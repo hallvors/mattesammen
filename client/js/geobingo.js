@@ -47,6 +47,7 @@ function evtHandler(itemnr) {
             cards[(i * 5) + 4].selected;
           if (state) {
             level++;
+            bounceStars();
             socket.emit('bingo', {level: level, classId: classId});
           }
         }

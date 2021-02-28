@@ -64,6 +64,13 @@ const SESSION_TYPES = [
       '/js/raphael.js',
       '/js/geobingo.js',
     ]
+  },
+  {
+    mathType: 'fractions',
+    title: 'Visuelle brøker',
+    jsFiles: [
+      '/js/fractions.js',
+    ]
   }
 ];
 

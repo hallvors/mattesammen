@@ -130,8 +130,7 @@ function handleCorrectAnswer(problem) {
     );
   }
   document.getElementById("count").firstChild.data = log.childNodes.length - 1;
-  document.getElementById("stars").className = "bounce";
-  setTimeout(function(){document.getElementById("stars").className = "";}, 800);
+  bounceStars();
   socket.emit("correct-answer", {
     level: level,
     name: name,

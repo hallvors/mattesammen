@@ -50,6 +50,7 @@ function status(req, res, next) {
           details: results.rows[0],
           socketConnectURL: '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
           bingo: results.rows[0].session_type === 'geobingo',
+          fractions: results.rows[0].session_type === 'fractions',
           shapeTypes: JSON.stringify(config.SHAPE_DESCS),
         });
       });
