@@ -151,8 +151,12 @@
     ].forEach(function (data) {
       var elm = data[0]
       data[1].forEach(function (trait) {
+        var randomShort = hormones[random(0, hormones.length - 1)].short
         while (trait.triggers.length < 2) {
-          trait.triggers.push(hormones[random(0, hormones.length - 1)].short)
+          if (!trait.triggers.includes(randomShort)) {
+            trait.triggers.push(randomShort)
+          }
+          randomShort = hormones[random(0, hormones.length - 1)].short
         }
         var p = elm.appendChild(document.createElement('p'))
         p.appendChild(document.createTextNode(trait.desc))
