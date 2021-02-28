@@ -94,15 +94,15 @@
 				}
 			}
 
-			function redrawDivisions(path, point, inc, expandsBy) {
+			function redrawDivisions(path, point, inc, changesBy) {
 				console.log("redraw", path, point);
 				var divisions = path.data.divisions;
 				var selected = path.data.group.children.map(function(child, index) {
-					if (expandsBy) {
+					if (changesBy) {
 						if (inc) {
-							return Array(expandsBy).fill(child.data.active)
+							return Array(changesBy).fill(child.data.active)
 						} else {
-							return index % expandsBy === 0 ? child.data.active : null;
+							return index % changesBy === 0 ? child.data.active : null;
 						}
 					}
 					return child.data.active
