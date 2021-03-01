@@ -97,6 +97,7 @@ function handleConnection(ws) {
       if (decoded.classId === msg.classId) {
         console.log('will emit new-bingo-answer')
         pgEvents.emit('new-bingo-answer', msg)
+        taskCache.set(msg.classId, {evt: 'new-bingo-answer', data: msg});
       }
     })
     ws.on('bingo', (msg) => {
@@ -225,6 +226,7 @@ function listenForDbUpdates(tokenData, ws) {
   pgEvents.on('new-bingo-answer', (msg) => ws.emit('new-bingo-answer', msg))
   pgEvents.on('bingo-card-update', (msg) => ws.emit('bingo-card-update', msg))
   pgEvents.on('fractions-answer', (msg) => ws.emit('fractions-answer', msg))
+  pgEvents.on('new-fraction-task', (msg) => ws.emit('new-fraction-task', msg))
   pgEvents.on('bingo', (msg) => ws.emit('bingo', msg))
 
   ws.on('disconnect', () => {

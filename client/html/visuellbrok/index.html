@@ -252,7 +252,7 @@
 						return path.contains(event.point) && path !== initPath;
 					});
 					document.body.style.cursor = paths[0] && paths[0].data.divisions !== initPath.data.divisions ?  'not-allowed' : 'grabbing';
-				} 
+				}
 			}
 
 			function onMouseMove(event) {
@@ -269,7 +269,7 @@
 					} else {
 						showFrac.style.display = 'none';
 					}
-				}	
+				}
 			}
 
 			function onMouseUp(event) {
@@ -337,7 +337,6 @@
 			function resetAll() {
 				finalizedPaths.forEach(remove);
 			}
-
 		function remove(path) {
 			path.data.group.removeChildren();
 			path.remove();
@@ -390,6 +389,12 @@
 		function getNumerator(path) {
 			return path.data.group.children.filter(function(child){return child.data.active}).length
 		}
+
+		window.addEventListener('message', function(evt) {
+			if (evt.data.reset) {
+				resetAll();
+			}
+		}, false)
 		</script>
 	</head>
 	<body>

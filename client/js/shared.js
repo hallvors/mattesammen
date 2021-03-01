@@ -114,4 +114,3 @@ function createAndFillGrid(parentElm, cards, evtHandler) {
     }
   }
 }
-

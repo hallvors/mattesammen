@@ -41,9 +41,9 @@ function evtHandler(itemnr) {
       for(var i = 0; i < 5; i++) {
         if (itemnr >= i * 5 && itemnr < (i + 1) * 5) {
           var state = cards[i * 5].selected &&
-            cards[(i * 5) + 1].selected
-            cards[(i * 5) + 2].selected
-            cards[(i * 5) + 3].selected
+            cards[(i * 5) + 1].selected &&
+            cards[(i * 5) + 2].selected &&
+            cards[(i * 5) + 3].selected &&
             cards[(i * 5) + 4].selected;
           if (state) {
             level++;

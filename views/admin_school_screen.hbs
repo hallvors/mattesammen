@@ -1,10 +1,10 @@
 <script src="/socket.io/socket.io.js"></script>
-<script src="/js/shared.js"></script>
 
 <script>
   var socket = io('{{{socketConnectURL}}}');
 </script>
 
+<script src="/js/shared.js"></script>
 <script>
   var studentElmMapping = {};
   socket.on('state', function(payload) {
@@ -78,7 +78,7 @@
   });
 
   socket.on('bingo', function(data) {
-    alert('Bingo! ' + data.name );
+    alert('Bingo! ' + data.nick );
   });
 
 </script>
@@ -102,13 +102,15 @@
     <div id="count">0</div>
 
   <p class="instruksjon">
+    <button type="submit" class="default-btn positive-btn" id="nextfraction">Neste brøk ✔</button>
     <h2>Elever:</h2>
     <ul id="students"></ul>
   </p>
 </div>
 <style>
   #fraction-task {
-    font-size: large;
+    font-size: 2em;
+    text-align: center;
     background-color: rgba(255, 255, 255, 0.7);
     border: 0.5em solid rgba(255, 255, 255, 0.3);
   }
@@ -130,8 +132,9 @@
   var tasksOnLevel = 0;
   function nextTask() {
     if (lastTotal < 1.5 * 60 * 1000 || tasksOnLevel > level) {
-      level ++;
+      level++;
       tasksOnLevel = 0;
+      document.getElementById('fraction-answers').innerHTML = '';
     } else {
       tasksOnLevel++;
     }
@@ -150,7 +153,7 @@
 
   socket.on('fractions-answer', function(data) {
     var studentNum = Object.keys(studentElmMapping).length;
-    var div = document.getElementById('fraction-answer');
+    var div = document.getElementById('fraction-answers');
     div.appendChild(document.createElement('img')).src = data.dataurl;
     if (answers === studentNum) {
       bounceStars();
@@ -159,11 +162,15 @@
     }
   });
   window.addEventListener('load', nextTask)
+  document.getElementById('nextfraction').onclick = function(evt) {
+    evt.preventDefault();
+    nextTask();
+  }
   </script>
 
 {{else}}
   <div class="col1">
-  <div id="count">0</div> 
+  <div id="count">0</div>
   <p>svar!</p>
   <div id="timer">0:00 <br>
     <button id="startClock">Start klokke</button>

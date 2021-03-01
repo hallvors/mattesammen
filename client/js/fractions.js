@@ -14,7 +14,7 @@ function init() {
   div.style.height = '100%';
   var iframe = div.appendChild(document.createElement('iframe'))
   iframe.style.width = iframe.style.height = '100%'
-  iframe.style.minHeight = '400px;'
+  iframe.style.minHeight = '500px';
   iframe.src = '/sider/visuellbrok/'
   window.addEventListener(
     'message',
@@ -61,6 +61,7 @@ socket.on('new-fraction-task', function (payload) {
   if (payload.answer) {
     theAnswer = payload.answer
     completed = false
+    document.getElementsByTagName('iframe')[0].contentWindow.postMessage({reset: true}, location.origin);
   }
 })
 
