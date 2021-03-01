@@ -12,6 +12,11 @@ const pool = new Pool({
 const jwtSecret = process.env.ZIQ_JWT_SECRET;
 const cookieSecret = process.env.ZIQ_COOKIE_SECRET;
 
+if (!(jwtSecret && cookieSecret && process.env.DATABASE_URL)) {
+  console.error('Required environment variables missing!')
+  process.exit(-1)
+}
+
 // the pool with emit an error on behalf of any idle clients
 // it contains if a backend error or network partition happens
 pool.on("error", (err, client) => {

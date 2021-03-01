@@ -4,7 +4,7 @@
   "description": "App for å regne sammen, med felles statistikk",
   "scripts": {
     "start": "node index.js",
-    "dev": "PORT=3015  DATABASE_URL=http://localhost:5432/gangesammen node index.js"
+    "dev": "PORT=3015  DATABASE_URL=http://localhost:5432/mattesammen node index.js"
   },
   "main": "index.js",
   "repository": "https://git.heroku.com/gangesammen.git",
@@ -20,6 +20,7 @@
     "express-handlebars": "^5.2.1",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^8.4.0",
+    "node-cache": "^5.1.2",
     "pg": "^8.5.1",
     "socket.io": "^3.1.2"
   }

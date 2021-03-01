@@ -6,6 +6,12 @@ const socketIO = require('socket.io')
 const config = require('./config')
 const debug = require('debug')('gangesammen:websocket')
 
+// On first connect from a student, if we have a current Bingo or
+// Fraction task we need to send details. We must however take care not
+// caching the task forever, leaking memory
+const NodeCache = require('node-cache');
+const taskCache = new NodeCache({ stdTTL: 60 * 60 * 8, useClones: true });
+
 // Use an internal event emitter so we only have to open one connection
 // to postgres to listen for notifications
 
@@ -119,8 +125,9 @@ function handleConnection(ws) {
     ws.on('new-fraction-task', (msg) => {
       console.log(msg, decoded.classId === msg.classId)
       if (decoded.classId === msg.classId) {
-        console.log('will emit new-fraction-task')
+        console.log('will emit new-fraction-task', msg)
         pgEvents.emit('new-fraction-task', msg)
+        taskCache.set(msg.classId, {evt: 'new-fraction-task', data: msg});
       }
     })
 
@@ -175,6 +182,10 @@ function sendFirstData(tokenData, ws) {
       let state = JSON.stringify({ type: 'state', data: data, first: true })
       debug(`First Snapshot: ${state}`)
       ws.emit('state', state)
+      let savedTask = taskCache.get(tokenData.classId)
+      if (savedTask) {
+        ws.emit(savedTask.evt, savedTask.data);
+      }
       listenForDbUpdates(tokenData, ws)
     })
     .catch((err) => {
