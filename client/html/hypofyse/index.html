@@ -160,6 +160,7 @@
         }
         var p = elm.appendChild(document.createElement('p'))
         p.appendChild(document.createTextNode(trait.desc))
+        p.className = 'trait';
         p.dataset.triggers = trait.triggers.join('-')
       })
     })
@@ -178,6 +179,13 @@
           findByTriggers(parentTargetElm, triggers.join('-')) ||
           findByTriggers(parentTargetElm, triggers.reverse().join('-'))
         var rect
+
+        if (!target) {
+          var candidates = parentTargetElm.querySelectorAll('p:not(.activated)');
+          if (candidates.length && Math.random() >= 0.2) {
+            target = candidates[random(0, candidates.length - 1)];
+          }
+        }
 
         if (target) {
           var rect = target.getBoundingClientRect()
@@ -213,9 +221,8 @@
       return function (evt) {
         if (target) {
           target.classList.add('activated')
-          evt.target.classList.remove('moving')
-          evt.target.style.position = null
-          target.appendChild(evt.target)
+          target.appendChild(evt.target);
+          setTimeout(function(){target.removeChild(evt.target)}, 800)
         } else {
           evt.target.parentElement.removeChild(evt.target)
         }
