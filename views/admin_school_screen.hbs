@@ -153,12 +153,15 @@
 
   socket.on('fractions-answer', function(data) {
     var studentNum = Object.keys(studentElmMapping).length;
+    answers++;
     var div = document.getElementById('fraction-answers');
     div.appendChild(document.createElement('img')).src = data.dataurl;
     if (answers === studentNum) {
       bounceStars();
       lastTotal = startTime - Date.now();
       setTimeout(nextTask, 1000);
+    } else {
+      console.log('not enough answers yet?', answers + '/' + studentNum)
     }
   });
   window.addEventListener('load', nextTask)
