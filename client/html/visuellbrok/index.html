@@ -387,7 +387,12 @@
 		}
 
 		function getNumerator(path) {
-			return path.data.group.children.filter(function(child){return child.data.active}).length
+			if (path.data.active) {
+				return 1;
+			}
+			return path.data.group.children.filter(function(child){
+				return child.data.active;
+			}).length
 		}
 
 		window.addEventListener('message', function(evt) {
