@@ -108,19 +108,31 @@
   </p>
 </div>
 <style>
-  #fraction-task {
+  #fraction-task div {
     font-size: 2em;
     text-align: center;
     background-color: rgba(255, 255, 255, 0.7);
     border: 0.5em solid rgba(255, 255, 255, 0.3);
   }
-  #fraction-task *:first-child {
+  #fraction-task div *:first-child {
     border-bottom: 2px solid black;
   }
-  #fraction-task * {
+  #fraction-task div * {
     padding: 1em;
     display: block;
+    text-align: center;
   }
+
+  #fraction-task div.equals:first-child::before {
+    content: 'Likeverdig!';
+    background: yellow;
+    transform: rotate(-10deg);
+    display: block;
+    font-size: 0.3em;
+    padding: 10px;
+    position: relative;
+    border: 2px solid darkgoldenrod;
+}
 
 </style>
   <script>
@@ -141,15 +153,43 @@
     lastTotal = 0;
     answers = 0;
     startTime = Date.now();
+    fractionTaskElm.innerHTML = '';
 
+    var tasks;
+    // variations
+    if (level >= 3 && getRandomWholeNumber(1,4) >= 3) {
+      tasks = [newEqualsFraction()];
+    } else {
+      tasks = [newSimpleFraction()];
+    }
+
+    tasks.forEach(function(task) {
+      var div = fractionTaskElm.appendChild(document.createElement('div'));
+      div.appendChild(document.createElement('span')).innerText = task.numerator;
+      div.appendChild(document.createElement('span')).innerText = task.denominator;
+      if (task.equals) {
+        div.className = 'equals';
+      } else if (task.sort) {
+        div.className = 'sort';
+      }
+    });
+
+    socket.emit('new-fraction-task', {answer: tasks, classId: {{classId}} });
+  }
+
+  function newSimpleFraction() {
     var a = getRandomWholeNumber(1, level);
     var b = getRandomWholeNumber(1, level);
     var numerator = Math.min(a,b);
     var denominator = Math.max(a,b);
-    fractionTaskElm.getElementsByTagName('span')[0].innerText = numerator;
-    fractionTaskElm.getElementsByTagName('span')[1].innerText = denominator;
-    socket.emit('new-fraction-task', {answer: [{numerator: numerator, denominator: denominator}], classId: {{classId}} });
+    return {numerator: numerator, denominator: denominator}
   }
+
+function newEqualsFraction() {
+  var fraction = newSimpleFraction();
+  fraction.equals = true;
+  return fraction;
+}
 
   socket.on('fractions-answer', function(data) {
     var studentNum = Object.keys(studentElmMapping).length;

@@ -35,14 +35,30 @@ function evtHandler(data) {
   var correct = theAnswer.length === data.fractions.length
   if (correct) {
     for (var i = 0; i < theAnswer.length; i++) {
-      if (
-        !(
-          data.fractions[i] &&
-          data.fractions[i].numerator === theAnswer[i].numerator &&
-          data.fractions[i].denominator === data.fractions[i].denominator
-        )
-      ) {
-        correct = false
+      if (theAnswer[i].equals) {
+        if (data.fractions[i].numerator === theAnswer[i].numerator &&
+          data.fractions[i].denominator === data.fractions[i].denominator) {
+            // exactly the same fraction is not a different but equal one
+            correct = false;
+          } else {
+            var numFactor = data.fractions[i].numerator / theAnswer[i].numerator;
+            var denomFactor = data.fractions[i].denominator / theAnswer[i].denominator;
+            if (!(numFactor === denomFactor &&
+              data.fractions[i].numerator % theAnswer[i].numerator === 0
+            )) {
+              correct = false;
+            }
+          }
+      } else {
+        if (
+          !(
+            data.fractions[i] &&
+            data.fractions[i].numerator === theAnswer[i].numerator &&
+            data.fractions[i].denominator === data.fractions[i].denominator
+          )
+        ) {
+          correct = false
+        }
       }
     }
   }

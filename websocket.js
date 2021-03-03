@@ -127,8 +127,8 @@ function handleConnection(ws) {
       console.log(msg, decoded.classId === msg.classId)
       if (decoded.classId === msg.classId) {
         console.log('will emit new-fraction-task', msg)
-        pgEvents.emit('new-fraction-task', msg)
         taskCache.set(msg.classId, {evt: 'new-fraction-task', data: msg});
+        pgEvents.emit('new-fraction-task', msg)
       }
     })
 
