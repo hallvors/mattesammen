@@ -72,7 +72,7 @@ const SESSION_TYPES = [
   },
   {
     mathType: 'fractions',
-    title: 'Visuelle brøker',
+    title: 'Visuelle brøker - felles',
     jsFiles: [
       '/js/fractions.js',
     ]
