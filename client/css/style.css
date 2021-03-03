@@ -48,10 +48,11 @@ p, .the_task {
 
 .class-code-label {
   text-align: center;
-  font-size: small;
+  font-size: 1.2em;
   background: #eee;
-  margin-left: 35%;
-  margin-right: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  display: inline-block;
 }
 
 p.instruksjon, #log {
