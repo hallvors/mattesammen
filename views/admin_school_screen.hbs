@@ -97,6 +97,7 @@
   <div id="fraction-answers">
 
   </div>
+  <button onclick="document.getElementById('fraction-answers').innerHTML=''">Fjern svarene</button>
   </div>
   <div class="col2">
     <div id="count">0</div>
@@ -146,7 +147,7 @@
     if (lastTotal < 1.5 * 60 * 1000 || tasksOnLevel > level) {
       level++;
       tasksOnLevel = 0;
-      document.getElementById('fraction-answers').innerHTML = '';
+      //document.getElementById('fraction-answers').innerHTML = '';
     } else {
       tasksOnLevel++;
     }
