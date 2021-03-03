@@ -6,6 +6,8 @@
 		<script src="/js/paper-full.min.js"></script>
 
 		<script>
+			// TODO: create event serialisation and send
+			// list of events in stream - add "replay mode"
 			function onDiagramChange(state) {
 				if (top!==self) {
 					top.postMessage(state, location.origin);
