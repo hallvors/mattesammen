@@ -163,7 +163,9 @@
   var lastTotal = 0;
   var tasksOnLevel = 0;
   function nextTask() {
-    if (lastTotal < 1.5 * 60 * 1000 || tasksOnLevel > level) {
+    // total time < 3/4ths of a minute for all answers, or passed
+    // a given number of tasks for level: levelup
+    if (lastTotal < 0.75 * 60 * 1000 || tasksOnLevel > level) {
       level++;
       tasksOnLevel = 0;
       //document.getElementById('fraction-answers').innerHTML = '';
@@ -171,13 +173,13 @@
       tasksOnLevel++;
     }
     lastTotal = 0;
-    answers = 0;
+    answers = {};
     startTime = Date.now();
     fractionTaskElm.innerHTML = '';
 
     var tasks;
     // variations
-    if (level >= 3 && getRandomWholeNumber(1,4) >= 3) {
+    if (level >= 4 && getRandomWholeNumber(1,4) >= 3) {
       tasks = [newEqualsFraction()];
     } else {
       tasks = [newSimpleFraction()];
@@ -213,15 +215,16 @@ function newEqualsFraction() {
 
   socket.on('fractions-answer', function(data) {
     var studentNum = Object.keys(studentElmMapping).length;
-    answers++;
+    console.log('student elm on answer', studentElmMapping, data)
+    answers[data.name] = true;
     var div = document.getElementById('fraction-answers');
     div.appendChild(document.createElement('img')).src = data.dataurl;
-    if (answers === studentNum) {
+    if (Object.keys(answers).length === studentNum) {
       bounceStars();
       lastTotal = startTime - Date.now();
       setTimeout(nextTask, 1000);
     } else {
-      console.log('not enough answers yet?', answers + '/' + studentNum)
+      console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
     }
   });
   window.addEventListener('load', nextTask)

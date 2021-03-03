@@ -54,7 +54,7 @@ function handleConnection(ws) {
       return sendError(ws, 'Invalid token')
     }
     debug(`decoded: ${JSON.stringify(decoded)}`)
-
+    // TODO: avoid double connections for same token - will cause double answers to be sent
     sendFirstData(decoded, ws)
 
     ws.on('correct-answer', (msg) => {
