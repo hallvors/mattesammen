@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Navnegradient</title>
+    <style>
+      #gradient {
+        height: 200px;
+      }
+      form,
+      input {
+        font-size: xx-large;
+        padding: 1em;
+      }
+      #explanation span {
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        white-space: pre;
+      }
+    </style>
+  </head>
+  <body>
+    <form onsubmit="document.getElementById('startBtn').click(); return false;">
+      <input name="nameInput" /><input
+        type="button"
+        value="Lag"
+        id="startBtn"
+      />
+    </form>
+
+    <div id="gradient"></div>
+
+    <div id="explanation"></div>
+
+    <script>
+      document.getElementById("startBtn").onclick = function (e) {
+        var name = document
+          .getElementsByName("nameInput")[0]
+          .value.toLowerCase();
+        var grad = [];
+        var explanations = [];
+        document.getElementById("explanation").innerHTML = '';
+        for (var i = 0; i < name.length; i += 3) {
+          var num1 = Math.max(0, name.charCodeAt(i) - 96);
+          var num2 = Math.max(0, name.charCodeAt(i + 1) - 96);
+          if (isNaN(num2)) {
+            num2 = num1;
+          }
+          var num3 = Math.max(0, name.charCodeAt(i + 2) - 96);
+          if (isNaN(num3)) {
+            num3 = num1;
+          }
+          var col1 = Math.max(0, parseInt((num1 / 29) * 255));
+          var col2 = Math.max(0, parseInt((num2 / 29) * 255));
+          var col3 = Math.max(0, parseInt((num3 / 29) * 255));
+          grad.push({ col1, col2, col3 });
+          explanations.push({
+            letters: [name[i], name[i + 1] || '', name[i + 2] || ''],
+            numbers: [num1, num2, num3],
+            colors: [col1, col2, col3],
+          });
+
+        }
+        var bgString = "linear-gradient(90deg, ";
+        for (i = 0; i < grad.length; i++) {
+          bgString +=
+            "rgba( " +
+            [grad[i].col1, grad[i].col2, grad[i].col3].join(", ") +
+            ", .8) " +
+            parseInt((i / grad.length) * 100) +
+            "% ";
+          if (i < grad.length - 1) {
+            bgString += ",";
+          }
+        }
+        bgString += ")";
+        document.getElementById("gradient").style.backgroundImage = bgString;
+        document.getElementById("gradient").onclick = function () {
+          var explElm = document.getElementById("explanation");
+          for (var i = 0; i < explanations.length; i++) {
+              var subElm = explElm.appendChild(document.createElement('span'));
+              subElm.appendChild(document.createTextNode(explanations[i].letters.join(', ')+': \n'));
+              subElm.appendChild(document.createTextNode(explanations[i].numbers.join(', ')));
+              subElm.style.border = '12px solid rgb(' + explanations[i].colors.join(', ') + ')';
+          }
+        };
+      };
+    </script>
+  </body>
+</html>
