@@ -108,7 +108,7 @@
       if (location.query) {
         var num = parseInt(location.query.substr(1));
       }
-      if (NaN(num)) {
+      if (isNaN(num)) {
         var num = Math.floor(Math.random() * countries.length);
       }
 
