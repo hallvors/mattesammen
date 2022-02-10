@@ -18,7 +18,7 @@ app.set('view engine', '.hbs');
 
 
 app.use('/favicons', express.static('client/favicons'));
-app.use('/images', express.static('client/images'));
+app.use('/images', express.static('client/img'));
 app.use('/css', express.static('client/css'));
 app.use('/js', express.static('client/js'));
 app.use('/sounds', express.static('client/sounds'));
