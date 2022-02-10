@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>algomap</title>
+    <style>
+      html,
+      body,
+      div#map,
+      div#board {
+        width: 100%;
+        height: 100%;
+      }
+      div#map {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+      div#board {
+        display: flex;
+        flex-wrap: wrap;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        overflow: hidden;
+      }
+      div.tile {
+        height: 10%;
+        flex: 0 0 9%;
+        background-size: contain;
+        background-repeat: no-repeat;
+        border: 1px solid transparent;
+      }
+      div.unopened {
+        background-color: #fff;
+        border: 1px solid black;
+      }
+      div.active.up {
+        background-image: url("../../img/ar-up.png");
+      }
+      div.active.left {
+        background-image: url("../../img/ar-left.png");
+      }
+      div.active.right {
+        background-image: url("../../img/ar-right.png");
+      }
+      div.active.down {
+        background-image: url("../../img/ar-down.png");
+      }
+      div#toolbox {
+        z-index: 10;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 12%;
+      }
+      #list {
+        background: #fff;
+        border: 1px solid black;
+        border-radius: 50px;
+        padding: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="board"></div>
+
+    <div id="toolbox">
+      <div id="list"></div>
+      <select onchange="changeHandler(event)">
+        <option value="">--</option>
+        <option value='[{"steps": 1}]'>
+          Ett steg fram
+        </option>
+        <option value='[{"steps": 2}]'>
+          To steg fram
+        </option>
+        <option value='[{"steps": 2}, {"turn": "left"}, {"steps": 1}]'>
+          To steg fram, ett til venstre
+        </option>
+        <option value='[{"steps": 2}, {"turn": "right"}, {"steps": 1}]'>
+          To steg fram, ett til høyre
+        </option>
+        <option value='[{"steps": 3}]'>Tre steg fram</option>
+        <option value='[{"turn": "right"}]'>Snu høyre</option>
+        <option value='[{"turn": "left"}]'>Snu venstre</option></select
+      ><button onclick="start()">Kjør</button>
+    </div>
+
+    <script>
+      var countries = [
+        "denmark",
+        "finland",
+        "france",
+        "germany",
+        "iceland",
+        "norway",
+        "spain",
+        "sweden",
+        "uk",
+      ];
+      if (location.query) {
+        var num = parseInt(location.query.substr(1));
+      }
+      if (NaN(num)) {
+        var num = Math.floor(Math.random() * countries.length);
+      }
+
+      document.title='Algokart: land ' + num;
+
+      var country = countries[num];
+      document.getElementById("map").style.backgroundImage =
+        "url(../../img/maps/" + country + ".jpg)";
+      var board = document.getElementById("board");
+      var elements = [];
+      for (var i = 0; i < 100; i++) {
+        var element = document.createElement("div");
+        element.setAttribute("data-cell", i);
+        elements.push(element);
+        element.setAttribute("class", "tile unopened");
+        board.appendChild(element);
+        element.appendChild(document.createTextNode(i));
+      }
+      var activeElement = elements[0];
+      activeElement.setAttribute(
+        "class",
+        activeElement.className + " active right"
+      );
+      var selectedActions = [];
+      function changeHandler(evt) {
+        if (!evt.target.value) return;
+        if (selectedActions.length > 10) {
+          alert("Maks 10");
+          return;
+        }
+        var list = document.getElementById("list");
+        var div = document.createElement("div");
+        list.appendChild(div);
+        div.appendChild(
+          document.createTextNode(
+            evt.target.options[evt.target.selectedIndex].text
+          )
+        );
+        selectedActions.push(evt.target.value);
+        evt.target.selectedIndex = 0;
+      }
+
+      function start() {
+        doStep();
+      }
+
+      function doStep() {
+        if (!selectedActions.length) {
+          return;
+        }
+        var steps = JSON.parse(selectedActions[0]);
+        for (var i = 0; i < steps.length; i++) {
+          var data = steps[i];
+          if (data.steps) {
+            move(data.steps);
+          }
+          if (data.turn) {
+            var cell = document.getElementsByClassName("active")[0];
+            var oldDirection = getDirection(cell);
+            var newDirection = decideNewDirection(oldDirection, data.turn);
+            cell.classList.remove(oldDirection);
+            cell.classList.add(newDirection);
+          }
+        }
+        document
+          .getElementsByClassName("active")[0]
+          .classList.remove("unopened");
+        var list = document.getElementById("list");
+        list.removeChild(list.firstElementChild);
+        selectedActions.shift();
+        setTimeout(doStep, 1500);
+      }
+
+      function getDirection(elm) {
+        var match = elm.className.match(/(up|down|left|right)/);
+        if (match) {
+          return match[1];
+        }
+        console.error("direction code fail");
+      }
+
+      function decideNewDirection(old, turn) {
+        switch (turn) {
+          case "left":
+            switch (old) {
+              case "up":
+                return "left";
+              case "down":
+                return "right";
+              case "left":
+                return "down";
+              case "right":
+                return "up";
+            }
+          case "right":
+            switch (old) {
+              case "up":
+                return "right";
+              case "down":
+                return "left";
+              case "left":
+                return "up";
+              case "right":
+                return "down";
+            }
+        }
+      }
+
+      function move(steps) {
+        var initallyActive = document.getElementsByClassName("active")[0];
+        var direction = getDirection(initallyActive);
+        var cellIndex = parseInt(initallyActive.getAttribute("data-cell"));
+        var diff = 0;
+        switch (direction) {
+          case "right":
+            diff = steps;
+            break;
+          case "left":
+            diff = steps * -1;
+            break;
+          case "up":
+            diff = steps * -10;
+            break;
+          case "down":
+            diff = steps * 10;
+            break;
+        }
+        let possibleIndex = cellIndex + diff;
+        console.log("will move " + cellIndex + " to " + possibleIndex);
+        if (direction === "up" || direction === "down") {
+          while (!sameCol(cellIndex, possibleIndex)) {
+            possibleIndex =
+              direction === "up" ? possibleIndex + 1 : possibleIndex - 1;
+          }
+        } else if (direction === "left" || direction === "right") {
+          while (!sameRow(cellIndex, possibleIndex)) {
+            possibleIndex =
+              direction === "left" ? possibleIndex + 1 : possibleIndex - 1;
+          }
+        }
+        console.log("adjusted possible index: " + possibleIndex);
+        cellIndex = possibleIndex;
+        initallyActive.classList.remove("active");
+        initallyActive.classList.remove(direction);
+        elements[cellIndex].classList.add("active");
+        elements[cellIndex].classList.add(direction);
+      }
+
+      function sameCol(startIdx, endIdx) {
+        return startIdx % 10 === endIdx % 10;
+      }
+
+      function sameRow(startIdx, endIdx) {
+        return startIdx - (startIdx % 10) === endIdx - (endIdx % 10);
+      }
+    </script>
+  </body>
+</html>
