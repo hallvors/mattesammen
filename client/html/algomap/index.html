@@ -41,16 +41,16 @@
         border: 1px solid black;
       }
       div.active.up {
-        background-image: url("../../img/ar-up.png");
+        background-image: url("/images/ar-up.png");
       }
       div.active.left {
-        background-image: url("../../img/ar-left.png");
+        background-image: url("/images/ar-left.png");
       }
       div.active.right {
-        background-image: url("../../img/ar-right.png");
+        background-image: url("/images/ar-right.png");
       }
       div.active.down {
-        background-image: url("../../img/ar-down.png");
+        background-image: url("/images/ar-down.png");
       }
       div#toolbox {
         z-index: 10;
@@ -116,7 +116,7 @@
 
       var country = countries[num];
       document.getElementById("map").style.backgroundImage =
-        "url(../../img/maps/" + country + ".jpg)";
+        "url(/images/maps/" + country + ".jpg)";
       var board = document.getElementById("board");
       var elements = [];
       for (var i = 0; i < 100; i++) {
