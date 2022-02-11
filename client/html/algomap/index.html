@@ -65,9 +65,13 @@
         border-radius: 50px;
         padding: 30px;
       }
+      textarea {
+        border: none;
+      }
     </style>
   </head>
   <body>
+    <textarea></textarea>
     <div id="map"></div>
     <div id="board"></div>
 
@@ -81,16 +85,19 @@
         <option value='[{"steps": 2}]'>
           To steg fram
         </option>
+        <option value='[{"steps": 3}]'>Tre steg fram</option>
+        <option value='[{"turn": "right"}]'>Snu høyre</option>
+        <option value='[{"turn": "left"}]'>Snu venstre</option>
         <option value='[{"steps": 2}, {"turn": "left"}, {"steps": 1}]'>
           To steg fram, ett til venstre
         </option>
         <option value='[{"steps": 2}, {"turn": "right"}, {"steps": 1}]'>
           To steg fram, ett til høyre
         </option>
-        <option value='[{"steps": 3}]'>Tre steg fram</option>
-        <option value='[{"turn": "right"}]'>Snu høyre</option>
-        <option value='[{"turn": "left"}]'>Snu venstre</option></select
-      ><button onclick="start()">Kjør</button>
+      </select>
+      <button onclick="start()">Kjør</button>
+      <button onclick="guess()">Gjett</button>
+      <button onclick="copyAndResetLog()">Kopier logg</button>
     </div>
 
     <script>
@@ -105,6 +112,18 @@
         "sweden",
         "uk",
       ];
+      var names = {
+        denmark: ['danmark'],
+        finland: ['finland'],
+        france: ['frankrike'],
+        germany: ['tyskland'],
+        iceland: ['island'],
+        norway: ['norge'],
+        spain: ['spania'],
+        sweden: ['sverige'],
+        uk: ['england', 'storbritannia', 'uk'],
+      }
+
       if (location.query) {
         var num = parseInt(location.query.substr(1));
       }
@@ -113,6 +132,8 @@
       }
 
       document.title='Algokart: land ' + num;
+      var log = ['Algokart land ' + num, ''];
+      var roundCounter = 0;
 
       var country = countries[num];
       document.getElementById("map").style.backgroundImage =
@@ -152,13 +173,20 @@
       }
 
       function start() {
+        roundCounter++;
+        log.push('Runde ' + roundCounter);
         doStep();
       }
 
       function doStep() {
         if (!selectedActions.length) {
+          log.push('Runde ' + roundCounter + ' fullført');
+          log.push('');
           return;
         }
+
+        log.push(selectedActions[0]);
+
         var steps = JSON.parse(selectedActions[0]);
         for (var i = 0; i < steps.length; i++) {
           var data = steps[i];
@@ -255,6 +283,38 @@
         initallyActive.classList.remove(direction);
         elements[cellIndex].classList.add("active");
         elements[cellIndex].classList.add(direction);
+      }
+
+      function guess(){
+        var guessedName = prompt('Hvilket land tror du det er?');
+        if (guessedName) {
+          if (names[countries[num]].indexOf(guessedName.toLowerCase()) !== -1) {
+            uncoverMap();
+          } else {
+            alert('Nei, det er nok ikke det. Prøv igjen..');
+          }
+        }
+      }
+
+      function uncoverMap() {
+        var elms = document.getElementsByClassName('unopened');
+        var interv = setInterval(function(){
+          if (elms[0]) {
+            elms[0].classList.remove('unopened');
+          } else {
+            alert('Gratulerer');
+            clearInterval(interv);
+          }
+        }, 20);
+      }
+
+      function copyAndResetLog() {
+        var elm = document.getElementsByTagName('textarea')[0];
+        elm.value = log.join('\n');
+        elm.focus();
+        elm.select();
+        document.execCommand('copy');
+        log.length = 2;
       }
 
       function sameCol(startIdx, endIdx) {
