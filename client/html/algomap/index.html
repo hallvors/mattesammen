@@ -35,7 +35,7 @@
 
     div.tile {
       height: 10%;
-      flex: 0 0 9%;
+      flex: 0 0 9.8%;
       background-size: contain;
       background-repeat: no-repeat;
       border: 1px solid transparent;
@@ -169,7 +169,7 @@
       elements.push(element);
       element.setAttribute("class", "tile unopened");
       board.appendChild(element);
-      element.appendChild(document.createTextNode(i));
+      element.appendChild(document.createTextNode(i + 1));
     }
     var activeElement = elements[0];
     activeElement.setAttribute(
