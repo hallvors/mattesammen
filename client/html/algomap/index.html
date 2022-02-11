@@ -124,8 +124,8 @@
         uk: ['england', 'storbritannia', 'uk'],
       }
 
-      if (location.query) {
-        var num = parseInt(location.query.substr(1));
+      if (location.search) {
+        var num = parseInt(location.search.substr(1));
       }
       if (isNaN(num)) {
         var num = Math.floor(Math.random() * countries.length);
