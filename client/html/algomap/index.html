@@ -67,6 +67,8 @@
       }
       textarea {
         border: none;
+        width: 1px;
+        height: 1px;
       }
     </style>
   </head>
@@ -288,8 +290,11 @@
       function guess(){
         var guessedName = prompt('Hvilket land tror du det er?');
         if (guessedName) {
+          log.push('\nGjetter: ' + guessedName);
+          log.push('Fullført!');
           if (names[countries[num]].indexOf(guessedName.toLowerCase()) !== -1) {
             uncoverMap();
+            log.push('')
           } else {
             alert('Nei, det er nok ikke det. Prøv igjen..');
           }
