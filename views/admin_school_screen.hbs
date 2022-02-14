@@ -235,6 +235,51 @@ function newEqualsFraction() {
   </script>
 
 {{else}}
+  {{#if predef}}
+  <div class="col1">
+  <div id="count">0</div>
+  <p>svar!</p>
+  <div id="answers"></div>
+  </div>
+  <div class="col2">
+  <p class="instruksjon">
+    <button type="submit" class="default-btn positive-btn" id="next">Neste ✔</button>
+    <h2>Elever:</h2>
+    <ul id="students"></ul>
+  </p>
+
+<script>
+  var answers = {};
+
+  function nextTask() {
+    answers = {};
+    document.getElementById('answers').innerHTML = '';
+    socket.emit('next-task-ready', {classId: {{classId}} });
+  }
+  socket.on('correct-answer', function(data) {
+    var studentNum = Object.keys(studentElmMapping).length;
+    console.log('student elm on answer', studentElmMapping, data)
+    answers[data.name] = true;
+    var div = document.getElementById('answers');
+    //elm('p', {}, [document.createTextNode(data.problem)], div);
+    if (Object.keys(answers).length === studentNum) {
+      bounceStars();
+      //lastTotal = startTime - Date.now();
+      setTimeout(nextTask, 1000);
+    } else {
+      console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
+    }
+  });
+  window.addEventListener('load', nextTask)
+  document.getElementById('next').onclick = function(evt) {
+    evt.preventDefault();
+    nextTask();
+  }
+  </script>
+</script>
+
+  </div>
+  {{else}}
   <div class="col1">
   <div id="count">0</div>
   <p>svar!</p>
@@ -293,6 +338,7 @@ function newEqualsFraction() {
     <ul id="students"></ul>
   </p>
 </div>
+{{/if}}
 {{/if}}
 {{/if}}
 </div>

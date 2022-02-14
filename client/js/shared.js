@@ -1,6 +1,27 @@
 /*
 Functions used on both admin- and pupil-screens
 */
+function elm(tag, props, children, parent) {
+  var el = document.createElement(tag);
+  for (var p in props) {
+    if (typeof props[p] === "function") {
+      el[p] = props[p];
+    } else {
+      el.setAttribute(p, props[p]);
+    }
+  }
+  if (children && children.length) {
+    for (var i = 0; i < children.length; i++) {
+      el.appendChild(children[i]);
+    }
+  }
+  if (parent) {
+    parent.appendChild(el);
+  }
+  return el;
+}
+
+
 function handleConnect() {
   console.log(arguments);
 }

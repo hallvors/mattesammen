@@ -1,0 +1,41 @@
+
+<h1>Legg inn forberedte svar</h1>
+<p>Legg til svarene du ønsker at elevene skal oppgi i rett rekkefølge.</p>
+<script>
+    function addAnswer() {
+        var answer = document.getElementsByName('answer')[0].value;
+        var list = document.getElementById('list');
+        var elm = list.appendChild(document.createElement('li'));
+        elm.appendChild(document.createTextNode(answer));
+        var input = elm.appendChild(document.createElement('input'));
+        input.type='hidden';
+        input.value=answer;
+        input.name='data';
+        elm.appendChild(input);
+        var button = elm.appendChild(document.createElement('button'));
+        button.onclick = function(){elm.parentNode.removeChild(elm);};
+        button.appendChild(document.createTextNode('X'))
+    }
+    function keyCapture(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            addAnswer();
+        }
+    }
+</script>
+
+<form method="post" action="/api/schools/set-answers">
+  <ol id="list">
+  </ol>
+
+  <p>
+      <input type="text" name="answer" placeholder="Et korrekt svar" maxlength="100" required onkeypress="keyCapture(event)">
+      <button type="button" onclick="addAnswer()">Legg til</button>
+  </p>
+
+  <p>Når alle svar er lagt til, gå videre:</p>
+
+  <p>
+    <button type="submit" class="default-btn positive-btn">Lagre svar ✔</button>
+  </p>
+</form>

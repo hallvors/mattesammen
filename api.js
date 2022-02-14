@@ -5,8 +5,10 @@ const router = express.Router({mergeParams: true});
 const config = require('./config');
 const jwt = require('jsonwebtoken');
 const {decodeToken} = require('./utils');
+const res = require('express/lib/response');
 
 router.post('/schools/create', createClassSession);
+router.post('/schools/set-answers', decodeToken, setAnswers);
 router.post('/quit', endSession);
 router.post('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
@@ -22,6 +24,7 @@ function createClassSession(req, res, next) {
         [req.body.school, req.body.className, req.body.session_type]
       )
       .then(result => {
+        console.log('createClassSession - exists?', result, req.body)
         if (result.rows.length) {
           return result;
         }
@@ -35,6 +38,7 @@ function createClassSession(req, res, next) {
       });
     })
     .then(result => {
+      console.log('created or selected.. ' + result.rows[0].id)
       res.cookie('token', jwt.sign({
         classId: result.rows[0].id,
         admin: true,
@@ -42,9 +46,35 @@ function createClassSession(req, res, next) {
         className: req.body.className,
       }, config.jwtSecret));
       client.release();
+      if (req.body.session_type === 'predefined-answers') {
+        return res.redirect(301, '/adm/fasit');
+      }
       res.redirect(301, '/adm/status');
     });
   });
+}
+// If we get predefined answers (for 'fasit' type sessions),
+// save them and redirect to status screen
+function setAnswers(req, res, next) {
+  console.log(req.body.data)
+  if (res.locals.token && res.locals.token.admin) {
+    return config.getDatabaseClient()
+    .then(client => {
+      client.query(`
+        UPDATE school_classes SET data = $1::jsonb
+        WHERE id = $2::integer
+      `,
+      [JSON.stringify(req.body.data), res.locals.token.classId]
+      )
+      .then(result => {
+        res.redirect(301, '/adm/status');
+      })
+      .catch(next)
+      .finally(() => {
+        client.release();
+      });
+    });
+  }
 }
 
 function studentPreInit(req, res, next) {

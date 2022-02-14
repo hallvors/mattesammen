@@ -87,6 +87,13 @@ function handleConnection(ws) {
                 name: decoded.nick,
                 dataurl: msg.dataurl,
               })
+            } else if (msg.predef) {
+              pgEvents.emit('correct-answer', {
+                id: decoded.id,
+                name: decoded.nick,
+                problem: msg.problem,
+                predef: true,
+              })
             }
           })
       })
@@ -117,10 +124,10 @@ function handleConnection(ws) {
               [msg.level, decoded.id],
             )
           })
-          .then(() => client.release())
           .then(() => {
             pgEvents.emit('bingo', { id: decoded.id, nick: decoded.nick })
           })
+          .finally(() => client.release())
       })
     })
     ws.on('new-fraction-task', (msg) => {
@@ -129,6 +136,15 @@ function handleConnection(ws) {
         console.log('will emit new-fraction-task', msg)
         taskCache.set(msg.classId, {evt: 'new-fraction-task', data: msg});
         pgEvents.emit('new-fraction-task', msg)
+      }
+    })
+
+    ws.on('next-task-ready', (msg) => {
+      console.log(msg, decoded.classId === msg.classId)
+      if (decoded.classId === msg.classId) {
+        console.log('will emit next-task-ready', msg)
+        taskCache.set(msg.classId, {evt: 'next-task-ready', data: msg});
+        pgEvents.emit('next-task-ready', msg)
       }
     })
 
@@ -227,6 +243,8 @@ function listenForDbUpdates(tokenData, ws) {
   pgEvents.on('bingo-card-update', (msg) => ws.emit('bingo-card-update', msg))
   pgEvents.on('fractions-answer', (msg) => ws.emit('fractions-answer', msg))
   pgEvents.on('new-fraction-task', (msg) => ws.emit('new-fraction-task', msg))
+  pgEvents.on('next-task-ready', (msg) => ws.emit('next-task-ready', msg))
+  pgEvents.on('correct-answer', (msg) => ws.emit('correct-answer', msg))
   pgEvents.on('bingo', (msg) => ws.emit('bingo', msg))
 
   ws.on('disconnect', () => {

@@ -4,7 +4,7 @@ const config = require('./config');
 function decodeToken(req, res, next) {
   if (req.cookies.token) {
     try {
-      token = jwt.verify(req.cookies.token, config.jwtSecret);
+      let token = jwt.verify(req.cookies.token, config.jwtSecret);
       console.log(`decoded: ${JSON.stringify(token)}`);
       res.locals.token = token;
       return next();

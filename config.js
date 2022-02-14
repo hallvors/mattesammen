@@ -76,7 +76,14 @@ const SESSION_TYPES = [
     jsFiles: [
       '/js/fractions.js',
     ]
-  }
+  },
+  {
+    mathType: 'predefined-answers',
+    title: 'Fasitrommet',
+    jsFiles: [
+      '/js/predefined-answers.js',
+    ]
+  },
 ];
 
 const SHAPE_DESCS = {

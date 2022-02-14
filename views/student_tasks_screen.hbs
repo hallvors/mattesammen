@@ -29,10 +29,10 @@
   var className = '{{className}}';
   var id = {{id}};
   var classId = {{class_id}};
-  var params = {
+  var params = {{#if data}}{{{data}}};{{else}}{
     start: 1,
     end: level + 2,
-  };
+  };{{/if}}
 </script>
 <script type="text/javascript" src="/js/shared.js"></script>
 {{#each jsFiles}}

@@ -44,18 +44,22 @@ function classroom(req, res, next) {
       )
       .then(results => {
         console.log(results.rows[0])
-        client.release();
         let sessionType = results.rows[0]['session_type'];
-        let data = config.types.find(type => type.mathType === sessionType);
+        if (results.rows[0].data) {
+          results.rows[0].data = JSON.stringify(results.rows[0].data);
+        }
+        let taskTypeData = config.types.find(type => type.mathType === sessionType);
         let socketConnectURL = '/?token=' + jwt.sign(res.locals.token, config.jwtSecret);
         return res.render('student_tasks_screen', Object.assign({
           layout: 'main',
           socketConnectURL,
-        }, {token}, results.rows[0], data));
+        }, {token}, results.rows[0], taskTypeData));
       })
       .catch(err => {
-        client.release();
         res.render('error', {layout: 'main', message: 'Ukjent feil'});
+      })
+      .finally(() => {
+        client.release();
       });
     });
 

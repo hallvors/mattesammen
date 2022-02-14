@@ -8,6 +8,7 @@ const {decodeToken} = require('./utils');
 
 
 router.get('/', main);
+router.get('/fasit', decodeToken, defineAnswers);
 router.get('/status', decodeToken, status);
 
 function main(req, res, next) {
@@ -29,6 +30,9 @@ function main(req, res, next) {
   }
 }
 
+function defineAnswers(req, res, next) {
+  res.render('admin_define_answers');
+}
 function status(req, res, next) {
   if (res.locals.token) {
     let token = res.locals.token;
@@ -51,10 +55,12 @@ function status(req, res, next) {
           socketConnectURL: '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
           bingo: results.rows[0].session_type === 'geobingo',
           fractions: results.rows[0].session_type === 'fractions',
+          predef: results.rows[0].session_type === 'predefined-answers',
           shapeTypes: JSON.stringify(config.SHAPE_DESCS),
         });
       });
-    });
+    })
+    .catch(next)
   } else {
     res.send('ikke gyldig tilgang, prøv å laste på nytt')
   }
