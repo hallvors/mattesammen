@@ -179,10 +179,10 @@ div#count {
   max-width: 260px;
 }*/
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 1200px) {
   body {
     font-size: 3em;
-    margin: 5% 25%;
+    margin: 5% 20%;
   }
   #stars {
     font-size: 1em;
