@@ -2,7 +2,7 @@ var timingLog = [];
 var startTime;
 var taskIndex = -1;
 var supportedTypes = ['predefined-answers'];
-var doneQuestions = {};
+var doneQuestions = [];
 
 function nextTask() {
   var div = document.getElementById("tasks");
@@ -34,6 +34,9 @@ function handleAnswer(evt) {
 }
 
 function handleCorrectAnswer(answer) {
+  if (doneQuestions[taskIndex]) {
+      return;
+  }
   var log = document.getElementById("log");
   var duration = Date.now() - startTime;
   if (log.firstChild) {
@@ -58,9 +61,9 @@ function handleCorrectAnswer(answer) {
   if (duration < 60000) {
     timingLog.push(duration);
   }
-  doneQuestions[answer] = {duration};
+  doneQuestions[taskIndex] = {duration};
   if (duration < 3000) {
-    doneQuestions[answer].known = true;
+    doneQuestions[taskIndex].known = true;
   }
 }
 socket.on('next-task-ready', function (payload) {
