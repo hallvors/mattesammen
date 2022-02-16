@@ -16,8 +16,7 @@ h2 {
 }
 
 body {
-  margin: 10% 5%;
-  border-radius: 60px;
+  margin: 8% 4%;
 }
 .header {
   border-radius: 60px;
@@ -90,7 +89,7 @@ div#count {
 }
 
 #stars {
-  font-size: 2em;
+  font-size: 1.8em;
   text-align: center;
 }
 
