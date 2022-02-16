@@ -9,6 +9,7 @@ const res = require('express/lib/response');
 
 router.post('/schools/create', createClassSession);
 router.post('/schools/set-answers', decodeToken, setAnswers);
+router.get('/redirect', redirect);
 router.post('/quit', endSession);
 router.post('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
@@ -136,6 +137,17 @@ function studentInit(req, res, next) {
 function endSession(req, res, next) {
   res.cookie('token', '', {expires: new Date(-1000)});
   res.redirect(302, '/adm');
+}
+
+function redirect(req, res, next) {
+  if (!req.query.token) {
+    return next(new Error('redirect requires token'));
+  }
+  if (!req.query.destination || !/^\//.test(req.query.destination)) {
+    return next(new Error('redirect requires valid destination'));
+  }
+  res.cookie('token', req.query.token);
+  res.redirect(req.query.destination);
 }
 
 module.exports = {

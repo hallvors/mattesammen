@@ -1,0 +1,28 @@
+<style>
+.needshelp {
+    background: rgb(248, 130, 130);
+}
+.top-third {
+    background-color: rgb(197, 255, 219);
+}
+.middle-third {
+    background-color: bisque;
+}
+.bottom-third {
+    background-color: orange;
+}
+</style>
+
+<div>
+    <table>
+        <tr>
+            <th>Navn (nick)</th><th>Antall svar</th>
+            {{#each details}}
+                <tr class="{{ category }}">
+                    <td>{{ name }}</td>
+                    <td>{{ completed_tasks }}</td>
+                </tr>
+            {{/each}}
+        </tr>
+    </table>
+</div>
