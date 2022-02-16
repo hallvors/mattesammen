@@ -1,6 +1,6 @@
 var timingLog = [];
 var startTime;
-var questionIndex = -1;
+var taskIndex = -1;
 var supportedTypes = ['predefined-answers'];
 var doneQuestions = {};
 
@@ -14,10 +14,9 @@ function nextTask() {
   div.innerHTML = "";
   div.className = "";
   startTime = Date.now();
-  questionIndex++;
-  if (params[questionIndex]) {
+  if (params[taskIndex]) {
     elm('p', {}, [document.createTextNode('Skriv svaret her (oppgave ' +
-      (questionIndex + 1) + '/' + params.length + '):')], div);
+      (taskIndex + 1) + '/' + params.length + '):')], div);
     elm('input', {name: 'answer', onkeyup: handleAnswer}, null, div);
   } else {
     elm('p', {}, [document.createTextNode('Ferdig!')], div);
@@ -29,7 +28,7 @@ function handleAnswer(evt) {
   evt.preventDefault();
   var answerElm = document.getElementsByName("answer")[0];
   var answer = answerElm.value.replace(/\s/g, '').toLowerCase();
-  if (answer === params[questionIndex]) {
+  if (answer === params[taskIndex]) {
     handleCorrectAnswer(answer);
   }
 }
@@ -66,5 +65,6 @@ function handleCorrectAnswer(answer) {
 }
 socket.on('next-task-ready', function (payload) {
     console.log('next-task-ready', payload)
+    taskIndex=payload.taskIndex;
     nextTask();
 });

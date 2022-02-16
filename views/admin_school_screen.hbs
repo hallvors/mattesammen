@@ -243,18 +243,29 @@ function newEqualsFraction() {
   </div>
   <div class="col2">
   <p class="instruksjon">
-    <button type="submit" class="default-btn positive-btn" id="next">Neste ✔</button>
+    <button type="submit" class="positive-btn" id="prev">&lt;</button>
+    <span id="current"></span>
+    <button type="submit" class="default-btn positive-btn" id="next">&gt;</button>
     <h2>Elever:</h2>
     <ul id="students"></ul>
   </p>
 
 <script>
   var answers = {};
-
-  function nextTask() {
+  var taskIndex = -1;
+  function nextTask(increment) {
     answers = {};
     document.getElementById('answers').innerHTML = '';
-    socket.emit('next-task-ready', {classId: {{classId}} });
+    if (typeof increment === 'number') {
+      taskIndex+=increment;
+    } else {
+      taskIndex++;
+    }
+    if (taskIndex < 0) {
+      taskIndex = 0;
+    }
+    document.getElementById('current').innerHTML = (taskIndex + 1);
+    socket.emit('next-task-ready', {classId: {{classId}}, taskIndex });
   }
   socket.on('correct-answer', function(data) {
     var studentNum = Object.keys(studentElmMapping).length;
@@ -273,7 +284,11 @@ function newEqualsFraction() {
   window.addEventListener('load', nextTask)
   document.getElementById('next').onclick = function(evt) {
     evt.preventDefault();
-    nextTask();
+    nextTask(1);
+  }
+  document.getElementById('prev').onclick = function(evt) {
+    evt.preventDefault();
+    nextTask(-1);
   }
   </script>
 </script>

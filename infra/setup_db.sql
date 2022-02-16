@@ -42,4 +42,3 @@ CREATE TRIGGER student_sessions_trigger
 AFTER INSERT OR UPDATE OR DELETE
 ON student_sessions FOR EACH ROW
 EXECUTE PROCEDURE student_sessions_notify();
-
