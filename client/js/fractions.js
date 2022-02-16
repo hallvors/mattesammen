@@ -62,12 +62,13 @@ function evtHandler(data) {
       }
     }
   }
-  if (correct) {
+  if (correct && !completed) {
     socket.emit('correct-answer', {
       level: level,
       classId: classId,
       dataurl: data.dataurl,
     })
+    completed = true;
     bounceStars()
   }
 }
