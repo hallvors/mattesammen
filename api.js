@@ -112,15 +112,27 @@ function studentInit(req, res, next) {
   }
   return config.getDatabaseClient()
   .then(client => {
-    return client.query(`
+    // did this person already submit a nick / create a session?
+    const hasSession = res.locals.token && res.locals.token.nick && res.locals.token.id;
+    const promises = [];
+    if (hasSession) {
+      promises.push(client.query(`
+      UPDATE student_sessions SET name = $1::text
+      WHERE class_id = $2::integer AND id = $3::integer
+      RETURNING *
+    `, [req.body.nick, res.locals.token.classId, res.locals.token.id]));
+    } else {
+      promises.push(client.query(`
       INSERT INTO student_sessions (name, session_date, completed_tasks, level, class_id)
       VALUES ($1::text, NOW(), 0, $2::integer, $3::integer)
       RETURNING *
-    `, [req.body.nick, req.body.level, res.locals.token.classId])
+    `, [req.body.nick, req.body.level, res.locals.token.classId]));
+    }
+    return Promise.all(promises)
     .then(res1 => {
       res.cookie('token', jwt.sign(Object.assign(res.locals.token,
       {
-        id: res1.rows[0].id,
+        id: res1[0].rows[0].id,
         nick: req.body.nick,
         level: req.body.level
       }), config.jwtSecret));
