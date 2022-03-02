@@ -137,7 +137,7 @@
     ];
     var names = {
       denmark: ['danmark'],
-      finland: ['finland'],
+      finland: ['finnland'],
       france: ['frankrike'],
       germany: ['tyskland'],
       iceland: ['island'],
@@ -347,7 +347,7 @@
     }
 
     function sameCol(startIdx, endIdx) {
-      return startIdx % 10 === endIdx % 10;
+      return startIdx % 10 === endIdx % 10 && endIdx > -1 && endIdx < 100;
     }
 
     function sameRow(startIdx, endIdx) {
