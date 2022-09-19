@@ -227,13 +227,16 @@ function createFindNumbersMathTask(div, type, num1, num2, answer) {
   }
   if (replaceFirst) {
     i = getRandomWholeNumber(0, numbers.length);
+    // Don't remove any existing desirable numbers when inserting num1
+    while ([num1, num2].includes(numbers[i])) {
+      i = getRandomWholeNumber(0, numbers.length);
+    }
     numbers.splice(i, 1, num1);
   }
   if (replaceOtherToo) {
     i = getRandomWholeNumber(0, numbers.length);
-    if (numbers[i] === num1) {
-      // Whoopsie.. Do not remove num1 to insert num2..!
-      i = i < numbers.length - 2 ? i + 1 : 0;
+    while ([num1, num2].includes(numbers[i])) {
+      i = getRandomWholeNumber(0, numbers.length);
     }
     numbers.splice(i, 1, num2);
   }
