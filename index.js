@@ -29,6 +29,9 @@ app.use('/api', api);
 
 const adm = require('./adm').router;
 app.use('/adm', adm);
+app.get('/lærer', (req, res) => res.redirect('/adm'));
+app.get('/laerer', (req, res) => res.redirect('/adm'));
+app.get('/admin', (req, res) => res.redirect('/adm'));
 
 const student = require('./student').router;
 app.use('/student', student);
