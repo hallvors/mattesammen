@@ -27,8 +27,8 @@ function nextTask() {
 function handleAnswer(evt) {
   evt.preventDefault();
   var answerElm = document.getElementsByName("answer")[0];
-  var answer = answerElm.value.replace(/\s/g, '').toLowerCase();
-  if (answer === params[taskIndex].toLowerCase()) {
+  var answer = answerElm.value.replace(/^\s/g, '').replace(/\s$/g, '');
+  if (answer === params[taskIndex]) {
     handleCorrectAnswer(answer);
   }
 }
