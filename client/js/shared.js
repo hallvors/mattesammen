@@ -104,6 +104,27 @@ var figureCode = {
     pathString += " z";
     return elm.path(pathString);
   },
+  paralellogram: function(elm, canvWidth) {
+    var path = [
+      'M' + (canvWidth / 2) + ',' + (canvWidth / 3),
+      'l' + (canvWidth / 3) + ', 0',
+      'l' + (canvWidth / 3) + ',' + (canvWidth / 3),
+      'l-' + (canvWidth / 3) + ',' + 0,
+      'L' + (canvWidth / 2) + ',' + (canvWidth / 3),
+    ];
+    return elm.path(path.join(''));
+  },
+  trapes: function(elm, canvWidth) {
+    var path = [
+      'M' + (canvWidth / 2) + ',' + (canvWidth / 3),
+      'l' + (canvWidth / 3) + ', 0',
+      'l' + (canvWidth / 3) + ',' + (canvWidth / 3),
+      'l-' + ((canvWidth / 3) * 2) + ',' + 0,
+      'L' + (canvWidth / 2) + ',' + (canvWidth / 3),
+    ];
+    return elm.path(path.join(''));
+  },
+
 };
 
 var keys = Object.keys(figureCode);

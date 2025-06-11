@@ -94,6 +94,8 @@ const SHAPE_DESCS = {
   triangle2: 'en rettvinklet trekant',
   poly5: 'en femkant',
   poly6: 'en sekskant',
+  trapes: 'en trapes',
+  paralellogram: 'et paralellogram',
 }
 
 module.exports = {
