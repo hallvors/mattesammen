@@ -5,79 +5,113 @@ var supportedTypes = ['wordcloud'];
 var doneQuestions = [];
 var numWordsInCloud = 2;
 // Params should be a string like "formA,formB,formC\r\nformA,formB,formC"
-var allWords = params.map(function(item){return item.split(/,/g)});
-
+var allWords = params.map(function (item) {
+  return item.split(/,/g);
+});
+var firstWords = [];
 function nextTask() {
-  var div = document.getElementById("tasks");
+  var div = document.getElementById('tasks');
   var sessionType = window.sessionType;
   if (!supportedTypes.includes(sessionType)) {
     // this session type is not supported by this .js-file
     throw new Error('Not supported: ' + sessionType);
   }
-  div.innerHTML = "";
-  div.className = "";
+  div.innerHTML = '';
+  div.className = '';
   startTime = Date.now();
   elm('p', {}, [document.createTextNode('Velg ord som hører sammen')], div);
-  elm('p', {id: 'answer'}, [], div);
-  var cloud = document.getElementById('thecloud') || elm('p', { id: 'thecloud'}, [], div);
+  var answerElm = elm(
+    'p',
+    { id: 'answer', class: 'wordcloud-answer' },
+    [],
+    div
+  );
+  var cloud =
+    document.getElementById('thecloud') ||
+    elm('p', { id: 'thecloud' }, [], div);
   // pick numWordsInCloud lines from allWords (random from the numWordsInCloud * 1,5 first items)
   var words = [];
   var usedIndexes = [];
   var max = Math.ceil(numWordsInCloud * 1.5);
-    if (max > allWords.length) {max = allWords.length}
-    while (words.length < numWordsInCloud) {
-        var index = getRandomWholeNumber(0, max);
-        if (!usedIndexes.includes(index)) {
-            words.push(allWords[index])
-            usedIndexes.push(index)
-        }
+  // we don't have space for an enourmous number of buttons.. We make a window of max 15 items
+  var min = max > 15 ? max - 15 : 0;
+  if (max > allWords.length) {
+    max = allWords.length;
+    min = Math.max(max - 15, 0);
+  }
+  while (words.length < numWordsInCloud) {
+    var index = getRandomWholeNumber(min, max);
+    if (!usedIndexes.includes(index)) {
+      words.push(allWords[index].concat([]));
+      usedIndexes.push(index);
     }
-    // flatten arrays and jumble them up
-    words = fisherYatesShuffle(words.flat());
-    // render each word as button
-    for (var i = 0; i<words.length; i++) {
-        elm('span', {'class': 'clouditem'}, [elm('input', {name: words[i],value: words[i], type: 'button', onclick: handleAnswer}, null)], cloud)
-    }
+  }
+  // extract all the initial words
+  firstWords = words.map(function (item) {
+    return item.shift();
+  });
+  // flatten arrays of remaining words and jumble them up
+  words = fisherYatesShuffle(words.flat());
+  // render each word as button
+  for (var i = 0; i < words.length; i++) {
+    elm(
+      'span',
+      { class: 'clouditem' },
+      [
+        elm(
+          'input',
+          {
+            name: words[i],
+            value: words[i],
+            type: 'button',
+            onclick: handleAnswer,
+          },
+          null
+        ),
+      ],
+      cloud
+    );
+  }
+  answerElm.innerText = firstWords.shift();
 }
 
 function handleAnswer(evt) {
   evt.preventDefault();
   const word = evt.target.name;
-  var answerElm = document.getElementById("answer");
-  var currentWords = answerElm.innerText ? answerElm.innerText.split(/ - /g) : [];
+  var answerElm = document.getElementById('answer');
+  var currentWords = answerElm.innerText
+    ? answerElm.innerText.split(/ - /g)
+    : [];
   currentWords.push(word);
-  var found = allWords.find(line => {
-    return line.reduce(function(previous, current, index) {
-        if (currentWords[index]) {
-            return previous && currentWords[index] === current
-        }
-        return previous;
-    }, true)
-  })
+  var found = allWords.find((line) => {
+    return line.reduce(function (previous, current, index) {
+      if (currentWords[index]) {
+        return previous && currentWords[index] === current;
+      }
+      return previous;
+    }, true);
+  });
   if (found) {
-    answerElm.innerText +=(answerElm.innerText ? ' - ' : '')+ word;
+    answerElm.innerText += (answerElm.innerText ? ' - ' : '') + word;
     evt.target.parentNode.removeChild(evt.target);
     if (found.length === currentWords.length) {
-        handleCorrectAnswer(currentWords);
+      handleCorrectAnswer(currentWords);
     }
   }
 }
 
 function handleCorrectAnswer(answer) {
-  var log = document.getElementById("log");
+  var log = document.getElementById('log');
   var duration = Date.now() - startTime;
   if (log.firstChild) {
     log.insertBefore(
-      elm("p", {}, [document.createTextNode("⭐ " + answer)]),
+      elm('p', {}, [document.createTextNode('⭐ ' + answer.join(' - '))]),
       log.firstChild
     );
   }
-  var answerElm = document.getElementById("answer");
-  answerElm.innerText = '';
-//  document.getElementById("count").firstChild.data = log.childNodes.length - 1;
   bounceStars();
   console.log('will emit correct-answer, ' + answer);
-  socket.emit("correct-answer", {
+  socket.emit('correct-answer', {
     name: name,
     duration: duration,
     problem: answer,
@@ -88,11 +122,17 @@ function handleCorrectAnswer(answer) {
   if (duration < 60000) {
     timingLog.push(duration);
   }
-  var div = document.getElementById("tasks");
-  if (div.getElementsByTagName('input').length === 0) {
-    numWordsInCloud++;
-    nextTask();
-  }
+  setTimeout(function () {
+    var answerElm = document.getElementById('answer');
+    answerElm.innerText = firstWords.shift();
+    var div = document.getElementById('tasks');
+    if (div.getElementsByTagName('input').length === 0) {
+      if (numWordsInCloud < allWords.length) {
+        numWordsInCloud++;
+      }
+      nextTask();
+    }
+  }, 650);
 }
 
 function getRandomWholeNumber(min, max) {
@@ -100,11 +140,11 @@ function getRandomWholeNumber(min, max) {
 }
 // https://www.geeksforgeeks.org/javascript/how-to-shuffle-the-elements-of-an-array-in-javascript/
 function fisherYatesShuffle(arr) {
-  	for (let i = arr.length - 1; i > 0; i--) {
-    	const j = Math.floor(Math.random() * (i + 1));
-    	[arr[i], arr[j]] = [arr[j], arr[i]];
-  	}
-  	return arr;
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 // start
