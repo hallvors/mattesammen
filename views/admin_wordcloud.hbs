@@ -1,0 +1,67 @@
+<style>
+    li span {
+        display: inline-block;
+        padding: 0 2em;
+    }
+</style>
+<h1>Lag ordsverm</h1>
+<p class="instruksjon">Lim inn ord for en sverm.
+    På hver linje må det være to eller flere ord, atskilt av komma, som hører sammen. Gjerne enklere
+    først og så progressivt vanskeligere. Første ordet blir stikkord, de andre skal velges fra "svermen".
+</p>
+<script>
+    function addSingleAnswer() {
+        var answer = document.getElementsByName('answer')[0].value;
+        addAnswer(answer);
+    }
+
+    function addManyAnswers() {
+        var answers = document.getElementsByName('answers')[0].value.split(/\r?\n/g);
+        for (var i = 0; i < answers.length; i++) {
+            addAnswer(answers[i].trim());
+        }
+    }
+
+    function addAnswer(answer) {
+        if (!answer) {
+            return;
+        }
+        var list = document.getElementById('list');
+        var elm = list.appendChild(document.createElement('li'));
+        elm.appendChild(document.createElement('span'));
+        elm.firstChild.appendChild(document.createTextNode(answer));
+        var input = elm.appendChild(document.createElement('input'));
+        input.type = 'hidden';
+        input.value = answer;
+        input.name = 'data';
+        elm.appendChild(input);
+        var button = elm.appendChild(document.createElement('button'));
+        button.onclick = function () { elm.parentNode.removeChild(elm); };
+        button.appendChild(document.createTextNode('🗑'))
+    }
+    function keyCapture(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            addAnswer(document.getElementsByName('answer')[0].value);
+        }
+    }
+
+</script>
+
+<form method="post" action="/api/schools/set-answers">
+    <ol id="list">
+    </ol>
+
+
+    <p>
+        <textarea name="answers" cols="40" rows="20"></textarea>
+        <br>
+        <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
+    </p>
+
+    <p>Når alle svar er lagt til, gå videre:</p>
+
+    <p>
+        <button type="submit" class="default-btn positive-btn">Lagre svar ✔</button>
+    </p>
+</form>
