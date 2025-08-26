@@ -2,7 +2,8 @@
 * {
   font-family: Georgia, Arial, sans-serif;
 }
-h1, h2 {
+h1,
+h2 {
   font-family: 'Mali', cursive;
 }
 h1 {
@@ -24,9 +25,11 @@ body {
   text-align: center;
   background: #eee;
   border: 6px solid gold;
+  font-size: 0.7em;
 }
 
-input, select {
+input,
+select {
   padding: 10px;
   font-size: 1.1em;
   vertical-align: text-bottom;
@@ -40,7 +43,8 @@ input, select {
   font-size: 1.1em;
   line-height: 1.1em;
 }
-p, .the_task {
+p,
+.the_task {
   vertical-align: text-bottom;
   line-height: 1.1em;
   font-size: 1.1em;
@@ -55,7 +59,8 @@ p, .the_task {
   display: inline-block;
 }
 
-p.instruksjon, #log {
+p.instruksjon,
+#log {
   font-size: 0.8em;
   text-align: justify;
 }
@@ -65,24 +70,41 @@ div#count {
 }
 
 @keyframes jumpy {
-30% {transform: translateY(-8px);}
-50% {transform: translateY(0px);}
-50% {transform: translateY(-9px);}
-100% {transform: translateY(0px);}
+  30% {
+    transform: translateY(-8px);
+  }
+  50% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 @keyframes shaky {
-30% {transform: translateX(-12px);}
-50% {transform: translateX(0px);}
-50% {transform: translateX(-12px);}
-100% {transform: translateX(0px);}
+  30% {
+    transform: translateX(-12px);
+  }
+  50% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(-12px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
 }
 
-#stars.bounce span{
+#stars.bounce span {
   animation-name: jumpy;
 }
 
-#stars span, .the_task input {
+#stars span,
+.the_task input {
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
   animation-duration: 150ms;
@@ -174,7 +196,7 @@ div#count {
   list-style-type: none;
   flex: 0 1 20%;
 }
-#thecloud{
+#thecloud {
   display: flex;
   gap: 1em;
   width: 100%;
@@ -196,6 +218,15 @@ div#count {
     font-size: 1em;
     letter-spacing: 0.4em;
   }
-  .col1 {float: left; width: 45%; margin-right: 4%; border-right: 1px solid #eee}
-  .col2 {float: right; width: 45%; margin-left: 5%;}
+  .col1 {
+    float: left;
+    width: 45%;
+    margin-right: 4%;
+    border-right: 1px solid #eee;
+  }
+  .col2 {
+    float: right;
+    width: 45%;
+    margin-left: 5%;
+  }
 }
