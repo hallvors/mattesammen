@@ -84,6 +84,13 @@ const SESSION_TYPES = [
       '/js/predefined-answers.js',
     ]
   },
+  {
+    mathType: 'wordcloud',
+    title: 'Ordsverm',
+    jsFiles: [
+      '/js/wordcloud.js',
+    ]
+  },
 ];
 
 const SHAPE_DESCS = {

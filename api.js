@@ -49,6 +49,8 @@ function createClassSession(req, res, next) {
       client.release();
       if (req.body.session_type === 'predefined-answers') {
         return res.redirect(301, '/adm/fasit');
+      }else if (req.body.session_type === 'wordcloud') {
+        return res.redirect(301, '/adm/ordsverm');
       }
       res.redirect(301, '/adm/status');
     });

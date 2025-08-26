@@ -8,6 +8,7 @@ const {decodeToken} = require('./utils');
 
 router.get('/', main);
 router.get('/fasit', decodeToken, defineAnswers);
+router.get('/ordsverm', decodeToken, defineAnswers);
 router.get('/status', decodeToken, status);
 router.get('/statistikk', decodeToken, stats);
 
@@ -34,6 +35,10 @@ function defineAnswers(req, res, next) {
   res.render('admin_define_answers');
 }
 
+function defineWordcloud(req, res, next) {
+  res.render('admin_wordcloud');
+}
+
 function status(req, res, next) {
   if (res.locals.token) {
     let token = res.locals.token;
@@ -58,6 +63,7 @@ function status(req, res, next) {
           bingo: results.rows[0].session_type === 'geobingo',
           fractions: results.rows[0].session_type === 'fractions',
           predef: results.rows[0].session_type === 'predefined-answers',
+          wordcloud: results.rows[0].session_type === 'wordcloud',
           shapeTypes: JSON.stringify(config.SHAPE_DESCS),
         });
       })
