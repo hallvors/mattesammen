@@ -204,6 +204,13 @@ div#count {
   flex-flow: row wrap;
 }
 
+.wordcloud-answer {
+  border-top: 3px solid gold;
+  border-bottom: 3px solid gold;
+  padding: 0.3em;
+  border-radius: 2em;
+}
+
 /*.mini-bingo-board {
   display: inline-block;
   max-width: 260px;
