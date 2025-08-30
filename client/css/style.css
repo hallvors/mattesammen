@@ -73,6 +73,10 @@ div#timer {
   border-top: 1px solid #eee;
 }
 
+.statslink {
+  font-size: xx-small;
+}
+
 @keyframes jumpy {
   30% {
     transform: translateY(-8px);

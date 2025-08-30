@@ -308,6 +308,12 @@
       <button id="startClock">Start klokke</button>
       <button id="resetClock">Tilbakestill klokke</button><br>
       <label><input type="checkbox" id="resetCounterOnStart">Nullstill teller ved start </label>
+      <br>
+      <p class="statslink">
+        <a href="/api/redirect?destination=/adm/statistikk&token={{tokenStr}}"
+          title="Statistikk (for lærer)">&#x25A4;</a>
+      </p>
+
       <script type="text/javascript">
         var sessionType = '{{sessionType}}';
         (function () {
@@ -369,8 +375,4 @@
   {{/if}}
   {{/if}}
   {{/if}}
-  <p>
-    <a href="/api/redirect?destination=/adm/statistikk&token={{tokenStr}}"
-      title="Statistikk (bør ikke vises elevene)">&#x25A4;</a>
-  </p>
 </div>
