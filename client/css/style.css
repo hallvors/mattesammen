@@ -68,6 +68,10 @@ p.instruksjon,
 div#count {
   font-size: 3em;
 }
+div#timer {
+  font-size: 0.4em;
+  border-top: 1px solid #eee;
+}
 
 @keyframes jumpy {
   30% {
