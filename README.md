@@ -2,17 +2,17 @@
 
 Enkel nettside for å stimulere til mengdetrening i matematikk i klasse-sammenheng.
 
-* Elevene løser oppgaver i eget tempo på egne enheter (mobil/iPad/PC)
-* Antall oppgaver alle har løst til sammen vises på administrator-skjerm, slik at alle ser det
-* Antallet oppdateres fortløpende
+- Elevene løser oppgaver i eget tempo på egne enheter (mobil/iPad/PC)
+- Antall oppgaver alle har løst til sammen vises på administrator-skjerm, slik at alle ser det
+- Antallet oppdateres fortløpende
 
 ## Bruk
 
 1. Lærer går først til [administrasjons-sida](http://ziq.no/adm) og skriver inn navn på skole (for eksempel "Sted skole") og klasse (for eksempel "5A"). Skjermen som da kommer opp, kan elevene se på smartboard e.l.
-1. Lærer kan velge ulike typer oppgaver: de fire regneartene, geometri-bingo, brøk, eller "fasit"-modus der læreren kan legge inn forhåndsbestemte svar
-3. Elevene går deretter til [ziq.no](http://ziq.no) og skriver inn klasse-kode (tall som står på administrasjons-skjermen) og navn eller nick
-4. Elevene får da oppgaver som må løses fortløpende. Lærer kan velge å bruke stoppeklokke-funksjonen på administrasjons-skjermen til å ta tida.
-5. Administrasjons-skjerm holdes automatisk oppdatert med navn på elevene som er inne og antall oppgaver klassen har løst til sammen.
+1. Lærer kan velge ulike typer oppgaver: de fire regneartene, geometri-bingo, brøk, "fasit"-modus der læreren kan legge inn forhåndsbestemte svar eller "ordsky" der en kan legge inn lister over ord som skal velges i riktig rekkefølge
+1. Elevene går deretter til [ziq.no](http://ziq.no) og skriver inn klasse-kode (tall som står på administrasjons-skjermen) og navn eller nick
+1. Elevene får da oppgaver som må løses fortløpende. Lærer kan velge å bruke stoppeklokke-funksjonen på administrasjons-skjermen til å ta tida.
+1. Administrasjons-skjerm holdes automatisk oppdatert med navn på elevene som er inne og antall oppgaver klassen har løst til sammen.
 
 Statistikk er basert på dato - dersom læreren skriver inn samme navn og klasse en annen dag, vil telleren starte på 0.
 
