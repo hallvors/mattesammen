@@ -7,13 +7,13 @@
 <script src="/js/shared.js"></script>
 <script>
   var studentElmMapping = {};
-  socket.on('state', function(payload) {
+  socket.on('state', function (payload) {
     payload = JSON.parse(payload);
     if (payload.data.totals) {
       document.getElementById('count').firstChild.data = payload.data.totals;
     }
     document.getElementById("stars").className = "bounce";
-    setTimeout(function(){document.getElementById("stars").className = "";}, 800);
+    setTimeout(function () { document.getElementById("stars").className = ""; }, 800);
 
     if (payload.data.students) {
       var ul = document.getElementById('students');
@@ -29,334 +29,338 @@
 </script>
 
 
-<div {{#if bingo}}class="bingo"{{/if}}>
+<div {{#if bingo}}class="bingo" {{/if}}>
   <form method="post" action="/api/quit" class="header">
     <button type="submit" style="float: right;" title="Logg ut">x</button>
     <div id="stars">
       <h1>
-          <span class="first">⭐</span>
-          <span class="second">🌟</span>
-          <span class="third">{{className}}</span>
-          <span class="fourth">🌟</span>
-          <span class="third">⭐</span>
+        <span class="first">⭐</span>
+        <span class="second">🌟</span>
+        <span class="third">{{className}}</span>
+        <span class="fourth">🌟</span>
+        <span class="third">⭐</span>
       </h1>
     </div>
     <h2>fra {{school}}</h2>
-    <div class="class-code-label">Klassekode: <b>{{classId}}</b></div>
+    <div class="class-code-label">Gå til <b>ziq.no</b>, skriv klassekode: <b>{{classId}}</b></div>
   </form>
 
-{{#if bingo}}
-<div class="instruksjon">
-  <span id="geodesc"></span>
-  <br /><button type="submit" class="default-btn positive-btn" id="nextbingo">Neste figur ✔</button>
-</div>
-<script src="/js/raphael.js"></script>
-<script>
-  var shapeTypes = {{{shapeTypes}}};
-  var keys = Object.keys(shapeTypes);
-  document.getElementById('nextbingo').onclick = function() {
-    document.getElementById('geodesc').innerHTML = '⌛';
-    setTimeout(function(){
-      var item = getRandomWholeNumber(0, keys.length - 1);
-      document.getElementById('geodesc').innerHTML = 'Finn <b>' + shapeTypes[keys[item]] + '</b>';
-      socket.emit('new-bingo-answer', {answer: keys[item], classId: {{classId}} });
+  {{#if bingo}}
+  <div class="instruksjon">
+    <span id="geodesc"></span>
+    <br /><button type="submit" class="default-btn positive-btn" id="nextbingo">Neste figur ✔</button>
+  </div>
+  <script src="/js/raphael.js"></script>
+  <script>
+    var shapeTypes = {{{ shapeTypes }}};
+    var keys = Object.keys(shapeTypes);
+    document.getElementById('nextbingo').onclick = function () {
+      document.getElementById('geodesc').innerHTML = '⌛';
+      setTimeout(function () {
+        var item = getRandomWholeNumber(0, keys.length - 1);
+        document.getElementById('geodesc').innerHTML = 'Finn <b>' + shapeTypes[keys[item]] + '</b>';
+        socket.emit('new-bingo-answer', { answer: keys[item], classId: {{ classId }} });
     }, 400);
   }
 
-  socket.on('bingo-card-update', function(data) {
-    var name = data.name;
-    if (studentElmMapping[name]) {
-      var elm = studentElmMapping[name];
-      var div = elm.getElementsByTagName('div')[0];
-      if (!div) {
-        div = elm.appendChild(document.createElement('div'));
-        div.className = 'mini-bingo-board';
+    socket.on('bingo-card-update', function (data) {
+      var name = data.name;
+      if (studentElmMapping[name]) {
+        var elm = studentElmMapping[name];
+        var div = elm.getElementsByTagName('div')[0];
+        if (!div) {
+          div = elm.appendChild(document.createElement('div'));
+          div.className = 'mini-bingo-board';
+        }
+        div.innerHTML = '';
+        createAndFillGrid(div, data.cards);
       }
-      div.innerHTML = '';
-      createAndFillGrid(div, data.cards);
-    }
-  });
+    });
 
-  socket.on('bingo', function(data) {
-    alert('Bingo! ' + data.nick );
-  });
+    socket.on('bingo', function (data) {
+      alert('Bingo! ' + data.nick);
+    });
 
-</script>
-<div id="count">0</div>
+  </script>
+  <div id="count">0</div>
 
-<ul id="students"></ul>
+  <ul id="students"></ul>
 
 
-{{else}}
-{{#if fractions}}
-<div class="col1">
-  <div id="fraction-task">
-    <span></span>
-    <span></span>
-  </div>
-  <button onclick="document.getElementById('fraction-answers').innerHTML=''">Fjern svarene</button>
-  <div id="fraction-answers">
+  {{else}}
+  {{#if fractions}}
+  <div class="col1">
+    <div id="fraction-task">
+      <span></span>
+      <span></span>
+    </div>
+    <button onclick="document.getElementById('fraction-answers').innerHTML=''">Fjern svarene</button>
+    <div id="fraction-answers">
 
-  </div>
+    </div>
   </div>
   <div class="col2">
     <div id="count">0</div>
 
-  <p class="instruksjon">
-    <button type="submit" class="default-btn positive-btn" id="nextfraction">Neste brøk ✔</button>
+    <p class="instruksjon">
+      <button type="submit" class="default-btn positive-btn" id="nextfraction">Neste brøk ✔</button>
     <h2>Elever:</h2>
     <ul id="students"></ul>
-  </p>
-</div>
-<style>
-  #fraction-task div {
-    font-size: 2em;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 0.5em solid rgba(255, 255, 255, 0.3);
-  }
-  #fraction-task div *:first-child {
-    border-bottom: 2px solid black;
-  }
-  #fraction-task div * {
-    padding: 1em;
-    display: block;
-    text-align: center;
-  }
+    </p>
+  </div>
+  <style>
+    #fraction-task div {
+      font-size: 2em;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.7);
+      border: 0.5em solid rgba(255, 255, 255, 0.3);
+    }
 
-  #fraction-task div.equals:first-child::before {
-    content: 'Likeverdig!';
-    background: yellow;
-    transform: rotate(-10deg);
-    display: block;
-    font-size: 0.3em;
-    padding: 10px;
-    position: relative;
-    border: 2px solid darkgoldenrod;
-}
+    #fraction-task div *:first-child {
+      border-bottom: 2px solid black;
+    }
 
-  #fraction-task div.sort:first-child::before {
-    content: 'Sorter minst - størst!';
-    background: orange;
-    transform: rotate(-10deg);
-    display: block;
-    font-size: 0.3em;
-    padding: 10px;
-    position: relative;
-    border: 2px solid darkgoldenrod;
-}
-#fraction-answers {
-  width: 100%;
-  clear: both;
-}
-#fraction-answers img {
-  max-width: 45%;
-  float: left
-}
+    #fraction-task div * {
+      padding: 1em;
+      display: block;
+      text-align: center;
+    }
 
-</style>
+    #fraction-task div.equals:first-child::before {
+      content: 'Likeverdig!';
+      background: yellow;
+      transform: rotate(-10deg);
+      display: block;
+      font-size: 0.3em;
+      padding: 10px;
+      position: relative;
+      border: 2px solid darkgoldenrod;
+    }
+
+    #fraction-task div.sort:first-child::before {
+      content: 'Sorter minst - størst!';
+      background: orange;
+      transform: rotate(-10deg);
+      display: block;
+      font-size: 0.3em;
+      padding: 10px;
+      position: relative;
+      border: 2px solid darkgoldenrod;
+    }
+
+    #fraction-answers {
+      width: 100%;
+      clear: both;
+    }
+
+    #fraction-answers img {
+      max-width: 45%;
+      float: left
+    }
+  </style>
   <script>
-  var level = 2;
-  var fractionTaskElm = document.getElementById('fraction-task');
-  var answers;
-  var startTime;
-  var lastTotal = 0;
-  var tasksOnLevel = 0;
-  function nextTask() {
-    // total time < 3/4ths of a minute for all answers, or passed
-    // a given number of tasks for level: levelup
-    if (lastTotal < 0.75 * 60 * 1000 || tasksOnLevel > level) {
-      level++;
-      tasksOnLevel = 0;
-      //document.getElementById('fraction-answers').innerHTML = '';
-    } else {
-      tasksOnLevel++;
-    }
-    lastTotal = 0;
-    answers = {};
-    startTime = Date.now();
-    fractionTaskElm.innerHTML = '';
+    var level = 2;
+    var fractionTaskElm = document.getElementById('fraction-task');
+    var answers;
+    var startTime;
+    var lastTotal = 0;
+    var tasksOnLevel = 0;
+    function nextTask() {
+      // total time < 3/4ths of a minute for all answers, or passed
+      // a given number of tasks for level: levelup
+      if (lastTotal < 0.75 * 60 * 1000 || tasksOnLevel > level) {
+        level++;
+        tasksOnLevel = 0;
+        //document.getElementById('fraction-answers').innerHTML = '';
+      } else {
+        tasksOnLevel++;
+      }
+      lastTotal = 0;
+      answers = {};
+      startTime = Date.now();
+      fractionTaskElm.innerHTML = '';
 
-    var tasks;
-    // variations
-    if (level >= 4 && getRandomWholeNumber(1,4) >= 3) {
-      tasks = [newEqualsFraction()];
-    } else {
-      tasks = [newSimpleFraction()];
+      var tasks;
+      // variations
+      if (level >= 4 && getRandomWholeNumber(1, 4) >= 3) {
+        tasks = [newEqualsFraction()];
+      } else {
+        tasks = [newSimpleFraction()];
+      }
+
+      tasks.forEach(function (task) {
+        var div = fractionTaskElm.appendChild(document.createElement('div'));
+        div.appendChild(document.createElement('span')).innerText = task.numerator;
+        div.appendChild(document.createElement('span')).innerText = task.denominator;
+        if (task.equals) {
+          div.className = 'equals';
+        } else if (task.sort) {
+          div.className = 'sort';
+        }
+      });
+
+      socket.emit('new-fraction-task', { answer: tasks, classId: {{ classId }} });
+  }
+
+    function newSimpleFraction() {
+      var a = getRandomWholeNumber(1, level);
+      var b = getRandomWholeNumber(1, level);
+      var numerator = Math.min(a, b);
+      var denominator = Math.max(a, b);
+      return { numerator: numerator, denominator: denominator }
     }
 
-    tasks.forEach(function(task) {
-      var div = fractionTaskElm.appendChild(document.createElement('div'));
-      div.appendChild(document.createElement('span')).innerText = task.numerator;
-      div.appendChild(document.createElement('span')).innerText = task.denominator;
-      if (task.equals) {
-        div.className = 'equals';
-      } else if (task.sort) {
-        div.className = 'sort';
+    function newEqualsFraction() {
+      var fraction = newSimpleFraction();
+      fraction.equals = true;
+      return fraction;
+    }
+
+    socket.on('fractions-answer', function (data) {
+      var studentNum = Object.keys(studentElmMapping).length;
+      console.log('student elm on answer', studentElmMapping, data)
+      answers[data.name] = true;
+      var div = document.getElementById('fraction-answers');
+      div.appendChild(document.createElement('img')).src = data.dataurl;
+      if (Object.keys(answers).length === studentNum) {
+        bounceStars();
+        lastTotal = startTime - Date.now();
+        setTimeout(nextTask, 1000);
+      } else {
+        console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
       }
     });
-
-    socket.emit('new-fraction-task', {answer: tasks, classId: {{classId}} });
-  }
-
-  function newSimpleFraction() {
-    var a = getRandomWholeNumber(1, level);
-    var b = getRandomWholeNumber(1, level);
-    var numerator = Math.min(a,b);
-    var denominator = Math.max(a,b);
-    return {numerator: numerator, denominator: denominator}
-  }
-
-function newEqualsFraction() {
-  var fraction = newSimpleFraction();
-  fraction.equals = true;
-  return fraction;
-}
-
-  socket.on('fractions-answer', function(data) {
-    var studentNum = Object.keys(studentElmMapping).length;
-    console.log('student elm on answer', studentElmMapping, data)
-    answers[data.name] = true;
-    var div = document.getElementById('fraction-answers');
-    div.appendChild(document.createElement('img')).src = data.dataurl;
-    if (Object.keys(answers).length === studentNum) {
-      bounceStars();
-      lastTotal = startTime - Date.now();
-      setTimeout(nextTask, 1000);
-    } else {
-      console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
+    window.addEventListener('load', nextTask)
+    document.getElementById('nextfraction').onclick = function (evt) {
+      evt.preventDefault();
+      nextTask();
     }
-  });
-  window.addEventListener('load', nextTask)
-  document.getElementById('nextfraction').onclick = function(evt) {
-    evt.preventDefault();
-    nextTask();
-  }
   </script>
 
-{{else}}
+  {{else}}
   {{#if predef}}
   <div class="col1">
-  <div id="count">0</div>
-  <p>svar!</p>
-  <div id="answers"></div>
+    <div id="count">0</div>
+    <p>svar!</p>
+    <div id="answers"></div>
   </div>
   <div class="col2">
-  <p class="instruksjon">
-    <button type="submit" class="positive-btn" id="prev">&lt;</button>
-    <span id="current"></span>
-    <button type="submit" class="default-btn positive-btn" id="next">&gt;</button>
+    <p class="instruksjon">
+      <button type="submit" class="positive-btn" id="prev">&lt;</button>
+      <span id="current"></span>
+      <button type="submit" class="default-btn positive-btn" id="next">&gt;</button>
     <h2>Elever:</h2>
     <ul id="students"></ul>
-  </p>
+    </p>
 
-<script>
-  var answers = {};
-  var taskIndex = -1;
-  function nextTask(increment) {
-    answers = {};
-    document.getElementById('answers').innerHTML = '';
-    if (typeof increment === 'number') {
-      taskIndex+=increment;
-    } else {
-      taskIndex++;
-    }
-    if (taskIndex < 0) {
-      taskIndex = 0;
-    }
-    document.getElementById('current').innerHTML = (taskIndex + 1);
-    socket.emit('next-task-ready', {classId: {{classId}}, taskIndex });
+    <script>
+      var answers = {};
+      var taskIndex = -1;
+      function nextTask(increment) {
+        answers = {};
+        document.getElementById('answers').innerHTML = '';
+        if (typeof increment === 'number') {
+          taskIndex += increment;
+        } else {
+          taskIndex++;
+        }
+        if (taskIndex < 0) {
+          taskIndex = 0;
+        }
+        document.getElementById('current').innerHTML = (taskIndex + 1);
+        socket.emit('next-task-ready', { classId: {{ classId }}, taskIndex });
   }
-  socket.on('correct-answer', function(data) {
-    var studentNum = Object.keys(studentElmMapping).length;
-    console.log('student elm on answer', studentElmMapping, data)
-    answers[data.name] = true;
-    var div = document.getElementById('answers');
-    //elm('p', {}, [document.createTextNode(data.problem)], div);
-    if (Object.keys(answers).length === studentNum) {
-      bounceStars();
-      //lastTotal = startTime - Date.now();
-      setTimeout(nextTask, 1000);
-    } else {
-      console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
-    }
-  });
-  window.addEventListener('load', nextTask)
-  document.getElementById('next').onclick = function(evt) {
-    evt.preventDefault();
-    nextTask(1);
-  }
-  document.getElementById('prev').onclick = function(evt) {
-    evt.preventDefault();
-    nextTask(-1);
-  }
-  </script>
-</script>
+      socket.on('correct-answer', function (data) {
+        var studentNum = Object.keys(studentElmMapping).length;
+        console.log('student elm on answer', studentElmMapping, data)
+        answers[data.name] = true;
+        var div = document.getElementById('answers');
+        //elm('p', {}, [document.createTextNode(data.problem)], div);
+        if (Object.keys(answers).length === studentNum) {
+          bounceStars();
+          //lastTotal = startTime - Date.now();
+          setTimeout(nextTask, 1000);
+        } else {
+          console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
+        }
+      });
+      window.addEventListener('load', nextTask)
+      document.getElementById('next').onclick = function (evt) {
+        evt.preventDefault();
+        nextTask(1);
+      }
+      document.getElementById('prev').onclick = function (evt) {
+        evt.preventDefault();
+        nextTask(-1);
+      }
+    </script>
+    </script>
 
   </div>
   {{else}}
   <div class="col1">
-  <div id="count">0</div>
-  <p>svar!</p>
-  <div id="timer">0:00 <br>
-    <button id="startClock">Start klokke</button>
-    <button id="resetClock">Tilbakestill klokke</button>
-    <script type="text/javascript">
-  var sessionType = '{{sessionType}}';
-  (function() {
-    var seconds = 0;
-    var interval;
-    var running = false;
+    <div id="count">0</div>
+    <p>svar!</p>
+    <div id="timer">0:00 <br>
+      <button id="startClock">Start klokke</button>
+      <button id="resetClock">Tilbakestill klokke</button>
+      <script type="text/javascript">
+        var sessionType = '{{sessionType}}';
+        (function () {
+          var seconds = 0;
+          var interval;
+          var running = false;
 
-    function resetClock() {
-      seconds = 0;
-      updateUI();
-    };
+          function resetClock() {
+            seconds = 0;
+            updateUI();
+          };
 
-    function incrementClock() {
-      seconds++;
-      updateUI();
-    }
+          function incrementClock() {
+            seconds++;
+            updateUI();
+          }
 
-    function updateUI() {
-      var hours = Math.floor(seconds / 3600);
-      var minutes = Math.floor((seconds - hours * 3600) / 60);
-      var secs = Math.floor(seconds - hours * 3600 - minutes * 60);
-      document.getElementById("timer").firstChild.data =
-        "" +
-        (hours ? hours + ":" : "") +
-        (hours ? String(100 + minutes).substr(-2) : minutes) +
-        ":" +
-        String(100 + secs).substr(-2);
-    }
+          function updateUI() {
+            var hours = Math.floor(seconds / 3600);
+            var minutes = Math.floor((seconds - hours * 3600) / 60);
+            var secs = Math.floor(seconds - hours * 3600 - minutes * 60);
+            document.getElementById("timer").firstChild.data =
+              "" +
+              (hours ? hours + ":" : "") +
+              (hours ? String(100 + minutes).substr(-2) : minutes) +
+              ":" +
+              String(100 + secs).substr(-2);
+          }
 
-     function toggleClock(evt) {
-      if (running) {
-        running = false;
-        clearInterval(interval);
-        evt.target.firstChild.data = "Start klokke";
-      } else {
-        running = true;
-        interval = setInterval(incrementClock, 1000);
-        evt.target.firstChild.data = "Stopp klokke";
-      }
-    };
-    document.getElementById('startClock').onclick = toggleClock;
-    document.getElementById('resetClock').onclick = resetClock;
-  })();
-    </script>
-  </div>
+          function toggleClock(evt) {
+            if (running) {
+              running = false;
+              clearInterval(interval);
+              evt.target.firstChild.data = "Start klokke";
+            } else {
+              running = true;
+              interval = setInterval(incrementClock, 1000);
+              evt.target.firstChild.data = "Stopp klokke";
+            }
+          };
+          document.getElementById('startClock').onclick = toggleClock;
+          document.getElementById('resetClock').onclick = resetClock;
+        })();
+      </script>
+    </div>
   </div>
   <div class="col2">
-  <p class="instruksjon">
+    <p class="instruksjon">
     <h2>Elever:</h2>
     <ul id="students"></ul>
+    </p>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{/if}}
+  <p>
+    <a href="/api/redirect?destination=/adm/statistikk&token={{tokenStr}}"
+      title="Statistikk (bør ikke vises elevene)">&#x25A4;</a>
   </p>
-</div>
-{{/if}}
-{{/if}}
-{{/if}}
-<p>
-  <a href="/api/redirect?destination=/adm/statistikk&token={{tokenStr}}" title="Statistikk (bør ikke vises elevene)">&#x25A4;</a>
-</p>
 </div>

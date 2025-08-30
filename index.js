@@ -47,6 +47,8 @@ server.on('request', app);
 const websocket = require('./websocket');
 websocket.mount(server);
 
-server.listen(process.env.PORT, () => {
-  console.log(`[ready] http://localhost:${process.env.PORT}`);
+const port = process.env.PORT || 8080;
+
+server.listen(port, () => {
+  console.log(`[ready] http://localhost:${port}`);
 });
