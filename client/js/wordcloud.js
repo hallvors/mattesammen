@@ -4,9 +4,12 @@ var taskIndex = -1;
 var supportedTypes = ['wordcloud'];
 var doneQuestions = [];
 var numWordsInCloud = 2;
-// Params should be a string like "formA,formB,formC\r\nformA,formB,formC"
+// Slightly clumsy, but do not process button clicks while we do a small timeout
+// to show the found words
+var pausedForTimeout = false;
+// Params is an array of comma-separated strings - make it an array of arrays
 var allWords = params.map(function (item) {
-  return item.split(/,/g);
+  return item.split(/,\s?/g);
 });
 var firstWords = [];
 function nextTask() {
