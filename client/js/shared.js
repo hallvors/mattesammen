@@ -36,11 +36,12 @@ function handleDisconnect() {
 function handleReconnect() {
   console.log(arguments);
 }
-
-socket.on('connect', handleConnect);
-socket.on('error', handleError);
-socket.on('disconnect', handleDisconnect);
-socket.on('reconnect', handleReconnect);
+if (typeof socket !== 'undefined') {
+  socket.on('connect', handleConnect);
+  socket.on('error', handleError);
+  socket.on('disconnect', handleDisconnect);
+  socket.on('reconnect', handleReconnect);
+}
 
 function bounceStars() {
   document.getElementById('stars').className = 'bounce';
