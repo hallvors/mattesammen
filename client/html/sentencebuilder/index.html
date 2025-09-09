@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sentence builder - Tangen 6th grade</title>
+    <script type="text/javascript" src="/js/shared.js"></script>
+    <script>
+      var data = {
+        names: [
+          'Kornelija',
+          'Erling',
+          'Petra',
+          'Nora Elise',
+          'Tiril',
+          'Linnea',
+          'Iver',
+          'Ingrid',
+          'Live',
+          'Emilie',
+          'Elida',
+          'Sofie',
+          'Lukas',
+          'Emma',
+          'Marie',
+          'Linus',
+        ],
+        animals: [
+          'cat',
+          'dog',
+          'rabbit',
+          'fish',
+          'hedgehog',
+          'horse',
+          'pig',
+          'guinea pig',
+          'hampster',
+          'parrot',
+          'cow',
+          'sheep',
+          'snail',
+          'shrimp',
+        ],
+        verbs: [
+          ['is', 'was', 'has been'],
+          ['goes', 'went', 'has gone'],
+          ['does', 'did', 'has done'],
+          ['says', 'said', 'has said'],
+          ['eats', 'ate', 'has eaten'],
+          ['knows', 'knew', 'has known'],
+          ['thinks', 'thought', 'has thought'],
+          ['takes', 'took', 'has taken'],
+          ['sees', 'saw', 'has seen'],
+          ['comes', 'came', 'has come'],
+          ['wants', 'wanted', 'has wanted'],
+          ['uses', 'used', 'has used'],
+          ['finds', 'found', 'has found'],
+          ['gives', 'gave', 'has given'],
+          ['tells', 'told', 'has told'],
+          ['drinks', 'drank', 'has drunk'],
+          ['works', 'worked', 'has worked'],
+          ['calls', 'called', 'has called'],
+          ['tries', 'tried', 'has tried'],
+          ['asks', 'asked', 'has asked'],
+          ['needs', 'needed', 'has needed'],
+          ['leaves', 'left', 'has left'],
+          ['helps', 'helped', 'has helped'],
+          ['talks', 'talked', 'has talked'],
+          ['turns', 'turned', 'has turned'],
+          ['dances', 'danced', 'has danced'],
+          ['starts', 'started', 'has started'],
+          ['shows', 'showed', 'has shown'],
+          ['hears', 'heard', 'has heard'],
+          ['plays', 'played', 'has played'],
+          ['runs', 'ran', 'has run'],
+          ['moves', 'moved', 'has moved'],
+          ['brings', 'brought', 'has brought'],
+          ['writes', 'wrote', 'has written'],
+          ['sits', 'sat', 'has sat'],
+          ['loses', 'lost', 'has lost'],
+          ['meets', 'met', 'has met'],
+          ['learns', 'learnt', 'has learnt'],
+          ['changes', 'changed', 'has changed'],
+          ['understands', 'understood', 'has understood'],
+          ['watches', 'watched', 'has watched'],
+          ['follows', 'followed', 'has followed'],
+          ['stops', 'stopped', 'has stopped'],
+          ['speaks', 'spoke', 'has spoken'],
+          ['grows', 'grew', 'has grown'],
+        ],
+        prepositions: [
+          'to',
+          'with',
+          'for',
+          'at',
+          'in',
+          'about',
+          'under',
+          'over',
+          'inside',
+          'outside',
+          'through',
+        ],
+        nouns: [
+          'a ball',
+          'a salad',
+          'a school',
+          'a house',
+          'a piano',
+          'a teacher',
+          'a car',
+          'a forest',
+          'lake Mjøsa',
+          'Bolleland',
+          'Tangen',
+          'Espa',
+          'a school band',
+          'a child',
+        ],
+      };
+    </script>
+    <style>
+      #buttonspace {
+        display: flex;
+        gap: 1em;
+        width: 100%;
+        align-content: space-between;
+        flex-flow: row wrap;
+      }
+
+      #output {
+        border-top: 3px solid gold;
+        border-bottom: 3px solid gold;
+        padding: 0.3em;
+        border-radius: 2em;
+        font-size: x-large;
+      }
+
+      button {
+        border-radius: 1em;
+        padding: 0.4em;
+        font-size: 1.5em;
+        border-color: gold;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Select words to form a sentence:</p>
+    <p id="output"></p>
+    <form id="buttonspace"></form>
+    <script>
+      var btnSpace = document.getElementById('buttonspace');
+      var out = document.getElementById('output');
+      var sentenceparts = [];
+
+      function appendWordAndRenderNewButtons(evt) {
+        var type = evt.target.className;
+        var word = evt.target.value;
+        if (!word) {
+          return;
+        }
+        rerenderUi(word, type);
+      }
+      function rerenderUi(word, type) {
+        switch (type) {
+          case 'names':
+            sentenceparts[0] = word;
+            clearButtons();
+            renderButtons('animals');
+            break;
+          case 'animals':
+            sentenceparts.push(word);
+            clearButtons();
+            renderSelectElements('verbs');
+            break;
+          case 'verbs':
+            clearButtons();
+            sentenceparts.push(word);
+            renderButtons('prepositions');
+            elm('hr', {}, null, btnSpace);
+            renderButtons('nouns');
+            break;
+          case 'prepositions':
+          case 'nouns':
+          default:
+            sentenceparts.push(word);
+            break;
+        }
+        out.innerText = sentenceparts.join(' ');
+      }
+      function clearButtons() {
+        btnSpace.innerHTML = '';
+      }
+      function undoLast() {
+        if (sentenceparts.length == 0) {
+          return;
+        }
+        sentenceparts.pop();
+        switch (sentenceparts.length) {
+          case 0:
+            clearButtons();
+            renderButtons('names');
+            break;
+          case 1:
+            clearButtons();
+            renderButtons('animals');
+            break;
+          case 2:
+            clearButtons();
+            renderSelectElements('verbs');
+            break;
+          default:
+            clearButtons();
+            renderButtons('prepositions');
+            renderButtons('nouns');
+        }
+        out.innerText = sentenceparts.join(' ');
+      }
+      function renderButtons(listName) {
+        for (var i = 0; i < data[listName].length; i++) {
+          var word = data[listName][i] + (listName === 'names' ? "'s" : '');
+          var btn = elm(
+            'button',
+            {
+              class: listName,
+              type: 'button',
+              value: word,
+              onclick: appendWordAndRenderNewButtons,
+            },
+            [document.createTextNode(word)],
+            btnSpace
+          );
+        }
+      }
+      function renderSelectElements(listName) {
+        for (var i = 0; i < data[listName].length; i++) {
+          var btn = elm(
+            'select',
+            { class: listName, oninput: appendWordAndRenderNewButtons },
+            [
+              elm('option', { value: '' }, [
+                document.createTextNode(data[listName][i][0] + ': '),
+              ]),
+            ].concat(
+              data[listName][i].map(function (word, idx) {
+                return elm(
+                  'option',
+                  {
+                    'data-idx': idx,
+                    value: word,
+                  },
+                  [document.createTextNode(word)]
+                );
+              })
+            ),
+            btnSpace
+          );
+        }
+      }
+      renderButtons('names');
+      function restart() {
+        elm(
+          'p',
+          {},
+          [document.createTextNode(sentenceparts.join(' ') + '.')],
+          document.getElementById('log')
+        );
+        clearButtons();
+        renderButtons('names');
+        sentenceparts = [];
+        out.innerText = sentenceparts.join(' ');
+      }
+      function processAnyWord(evt) {
+        evt.preventDefault();
+        rerenderUi(document.getElementById('anyword').value, 'nouns');
+      }
+    </script>
+
+    <form onsubmit="processAnyWord(event)">
+      <p>Add any word:</p>
+      <input id="anyword" /><button
+        type="button"
+        onclick="processAnyWord(event)"
+      >
+        Add
+      </button>
+    </form>
+    <hr />
+    <form>
+      <button type="button" onclick="undoLast()">Undo last word</button>
+      <br />
+      <button type="button" onclick="restart()">
+        Save and start a new sentence!
+      </button>
+    </form>
+    <hr />
+    <div id="log"></div>
+  </body>
+</html>
