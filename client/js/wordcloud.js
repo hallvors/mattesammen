@@ -80,6 +80,9 @@ function nextTask() {
 
 function handleAnswer(evt) {
   evt.preventDefault();
+  if (pausedForTimeout) {
+    return;
+  }
   const word = evt.target.name;
   var answerElm = document.getElementById('answer');
   var currentWords = answerElm.innerText
@@ -125,10 +128,13 @@ function handleCorrectAnswer(answer) {
   if (duration < 60000) {
     timingLog.push(duration);
   }
+  // We want them to see the result for a moment
+  pausedForTimeout = true;
   setTimeout(function () {
     var answerElm = document.getElementById('answer');
     answerElm.innerText = firstWords.shift();
     var div = document.getElementById('tasks');
+    pausedForTimeout = false;
     if (div.getElementsByTagName('input').length === 0) {
       if (numWordsInCloud < allWords.length) {
         numWordsInCloud++;
