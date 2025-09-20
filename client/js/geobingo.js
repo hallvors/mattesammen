@@ -20,6 +20,7 @@ for (var i = 0; i < 25; i++) {
 function init() {
   var div = document.getElementById('tasks');
   div.style.marginTop = '15px';
+  div.style.marginLeft = div.style.marginRight = 'auto';
   createAndFillGrid(div, cards, evtHandler);
 }
 
