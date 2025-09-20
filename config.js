@@ -1,40 +1,42 @@
-const { Pool } = require("pg");
+const { Pool } = require('pg');
 
-const NODE_ENV = process.env.NODE_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: NODE_ENV !== "development" ? {
-    rejectUnauthorized: false
-  } : false,
+  ssl:
+    NODE_ENV !== 'development'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
 });
 
 const jwtSecret = process.env.ZIQ_JWT_SECRET;
 const cookieSecret = process.env.ZIQ_COOKIE_SECRET;
 
 if (!(jwtSecret && cookieSecret && process.env.DATABASE_URL)) {
-  console.error('Required environment variables missing!')
-  process.exit(-1)
+  console.error('Required environment variables missing!');
+  process.exit(-1);
 }
 
 // the pool with emit an error on behalf of any idle clients
 // it contains if a backend error or network partition happens
-pool.on("error", (err, client) => {
-  console.error("Unexpected error on idle client", err);
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 
 function getDatabaseClient() {
-  return Promise.resolve(pool.connect())
-  .catch(err => {
-    console.error('database connection failure')
+  return Promise.resolve(pool.connect()).catch((err) => {
+    console.error('database connection failure');
     console.error(err);
     return Promise.reject(err.message);
   });
 }
 
 const SESSION_TYPES = [
-   {
+  {
     mathType: 'addisjon',
     title: 'Addisjonsrommet',
     sign: '+',
