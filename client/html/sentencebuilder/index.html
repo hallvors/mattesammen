@@ -22,6 +22,37 @@
           'Emma',
           'Marie',
           'Linus',
+          'Hallvord Reiar',
+        ],
+        adjectives: [
+          'red',
+          'green',
+          'yellow',
+          'blue',
+          'good',
+          'new',
+          'first',
+          'last',
+          'long',
+          'great',
+          'little',
+          'own',
+          'other',
+          'old',
+          'right',
+          'big',
+          'high',
+          'small',
+          'large',
+          'next',
+          'early',
+          'young',
+          'important',
+          'bad',
+          'best',
+          'real',
+          'only',
+          'true',
         ],
         animals: [
           'cat',
@@ -32,12 +63,17 @@
           'horse',
           'pig',
           'guinea pig',
-          'hampster',
+          'hamster',
           'parrot',
           'cow',
           'sheep',
           'snail',
           'shrimp',
+          'ant',
+          'fire ant',
+          'weaver ant',
+          'leafcutter ant',
+          'army ant',
         ],
         verbs: [
           ['is', 'was', 'has been'],
@@ -163,6 +199,11 @@
         switch (type) {
           case 'names':
             sentenceparts[0] = word;
+            clearButtons();
+            renderButtons('adjectives');
+            break;
+          case 'adjectives':
+            sentenceparts.push(word);
             clearButtons();
             renderButtons('animals');
             break;
