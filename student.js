@@ -1,10 +1,10 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 const config = require('./config');
 const jwt = require('jsonwebtoken');
-const {decodeToken} = require('./utils');
+const { decodeToken } = require('./utils');
 
 router.get('/', main);
 router.get('/navn', decodeToken, pickNick);
@@ -12,20 +12,27 @@ router.get('/klasserom', decodeToken, classroom);
 
 function main(req, res, next) {
   return res.render('student_first_screen', {
-    layout: 'main'
+    layout: 'main',
   });
 }
 
 function pickNick(req, res, next) {
-  let token;
   if (res.locals.token) {
-    return res.render('student_second_screen', Object.assign({
-      layout: 'main'
-    }, res.locals.token));
+    return res.render(
+      'student_second_screen',
+      Object.assign(
+        {
+          layout: 'main',
+          nick: req.cookies.nick,
+        },
+        res.locals.token
+      )
+    );
   } else {
     res.render('error', {
       layout: 'main',
-      message: 'Beklager, det har oppstått en ukjent feil. Gå tilbake og prøv på nytt.'
+      message:
+        'Beklager, det har oppstått en ukjent feil. Gå tilbake og prøv på nytt.',
     });
   }
 }

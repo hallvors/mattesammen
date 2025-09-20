@@ -1,9 +1,8 @@
-
 <h1>Velkommen til {{className}} på {{school}}</h1>
 <form method="post" action="/api/student/access">
   <p>Hva heter du?</p>
   <p>
-    <input type="text" name="nick" placeholder="Fornavn" required>
+    <input type="text" name="nick" placeholder="Fornavn" {{#if nick}}value="{{nick}}" {{/if}} required>
     <input type="hidden" name="pin" value="{{classId}}">
   </p>
   <!--<p>Hvor vanskelige oppgaver vil du begynne med?</p>
@@ -15,6 +14,6 @@
       <option value="6">Veldig vanskelige</option>
     </select>
   </p>-->
-    <button type="submit" class="default-btn positive-btn">✔</button>
+  <button type="submit" class="default-btn positive-btn">✔</button>
   </p>
 </form>
