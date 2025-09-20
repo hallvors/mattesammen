@@ -151,19 +151,29 @@ var figureCode = {
 var keys = Object.keys(figureCode);
 
 function createAndFillGrid(parentElm, cards, evtHandler) {
-  // let's do 5x5
   var canvases = [];
-  let width = Math.floor(parentElm.offsetWidth / 5.5);
+  var gridSide = Math.sqrt(cards.length);
+  let width = Math.floor(parentElm.offsetWidth / (gridSide * 1.05));
+  // oddly, sometimes board becomes too wide
+  parentElm.style.width = width * gridSide * 1.01 + 'px';
+  parentElm.style.overflowX = 'hidden';
   let counter = 0;
-  for (var i = 0; i < 5; i++) {
-    for (var j = 0; j < 5; j++) {
+  for (var i = 0; i < gridSide; i++) {
+    for (var j = 0; j < gridSide; j++) {
       var card = cards[counter];
-      var canvas = Raphael(parentElm, width, width);
+      var canvas = Raphael(parentElm, width, width / 1.1);
       canvases.push(canvas);
-      var border = canvases[canvases.length - 1].rect(0, 0, width, width);
+      var border = canvas.rect(0, 0, width, width);
       border.attr('stroke-width', '4px');
       border.attr('fill', '#fff');
-      var elm = figureCode[card.type](canvases[canvases.length - 1], width);
+      if (card.type === 'word') {
+        // TODO: figure out how to center / place nicely
+        var elm = canvas
+          .text(width / 2, 60, card.word)
+          .attr({ 'font-size': '16px' });
+      } else {
+        var elm = figureCode[card.type](canvas, width);
+      }
       cards[counter].elm = elm;
       cards[counter].cell = border;
       if (cards[counter].selected) {

@@ -55,20 +55,33 @@
 
   {{#if bingo}}
   <div class="instruksjon">
+    {{#if wordbingo}}
+    <script>function newBingoWord(evt) {
+        var word = evt.target.textContent;
+        socket.emit('new-bingo-answer', { answer: word, classId: classId });
+      }</script>
+    {{#each details.data}}
+    <button type="button" onclick="newBingoWord(event)">{{this}}</button>
+    {{/each}}
+    {{else}}
     <span id="geodesc"></span>
     <br /><button type="submit" class="default-btn positive-btn" id="nextbingo">Neste figur ✔</button>
+    {{/if}}
   </div>
   <script src="/js/raphael.js"></script>
   <script>
     var shapeTypes = {{{ shapeTypes }}};
     var keys = Object.keys(shapeTypes);
-    document.getElementById('nextbingo').onclick = function () {
-      document.getElementById('geodesc').innerHTML = '⌛';
-      setTimeout(function () {
-        var item = getRandomWholeNumber(0, keys.length - 1);
-        document.getElementById('geodesc').innerHTML = 'Finn <b>' + shapeTypes[keys[item]] + '</b>';
-        socket.emit('new-bingo-answer', { answer: keys[item], classId: classId });
-      }, 400);
+    var geoBingoNextBtn = document.getElementById('nextbingo')
+    if (geoBingoNextBtn) {
+      geoBingoNextBtn.onclick = function () {
+        document.getElementById('geodesc').innerHTML = '⌛';
+        setTimeout(function () {
+          var item = getRandomWholeNumber(0, keys.length - 1);
+          document.getElementById('geodesc').innerHTML = 'Finn <b>' + shapeTypes[keys[item]] + '</b>';
+          socket.emit('new-bingo-answer', { answer: keys[item], classId: classId });
+        }, 400);
+      }
     }
 
     socket.on('bingo-card-update', function (data) {

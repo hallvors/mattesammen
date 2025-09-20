@@ -32,7 +32,9 @@ function main(req, res, next) {
 }
 
 function defineAnswers(req, res, next) {
-  res.render('admin_define_answers');
+  res.render('admin_define_answers', {
+    isBingo: /bingo/.test(res.locals.token.sessionType),
+  });
 }
 
 function defineWordcloud(req, res, next) {
@@ -54,6 +56,11 @@ function status(req, res, next) {
           )
           .then((results) => {
             console.log(results);
+            const sessionType = results.rows[0].session_type;
+            if (sessionType === 'wordbingo') {
+              // sort words alphabetically on teacher's screen
+              results.rows[0].data.sort();
+            }
             return res.render('admin_school_screen', {
               layout: 'main',
               school: token.school,
@@ -63,7 +70,10 @@ function status(req, res, next) {
               socketConnectURL:
                 '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
               tokenStr: jwt.sign(res.locals.token, config.jwtSecret),
-              bingo: results.rows[0].session_type === 'geobingo',
+              bingo:
+                results.rows[0].session_type === 'geobingo' ||
+                results.rows[0].session_type === 'wordbingo',
+              wordbingo: results.rows[0].session_type === 'wordbingo',
               fractions: results.rows[0].session_type === 'fractions',
               predef: results.rows[0].session_type === 'predefined-answers',
               wordcloud: results.rows[0].session_type === 'wordcloud',

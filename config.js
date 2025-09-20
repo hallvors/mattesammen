@@ -65,31 +65,27 @@ const SESSION_TYPES = [
   {
     mathType: 'geobingo',
     title: 'Geometribingorommet',
-    jsFiles: [
-      '/js/raphael.js',
-      '/js/geobingo.js',
-    ]
+    jsFiles: ['/js/raphael.js', '/js/geobingo.js'],
   },
   {
     mathType: 'fractions',
     title: 'Visuelle brøker - felles',
-    jsFiles: [
-      '/js/fractions.js',
-    ]
+    jsFiles: ['/js/fractions.js'],
   },
   {
     mathType: 'predefined-answers',
     title: 'Fasitrommet',
-    jsFiles: [
-      '/js/predefined-answers.js',
-    ]
+    jsFiles: ['/js/predefined-answers.js'],
   },
   {
     mathType: 'wordcloud',
     title: 'Ordsverm',
-    jsFiles: [
-      '/js/wordcloud.js',
-    ]
+    jsFiles: ['/js/wordcloud.js'],
+  },
+  {
+    mathType: 'wordbingo',
+    title: 'Ordbingo',
+    jsFiles: ['/js/raphael.js', '/js/wordbingo.js'],
   },
 ];
 
@@ -103,7 +99,7 @@ const SHAPE_DESCS = {
   poly6: 'en sekskant',
   trapes: 'en trapes',
   paralellogram: 'et paralellogram',
-}
+};
 
 module.exports = {
   getDatabaseClient,

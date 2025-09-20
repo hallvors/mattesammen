@@ -1,10 +1,17 @@
-
-<style>li span{
-    display: inline-block;
-    padding: 0 2em;
-}</style>
+<style>
+    li span {
+        display: inline-block;
+        padding: 0 2em;
+    }
+</style>
+{{#if isBingo}}
+<h1>Ord for bingobrett</h1>
+<p>Legg inn ord for å fylle et bingobrett. Antallet må være et kvadrattall, f.eks. 16 ord for 4x4 eller 25 ord for 5x5.
+</p>
+{{else}}
 <h1>Legg inn forberedte svar</h1>
 <p>Legg til svarene du ønsker at elevene skal oppgi i rett rekkefølge.</p>
+{{/if}}
 <script>
     function addSingleAnswer() {
         var answer = document.getElementsByName('answer')[0].value;
@@ -13,7 +20,7 @@
 
     function addManyAnswers() {
         var answers = document.getElementsByName('answers')[0].value.split(/\r?\n/g);
-        for(var i = 0; i< answers.length; i++) {
+        for (var i = 0; i < answers.length; i++) {
             addAnswer(answers[i].trim());
         }
     }
@@ -27,12 +34,12 @@
         elm.appendChild(document.createElement('span'));
         elm.firstChild.appendChild(document.createTextNode(answer));
         var input = elm.appendChild(document.createElement('input'));
-        input.type='hidden';
-        input.value=answer;
-        input.name='data';
+        input.type = 'hidden';
+        input.value = answer;
+        input.name = 'data';
         elm.appendChild(input);
         var button = elm.appendChild(document.createElement('button'));
-        button.onclick = function(){elm.parentNode.removeChild(elm);};
+        button.onclick = function () { elm.parentNode.removeChild(elm); };
         button.appendChild(document.createTextNode('🗑'))
     }
     function keyCapture(e) {
@@ -45,22 +52,22 @@
 </script>
 
 <form method="post" action="/api/schools/set-answers">
-  <ol id="list">
-  </ol>
+    <ol id="list">
+    </ol>
 
-  <p>
-      <input type="text" name="answer" placeholder="Et korrekt svar" maxlength="100" onkeypress="keyCapture(event)">
-      <button type="button" class="positive-btn" onclick="addSingleAnswer()">Legg til</button>
-  </p>
+    <p>
+        <input type="text" name="answer" placeholder="Et korrekt svar" maxlength="100" onkeypress="keyCapture(event)">
+        <button type="button" class="positive-btn" onclick="addSingleAnswer()">Legg til</button>
+    </p>
 
-<p>Eller legg til mange svar samtidig:
-    <textarea name="answers"></textarea>
-    <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
-</p>
+    <p>Eller legg til mange svar samtidig:
+        <textarea name="answers" cols="10" rows="20"></textarea>
+        <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
+    </p>
 
-  <p>Når alle svar er lagt til, gå videre:</p>
+    <p>Når alle svar er lagt til, gå videre:</p>
 
-  <p>
-    <button type="submit" class="default-btn positive-btn">Lagre svar ✔</button>
-  </p>
+    <p>
+        <button type="submit" class="default-btn positive-btn">Lagre svar ✔</button>
+    </p>
 </form>
