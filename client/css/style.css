@@ -228,7 +228,9 @@ div#timer {
   margin: 0.5em;
   float: left;
 }
-
+hr {
+  clear: both;
+}
 /*.mini-bingo-board {
   display: inline-block;
   max-width: 260px;
