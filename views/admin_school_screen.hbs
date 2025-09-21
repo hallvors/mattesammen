@@ -9,6 +9,7 @@
 
 <script src="/js/shared.js"></script>
 <script>
+  var sessionType = '{{sessionType}}';
   var studentElmMapping = {};
   socket.on('state', function (payload) {
     payload = JSON.parse(payload);
@@ -35,6 +36,7 @@
 <div {{#if bingo}}class="bingo" {{/if}}>
   <form method="post" action="/api/quit" class="header">
     <button type="submit" style="float: right;" title="Logg ut">x</button>
+    <input type="hidden" name="admin" value="1">
     <div id="stars">
       <h1>
         <span class="first">⭐</span>
@@ -261,9 +263,12 @@
 
   {{else}}
   {{#if predef}}
-  <div class="col1">
+  <div class="col1 quiz">
     <div id="count">0</div>
     <p>svar!</p>
+    {{#if quiz}}
+    <ol id="top3"></ol>
+    {{/if}}
     <div id="answers"></div>
   </div>
   <div class="col2">
@@ -276,6 +281,8 @@
     </p>
 
     <script>
+      var data = {{{ dataJson }}};
+      var durations = {};
       var answers = {};
       var taskIndex = -1;
       function nextTask(increment) {
@@ -289,13 +296,36 @@
         if (taskIndex < 0) {
           taskIndex = 0;
         }
-        document.getElementById('current').innerHTML = (taskIndex + 1);
+        if (taskIndex === data.length) {
+          document.getElementById('current').innerHTML = 'FERDIG!'
+          return;
+        }
+        document.getElementById('current').innerHTML = (taskIndex + 1) + ': ' + data[taskIndex].q;
         socket.emit('next-task-ready', { classId: classId, taskIndex });
       }
       socket.on('correct-answer', function (data) {
         var studentNum = Object.keys(studentElmMapping).length;
-        console.log('student elm on answer', studentElmMapping, data)
+        console.log('student elm on answer', studentElmMapping, data);
         answers[data.name] = true;
+        if (durations[data.name]) {
+          durations[data.name] += data.duration;
+        } else {
+          durations[data.name] = data.duration;
+        }
+        if (sessionType === 'quiz') {
+          var listElm = document.getElementById('top3');
+          listElm.innerHTML = '';
+          var top = Object.values(durations).sort().slice(0, 2);
+          var names = Object.keys(durations);
+          top.forEach(function (duration) {
+            for (var i = 0; i < names.length; i++) {
+              if (durations[names[i]] === duration) {
+                elm('li', {}, [document.createTextNode(names[i])], listElm);
+              }
+            }
+          })
+        }
+
         var div = document.getElementById('answers');
         //elm('p', {}, [document.createTextNode(data.problem)], div);
         if (Object.keys(answers).length === studentNum) {
@@ -306,7 +336,7 @@
           console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
         }
       });
-      window.addEventListener('load', nextTask)
+      //window.addEventListener('load', nextTask)
       document.getElementById('next').onclick = function (evt) {
         evt.preventDefault();
         nextTask(1);

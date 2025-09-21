@@ -34,6 +34,7 @@ function main(req, res, next) {
 function defineAnswers(req, res, next) {
   res.render('admin_define_answers', {
     isBingo: /bingo/.test(res.locals.token.sessionType),
+    isQuiz: 'quiz' === res.locals.token.sessionType,
   });
 }
 
@@ -67,17 +68,20 @@ function status(req, res, next) {
               className: token.className,
               classId: token.classId,
               details: results.rows[0],
+              dataJson: JSON.stringify(results.rows[0].data || null),
               socketConnectURL:
                 '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
               tokenStr: jwt.sign(res.locals.token, config.jwtSecret),
-              bingo:
-                results.rows[0].session_type === 'geobingo' ||
-                results.rows[0].session_type === 'wordbingo',
-              wordbingo: results.rows[0].session_type === 'wordbingo',
-              fractions: results.rows[0].session_type === 'fractions',
-              predef: results.rows[0].session_type === 'predefined-answers',
-              wordcloud: results.rows[0].session_type === 'wordcloud',
+              bingo: sessionType === 'geobingo' || sessionType === 'wordbingo',
+              wordbingo: sessionType === 'wordbingo',
+              fractions: sessionType === 'fractions',
+              // quiz is a specific type of predefined answers
+              predef:
+                sessionType === 'predefined-answers' || sessionType === 'quiz',
+              quiz: sessionType === 'quiz',
+              wordcloud: sessionType === 'wordcloud',
               shapeTypes: JSON.stringify(config.SHAPE_DESCS),
+              sessionType,
             });
           })
           .finally(() => {
@@ -118,7 +122,6 @@ function stats(req, res, next) {
           .then((results) => {
             console.log(results[0].rows, results[1].rows);
             const max = results[1].rows[0].max;
-            console.log(max);
             results[0].rows.forEach((row) => {
               if (row.completed_tasks === 0) {
                 row.category = 'needshelp';

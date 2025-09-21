@@ -68,7 +68,8 @@ function createClassSession(req, res, next) {
         client.release();
         if (
           req.body.session_type === 'predefined-answers' ||
-          req.body.session_type === 'wordbingo'
+          req.body.session_type === 'wordbingo' ||
+          req.body.session_type === 'quiz'
         ) {
           return res.redirect(301, '/adm/fasit');
         } else if (req.body.session_type === 'wordcloud') {
@@ -81,8 +82,19 @@ function createClassSession(req, res, next) {
 // If we get predefined answers (for 'fasit' type sessions),
 // save them and redirect to status screen
 function setAnswers(req, res, next) {
-  console.log(req.body.data);
   if (res.locals.token && res.locals.token.admin) {
+    var data = req.body.data;
+    if (res.locals.token.sessionType === 'quiz') {
+      // massage data for quiz
+      data = data.map((item) => {
+        const parts = item.split(/\t/g);
+        return {
+          q: parts[0],
+          a: parts[1],
+          alt: parts.slice(2),
+        };
+      });
+    }
     return config.getDatabaseClient().then((client) => {
       client
         .query(
@@ -90,7 +102,7 @@ function setAnswers(req, res, next) {
         UPDATE school_classes SET data = $1::jsonb
         WHERE id = $2::integer
       `,
-          [JSON.stringify(req.body.data), res.locals.token.classId]
+          [JSON.stringify(data), res.locals.token.classId]
         )
         .then((result) => {
           res.redirect(301, '/adm/status');
@@ -202,14 +214,14 @@ function studentInit(req, res, next) {
       });
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.render('error', { layout: 'main', message: 'Ukjent feil' });
     });
 }
 
 function endSession(req, res, next) {
   res.cookie('token', '', { expires: new Date(-1000) });
-  res.redirect(302, '/adm');
+  res.redirect(302, req.body.admin ? '/adm' : '/');
 }
 
 function redirect(req, res, next) {

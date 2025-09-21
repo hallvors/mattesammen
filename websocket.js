@@ -93,6 +93,7 @@ function handleConnection(ws) {
               id: decoded.id,
               name: decoded.nick,
               problem: msg.problem,
+              duration: msg.duration,
               predef: true,
             });
           }

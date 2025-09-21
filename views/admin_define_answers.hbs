@@ -1,7 +1,27 @@
+<script src="/js/shared.js"></script>
 <style>
     li span {
         display: inline-block;
         padding: 0 2em;
+    }
+
+    .quiz-item {
+        display: table-row;
+    }
+
+    .quiz-question,
+    .quiz-right-answer,
+    .quiz-wrong-answer {
+        display: table-cell;
+        font-size: small;
+    }
+
+    .quiz-right-answer::after {
+        content: '✔'
+    }
+
+    .quiz-wrong-answer::after {
+        content: '❌'
     }
 </style>
 {{#if isBingo}}
@@ -9,10 +29,20 @@
 <p>Legg inn ord for å fylle et bingobrett. Antallet må være et kvadrattall, f.eks. 16 ord for 4x4 eller 25 ord for 5x5.
 </p>
 {{else}}
+{{#if isQuiz}}
+<h1>Legg inn spørsmål og svar</h1>
+<p>Lim inn fra regneark med følgende spalter: <i>Spørsmål</i>, <i>Riktig svar</i>, og ett eller flere <i>Feil svar</i>.
+</p>
+
+{{else}}
 <h1>Legg inn forberedte svar</h1>
 <p>Legg til svarene du ønsker at elevene skal oppgi i rett rekkefølge.</p>
+
+{{/if}}
 {{/if}}
 <script>
+    var isQuiz = {{ isQuiz }};
+
     function addSingleAnswer() {
         var answer = document.getElementsByName('answer')[0].value;
         addAnswer(answer);
@@ -30,16 +60,28 @@
             return;
         }
         var list = document.getElementById('list');
-        var elm = list.appendChild(document.createElement('li'));
-        elm.appendChild(document.createElement('span'));
-        elm.firstChild.appendChild(document.createTextNode(answer));
-        var input = elm.appendChild(document.createElement('input'));
+        var li = list.appendChild(document.createElement('li'));
+        if (isQuiz) {
+            li.className = 'quiz-item';
+        }
+        li.appendChild(document.createElement('span'));
+        if (isQuiz || answer.indexOf('\t') > -1) {
+            var parts = answer.split(/\t/g);
+            elm('span', { 'class': 'quiz-question' }, [document.createTextNode(parts[0])], li);
+            elm('span', { 'class': 'quiz-right-answer' }, [document.createTextNode(parts[1])], li);
+            for (var i = 2; i < parts.length; i++) {
+                elm('span', { 'class': 'quiz-wrong-answer' }, [document.createTextNode(parts[i])], li);
+            }
+        } else {
+            li.firstChild.appendChild(document.createTextNode(answer));
+        }
+        var input = li.appendChild(document.createElement('input'));
         input.type = 'hidden';
         input.value = answer;
         input.name = 'data';
-        elm.appendChild(input);
-        var button = elm.appendChild(document.createElement('button'));
-        button.onclick = function () { elm.parentNode.removeChild(elm); };
+        li.appendChild(input);
+        var button = li.appendChild(document.createElement('button'));
+        button.onclick = function () { li.parentNode.removeChild(li); };
         button.appendChild(document.createTextNode('🗑'))
     }
     function keyCapture(e) {
@@ -54,16 +96,21 @@
 <form method="post" action="/api/schools/set-answers">
     <ol id="list">
     </ol>
-
+    {{#unless isQuiz}}
     <p>
         <input type="text" name="answer" placeholder="Et korrekt svar" maxlength="100" onkeypress="keyCapture(event)">
         <button type="button" class="positive-btn" onclick="addSingleAnswer()">Legg til</button>
     </p>
 
     <p>Eller legg til mange svar samtidig:
-        <textarea name="answers" cols="10" rows="20"></textarea>
-        <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
+        {{else}}
+    <p>Lim inn her:</p>
+    {{/unless}}
+    <textarea name="answers" cols="10" rows="20"></textarea>
+    <br>
+    <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
     </p>
+
 
     <p>Når alle svar er lagt til, gå videre:</p>
 

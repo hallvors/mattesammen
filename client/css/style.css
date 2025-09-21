@@ -68,6 +68,9 @@ p.instruksjon,
 div#count {
   font-size: 3em;
 }
+.quiz div#count {
+  font-size: 1.5em;
+}
 div#timer {
   font-size: 0.4em;
   border-top: 1px solid #eee;
@@ -217,6 +220,13 @@ div#timer {
   border-bottom: 3px solid gold;
   padding: 0.3em;
   border-radius: 2em;
+}
+.quiz-answer {
+  border: 3px solid gold;
+  padding: 0.3em;
+  border-radius: 2em;
+  margin: 0.5em;
+  float: left;
 }
 
 /*.mini-bingo-board {

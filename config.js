@@ -81,13 +81,18 @@ const SESSION_TYPES = [
   },
   {
     mathType: 'wordcloud',
-    title: 'Ordsverm',
+    title: 'Ordgrupper',
     jsFiles: ['/js/wordcloud.js'],
   },
   {
     mathType: 'wordbingo',
     title: 'Ordbingo',
     jsFiles: ['/js/raphael.js', '/js/wordbingo.js'],
+  },
+  {
+    mathType: 'quiz',
+    title: 'Quiz',
+    jsFiles: ['/js/quiz.js'],
   },
 ];
 
