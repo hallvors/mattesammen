@@ -1,4 +1,4 @@
-# Mattesammen
+# Ziq
 
 Enkel nettside for å stimulere til mengdetrening i matematikk i klasse-sammenheng.
 
