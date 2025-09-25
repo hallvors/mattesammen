@@ -186,7 +186,7 @@ function getState(tokenData) {
       .then((res1) => {
         return client
           .query(
-            `SELECT name, completed_tasks, level
+            `SELECT id, name, completed_tasks, level
         FROM student_sessions
         WHERE class_id = $1::integer
           AND session_date::date = $2::date
@@ -199,6 +199,7 @@ function getState(tokenData) {
             return {
               totals: res1.rows[0].sumTotal,
               students: res2.rows.map((row) => ({
+                id: row.id,
                 name: row.name,
                 count: row.completed_tasks,
                 level: row.level,
