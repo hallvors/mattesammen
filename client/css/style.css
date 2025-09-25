@@ -29,6 +29,7 @@ body {
 }
 
 input,
+button,
 select {
   padding: 10px;
   font-size: 1.1em;
@@ -63,6 +64,10 @@ p.instruksjon,
 #log {
   font-size: 0.8em;
   text-align: justify;
+}
+
+.predef #current {
+  font-size: 1.5em;
 }
 
 div#count {
@@ -256,4 +261,17 @@ hr {
     width: 45%;
     margin-left: 5%;
   }
+}
+
+.correct {
+  border-color: darkgreen;
+}
+.correct::after {
+  content: '⭐';
+}
+.wrong {
+  border-color: darkred;
+}
+.wrong::after {
+  content: '✖';
 }
