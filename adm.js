@@ -58,10 +58,6 @@ function status(req, res, next) {
           .then((results) => {
             console.log(results);
             const sessionType = results.rows[0].session_type;
-            if (sessionType === 'wordbingo') {
-              // sort words alphabetically on teacher's screen
-              results.rows[0].data.sort();
-            }
             return res.render('admin_school_screen', {
               layout: 'main',
               school: token.school,
