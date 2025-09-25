@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Flip Cards with Points + Archive</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      #points {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      form {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      form input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+
+      form button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+      }
+
+      form button:hover {
+        background-color: #388e3c;
+      }
+
+      h2 {
+        margin-top: 2rem;
+        font-size: 1.3rem;
+      }
+
+      .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        justify-items: center;
+        margin-top: 1rem;
+      }
+
+      .flip-card {
+        background-color: transparent;
+        width: 150px;
+        height: 200px;
+        perspective: 1000px;
+      }
+
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+
+      .flip-card.flipped .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .flip-card-front,
+      .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-size: 1.2rem;
+        padding: 1rem;
+      }
+
+      .flip-card-front {
+        background-color: #fff;
+        color: #333;
+      }
+
+      .flip-card-back {
+        background-color: #4caf50;
+        color: white;
+        transform: rotateY(180deg);
+        flex-direction: column;
+      }
+
+      .flip-card-back button,
+      .flip-card-front button {
+        margin-top: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 6px;
+        background-color: #2196f3;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .flip-card-back button:hover,
+      .flip-card-front button:hover {
+        background-color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="points">Points: 0</div>
+
+    <form id="addCardForm">
+      <input
+        type="text"
+        id="frontInput"
+        placeholder="Front text (Norwegian)"
+        required
+      />
+      <input
+        type="text"
+        id="backInput"
+        placeholder="Back text (English)"
+        required
+      />
+      <button type="submit">Add Card</button>
+    </form>
+
+    <h2>Active Cards</h2>
+    <div class="cards-container" id="activeCards"></div>
+
+    <h2>Known Cards</h2>
+    <div class="cards-container" id="archiveCards"></div>
+
+    <script>
+      const STORAGE_KEY = 'flipCardsData';
+
+      let data = {
+        words: [],
+        points: 0,
+      };
+
+      function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          data = JSON.parse(saved);
+        } else {
+          data = {
+            words: [
+              { front: 'viktig', back: 'important', active: true },
+              { front: 'bibliotek', back: 'library', active: true },
+              {
+                front: 'ta vare på',
+                back: 'take care of',
+                active: true,
+              },
+            ],
+            points: 0,
+          };
+        }
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function updatePoints() {
+        document.getElementById(
+          'points'
+        ).textContent = `Points: ${data.points}`;
+        saveData();
+      }
+
+      function createCard(cardObj, isActive) {
+        const card = document.createElement('div');
+        card.className = 'flip-card';
+
+        card.innerHTML = `
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            ${cardObj.front}
+            ${!isActive ? '<button class="activate">Activate</button>' : ''}
+          </div>
+          <div class="flip-card-back">
+            <div>${cardObj.back}</div>
+            ${isActive ? '<button class="got-it">Got it!</button>' : ''}
+          </div>
+        </div>
+      `;
+
+        // Flip on click (except when button pressed)
+        card.addEventListener('click', function (e) {
+          if (
+            !e.target.classList.contains('got-it') &&
+            !e.target.classList.contains('activate')
+          ) {
+            card.classList.toggle('flipped');
+          }
+        });
+
+        if (isActive) {
+          // Got it button
+          card.querySelector('.got-it').addEventListener('click', function (e) {
+            e.stopPropagation();
+            data.points++;
+            cardObj.active = false;
+            updatePoints();
+            renderCards();
+          });
+        } else {
+          // Activate button
+          card
+            .querySelector('.activate')
+            .addEventListener('click', function (e) {
+              e.stopPropagation();
+              cardObj.active = true;
+              renderCards();
+            });
+        }
+
+        return card;
+      }
+
+      function renderCards() {
+        const activeContainer = document.getElementById('activeCards');
+        const archiveContainer = document.getElementById('archiveCards');
+        activeContainer.innerHTML = '';
+        archiveContainer.innerHTML = '';
+
+        data.words.forEach((cardObj) => {
+          if (cardObj.active) {
+            activeContainer.appendChild(createCard(cardObj, true));
+          } else {
+            archiveContainer.appendChild(createCard(cardObj, false));
+          }
+        });
+
+        saveData();
+      }
+
+      document.getElementById('addCardForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const front = document.getElementById('frontInput').value.trim();
+        const back = document.getElementById('backInput').value.trim();
+        if (front && back) {
+          data.words.push({ front, back, active: true });
+          saveData();
+          renderCards();
+          e.target.reset();
+        }
+      });
+
+      // Init
+      loadData();
+      renderCards();
+      updatePoints();
+    </script>
+  </body>
+</html>
