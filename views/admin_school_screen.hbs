@@ -265,7 +265,8 @@
   <style>
     #top5 li {
       animation: show 600ms 100ms cubic-bezier(0.38, 0.97, 0.56, 0.76) forwards;
-
+      transform: rotateX(-90deg);
+      transform-origin: top center;
       // Prestate
       opacity: 0;
     }
@@ -277,8 +278,8 @@
       }
     }
 
-    #quiz-score {
-      border: 2px solid goldenrod
+    .gone {
+      opacity: 0;
     }
   </style>
   <div class="predef {{#if quiz}}quiz{{/if}}">
@@ -289,7 +290,7 @@
     </p>
 
     {{#if quiz}}
-    <div id="quiz-score">
+    <div id="quiz-score" class="gone">
       <h2>Topp 5</h2>
       <ol id="top5"></ol>
     </div>
@@ -334,6 +335,7 @@
         socket.on('correct-answer', function (data) {
           var studentNum = Object.keys(studentElmMapping).length;
           console.log('student elm on answer', studentElmMapping, data);
+          var scoreElm = document.getElementById('quiz-score');
           answers[data.id] = true;
           // sum up all durations for this user so far
           // TODO: duration is calculated on the user's device, reloading and quickly selectin
@@ -347,11 +349,14 @@
             // on going to a new question, update top x list for quiz
             // all students not responding in this round need to have duration
             // increased by the length we've seen this question plus some, or the simple way
-            // to the top list will be not responding..
+            // to the top list will be not responding.. For quizes with many questions, the
+            // "benefit" for those not answering would accumulate, so "some" needs to be a
+            // quite significant interval of time. 24 hours is believed sufficient, since our
+            // queries ask for today's data only.
             var realAndFakeDurations = Object.assign({}, durations)
             Object.keys(studentElmMapping).forEach(function (id) {
               if (answers[id] === undefined) {
-                realAndFakeDurations[id] = (durations[id] || 0) + (Date.now() - taskStart) + 1000;
+                realAndFakeDurations[id] = (durations[id] || 0) + (Date.now() - taskStart) + (1000 * 60 * 60 * 24);
               }
             })
             var listElm = document.getElementById('top5');
@@ -364,7 +369,8 @@
                   listElm.appendChild(studentElmMapping[ids[i]].cloneNode(true))
                 }
               }
-            })
+            });
+            setTimeout(function () { scoreElm.classList.remove('gone'); }, 250);
           }
 
           var div = document.getElementById('answers');

@@ -20,7 +20,8 @@ body {
   margin: 8% 4%;
 }
 
-.header {
+.header,
+#quiz-score {
   border-radius: 60px;
   text-align: center;
   background: #eee;
@@ -35,7 +36,10 @@ select {
   font-size: 1.1em;
   vertical-align: text-bottom;
 }
-
+.header button {
+  font-size: 0.4em;
+  padding: 0.1em;
+}
 .positive-btn {
   background-color: darkgreen;
   color: #eee;
