@@ -29,7 +29,7 @@ function nextTask() {
     fisherYatesShuffle(possibleAnswers);
     for (var i = 0; i < possibleAnswers.length; i++) {
       elm(
-        'input',
+        'button',
         {
           name: 'answer',
           class: 'quiz-answer',
@@ -37,7 +37,7 @@ function nextTask() {
           onclick: handleAnswer,
           value: possibleAnswers[i],
         },
-        null,
+        [document.createTextNode(possibleAnswers[i])],
         div
       );
     }
@@ -50,9 +50,39 @@ function handleAnswer(evt) {
   evt.preventDefault();
   var answerElm = evt.target;
   var answer = answerElm.value;
-  if (answer === params[taskIndex].a) {
-    handleCorrectAnswer(answer);
+  var buttons = document.getElementById('tasks').getElementsByTagName('button');
+  // allow only one guess per case per 3 seconds
+  // this discourages sneaky "try to win quiz by clicking all buttons as fast as possible"
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].disabled = true;
   }
+  if (answer === params[taskIndex].a) {
+    answerElm.classList.add('correct');
+    handleCorrectAnswer(answer);
+  } else {
+    answerElm.classList.add('wrong');
+    handleWrongAnswer(answer);
+    setTimeout(reenableUnusedButtons, 3000);
+  }
+}
+
+function reenableUnusedButtons() {
+  var buttons = document.getElementById('tasks').getElementsByTagName('button');
+  // allow only one guess per case per 3 seconds
+  // this discourages sneaky "try to win quiz by clicking all buttons as fast as possible"
+  for (var i = 0; i < buttons.length; i++) {
+    if (
+      !(
+        buttons[i].classList.contains('wrong') ||
+        buttons[i].classList.contains('correct')
+      )
+    )
+      buttons[i].disabled = false;
+  }
+}
+
+function handleWrongAnswer(answer) {
+  socket.emit('wrong-answer', { name, answer });
 }
 
 function handleCorrectAnswer(answer) {
@@ -67,9 +97,6 @@ function handleCorrectAnswer(answer) {
       log.firstChild
     );
   }
-  var answerElm = document.getElementsByName('answer')[0];
-  answerElm.value = '';
-  //  document.getElementById("count").firstChild.data = log.childNodes.length - 1;
   bounceStars();
   console.log('will emit correct-answer, ' + answer);
   socket.emit('correct-answer', {
@@ -78,11 +105,7 @@ function handleCorrectAnswer(answer) {
     problem: answer,
     predef: true,
   });
-  // 1 minute threshold, more likely to be "away from computer"
-  // than "struggled to find answer"
-  if (duration < 60000) {
-    timingLog.push(duration);
-  }
+  timingLog.push(duration);
   doneQuestions[taskIndex] = { duration };
   if (duration < 3000) {
     doneQuestions[taskIndex].known = true;
