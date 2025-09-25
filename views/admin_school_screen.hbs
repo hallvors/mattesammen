@@ -22,10 +22,10 @@
     if (payload.data.students) {
       var ul = document.getElementById('students');
       for (var i = 0; i < payload.data.students.length; i++) {
-        if (!studentElmMapping[payload.data.students[i].name]) {
+        if (!studentElmMapping[payload.data.students[i].id]) {
           var li = ul.appendChild(document.createElement('li'));
           li.appendChild(document.createTextNode(payload.data.students[i].name));
-          studentElmMapping[payload.data.students[i].name] = li;
+          studentElmMapping[payload.data.students[i].id] = li;
         }
       }
     }
@@ -88,9 +88,8 @@
     }
 
     socket.on('bingo-card-update', function (data) {
-      var name = data.name;
-      if (studentElmMapping[name]) {
-        var elm = studentElmMapping[name];
+      if (studentElmMapping[data.id]) {
+        var elm = studentElmMapping[data.id];
         var div = elm.getElementsByTagName('div')[0];
         if (!div) {
           div = elm.appendChild(document.createElement('div'));
@@ -263,91 +262,133 @@
 
   {{else}}
   {{#if predef}}
-  <div class="col1 quiz">
-    <div id="count">0</div>
-    <p>svar!</p>
-    {{#if quiz}}
-    <ol id="top3"></ol>
-    {{/if}}
-    <div id="answers"></div>
-  </div>
-  <div class="col2">
+  <style>
+    #top5 li {
+      animation: show 600ms 100ms cubic-bezier(0.38, 0.97, 0.56, 0.76) forwards;
+
+      // Prestate
+      opacity: 0;
+    }
+
+    @keyframes show {
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    #quiz-score {
+      border: 2px solid goldenrod
+    }
+  </style>
+  <div class="predef {{#if quiz}}quiz{{/if}}">
+    <div id="current"></div>
     <p class="instruksjon">
       <button type="submit" class="positive-btn" id="prev">&lt;</button>
-      <span id="current"></span>
       <button type="submit" class="default-btn positive-btn" id="next">&gt;</button>
-    <h2>Elever:</h2>
-    <ul id="students"></ul>
     </p>
 
-    <script>
-      var data = {{{ dataJson }}};
-      var durations = {};
-      var answers = {};
-      var taskIndex = -1;
-      function nextTask(increment) {
-        answers = {};
-        document.getElementById('answers').innerHTML = '';
-        if (typeof increment === 'number') {
-          taskIndex += increment;
-        } else {
-          taskIndex++;
+    {{#if quiz}}
+    <div id="quiz-score">
+      <h2>Topp 5</h2>
+      <ol id="top5"></ol>
+    </div>
+    {{/if}}
+    <div class="col1">
+      <div id="answers"></div>
+    </div>
+    <div class="col2">
+      <p class="instruksjon">
+      <h2>Elever:</h2>
+      <ul id="students"></ul>
+      </p>
+      <div id="count">0</div>
+      <p>svar!</p>
+
+      <script>
+        var data = {{{ dataJson }}};
+        var durations = {};
+        var answers = {};
+        var taskIndex = -1;
+        var taskStart = Date.now();
+        function nextTask(increment) {
+          answers = {};
+          document.getElementById('answers').innerHTML = '';
+          taskStart = Date.now();
+
+          if (typeof increment === 'number') {
+            taskIndex += increment;
+          } else {
+            taskIndex++;
+          }
+          if (taskIndex < 0) {
+            taskIndex = 0;
+          }
+          if (taskIndex === data.length) {
+            document.getElementById('current').innerHTML = 'FERDIG!'
+            return;
+          }
+          document.getElementById('current').innerHTML = (taskIndex + 1) + ': ' + data[taskIndex].q;
+          socket.emit('next-task-ready', { classId: classId, taskIndex });
         }
-        if (taskIndex < 0) {
-          taskIndex = 0;
-        }
-        if (taskIndex === data.length) {
-          document.getElementById('current').innerHTML = 'FERDIG!'
-          return;
-        }
-        document.getElementById('current').innerHTML = (taskIndex + 1) + ': ' + data[taskIndex].q;
-        socket.emit('next-task-ready', { classId: classId, taskIndex });
-      }
-      socket.on('correct-answer', function (data) {
-        var studentNum = Object.keys(studentElmMapping).length;
-        console.log('student elm on answer', studentElmMapping, data);
-        answers[data.name] = true;
-        if (durations[data.name]) {
-          durations[data.name] += data.duration;
-        } else {
-          durations[data.name] = data.duration;
-        }
-        if (sessionType === 'quiz') {
-          var listElm = document.getElementById('top3');
-          listElm.innerHTML = '';
-          var top = Object.values(durations).sort().slice(0, 2);
-          var names = Object.keys(durations);
-          top.forEach(function (duration) {
-            for (var i = 0; i < names.length; i++) {
-              if (durations[names[i]] === duration) {
-                elm('li', {}, [document.createTextNode(names[i])], listElm);
+        socket.on('correct-answer', function (data) {
+          var studentNum = Object.keys(studentElmMapping).length;
+          console.log('student elm on answer', studentElmMapping, data);
+          answers[data.id] = true;
+          // sum up all durations for this user so far
+          // TODO: duration is calculated on the user's device, reloading and quickly selectin
+          // the right button is a way to cheat. We should calculate those durations server-side
+          if (typeof durations[data.id] === 'number') {
+            durations[data.id] += data.duration;
+          } else {
+            durations[data.id] = data.duration;
+          }
+          if (sessionType === 'quiz') {
+            // on going to a new question, update top x list for quiz
+            // all students not responding in this round need to have duration
+            // increased by the length we've seen this question plus some, or the simple way
+            // to the top list will be not responding..
+            var realAndFakeDurations = Object.assign({}, durations)
+            Object.keys(studentElmMapping).forEach(function (id) {
+              if (answers[id] === undefined) {
+                realAndFakeDurations[id] = (durations[id] || 0) + (Date.now() - taskStart) + 1000;
               }
-            }
-          })
-        }
+            })
+            var listElm = document.getElementById('top5');
+            listElm.innerHTML = '';
+            var top = Object.values(realAndFakeDurations).sort(function (a, b) { return a - b }).slice(0, 5);
+            var ids = Object.keys(realAndFakeDurations);
+            top.forEach(function (topDuration) {
+              for (var i = 0; i < ids.length; i++) {
+                if (durations[ids[i]] === topDuration && answers[ids[i]] === true) {
+                  listElm.appendChild(studentElmMapping[ids[i]].cloneNode(true))
+                }
+              }
+            })
+          }
 
-        var div = document.getElementById('answers');
-        //elm('p', {}, [document.createTextNode(data.problem)], div);
-        if (Object.keys(answers).length === studentNum) {
-          bounceStars();
-          //lastTotal = startTime - Date.now();
-          setTimeout(nextTask, 1000);
-        } else {
-          console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
+          var div = document.getElementById('answers');
+          //elm('p', {}, [document.createTextNode(data.problem)], div);
+          if (Object.keys(answers).length === studentNum) {
+            bounceStars();
+            //lastTotal = startTime - Date.now();
+            setTimeout(nextTask, 1000);
+          } else {
+            console.log('not enough answers yet?', Object.keys(answers).length + '/' + studentNum)
+          }
+        });
+        //window.addEventListener('load', nextTask)
+        document.getElementById('next').onclick = function (evt) {
+          evt.preventDefault();
+          nextTask(1);
         }
-      });
-      //window.addEventListener('load', nextTask)
-      document.getElementById('next').onclick = function (evt) {
-        evt.preventDefault();
-        nextTask(1);
-      }
-      document.getElementById('prev').onclick = function (evt) {
-        evt.preventDefault();
-        nextTask(-1);
-      }
-    </script>
-    </script>
-
+        document.getElementById('prev').onclick = function (evt) {
+          evt.preventDefault();
+          nextTask(-1);
+        }
+      </script>
+      </script>
+    </div>
   </div>
   {{else}}
   <div class="col1">
