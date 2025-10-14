@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Klasseoverganger</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f5f6f8;
+        padding: 2rem;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      textarea {
+        width: 100%;
+        height: 120px;
+        font-family: monospace;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        resize: vertical;
+      }
+
+      #grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .word {
+        padding: 0.6rem 0.8rem;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
+        border: 2px solid #bbb;
+        background: white;
+        min-width: 80px;
+      }
+
+      .word.active {
+        background: #238753;
+        color: white;
+        border-color: #007bff;
+      }
+
+      .gone {
+        display: none;
+      }
+
+      #timer {
+        font-size: 1.5rem;
+        text-align: center;
+        margin: 1rem 0;
+      }
+
+      #controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      button {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        border: none;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s ease;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      button.secondary {
+        background: #888;
+      }
+
+      button.secondary:hover {
+        background: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Alle klare?</h1>
+
+    <div id="input-parent">
+      <p>Lim inn navn skilt med tab og linjeskift</p>
+      <textarea id="input" placeholder="Lim inn navn her"></textarea>
+    </div>
+
+    <div id="controls">
+      <button
+        type="button"
+        onclick="document.getElementById('input-parent').classList.toggle('gone')"
+      >
+        Skjul/vis input
+      </button>
+      <button type="button" onclick="startTimer()">Start</button>
+
+      <button id="reset-btn" class="secondary" type="button">
+        Tilbakestill hvem som er klare
+      </button>
+    </div>
+
+    <div id="timer">Tid: 0:00</div>
+
+    <div id="grid"></div>
+
+    <script>
+      const textarea = document.getElementById('input');
+      const grid = document.getElementById('grid');
+      const timerDisplay = document.getElementById('timer');
+      const resetBtn = document.getElementById('reset-btn');
+
+      let startTime = null;
+      let timerInterval = null;
+      let elapsed = 0;
+
+      function startTimer() {
+        if (startTime === null) {
+          startTime = Date.now() - elapsed * 1000;
+          timerInterval = setInterval(() => {
+            elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const min = Math.floor(elapsed / 60);
+            const sec = Math.floor(elapsed - 60 * min);
+            timerDisplay.textContent = `Tid: ${min}:${(sec + 100)
+              .toString()
+              .substr(1)} `;
+          }, 1000);
+        }
+      }
+
+      function stopTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        startTime = null;
+      }
+
+      function resetButtons() {
+        const buttons = document.querySelectorAll('.word');
+        buttons.forEach((btn) => btn.classList.remove('active'));
+        stopTimer();
+      }
+
+      textarea.addEventListener('paste', (e) => {
+        setTimeout(() => {
+          const text = textarea.value.trim();
+          const lines = text.split(/\r?\n/);
+
+          grid.innerHTML = ''; // Tøm tidligere grid
+          startTime = null;
+          elapsed = 0;
+          timerDisplay.textContent = `Tid: 0:00`;
+
+          lines.forEach((line) => {
+            const row = document.createElement('div');
+            row.classList.add('row');
+
+            const words = line
+              .split(/\t+| {2,}/)
+              .map((w) => w.trim())
+              .filter((w) => w.length > 0);
+
+            words.forEach((word) => {
+              const div = document.createElement('div');
+              div.textContent = word;
+              div.classList.add('word');
+              div.addEventListener('click', () => {
+                const wasActive = div.classList.contains('active');
+                div.classList.toggle('active');
+
+                const allWords = document.querySelectorAll('.word');
+                const activeWords = document.querySelectorAll('.word.active');
+
+                if (!wasActive && activeWords.length === 1) {
+                  // Første aktivering
+                  startTimer();
+                }
+
+                if (activeWords.length === allWords.length) {
+                  // Siste aktivering
+                  stopTimer();
+                }
+              });
+              row.appendChild(div);
+            });
+
+            grid.appendChild(row);
+          });
+        }, 50);
+      });
+
+      resetBtn.addEventListener('click', resetButtons);
+    </script>
+  </body>
+</html>
