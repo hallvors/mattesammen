@@ -73,8 +73,13 @@ function status(req, res, next) {
               fractions: sessionType === 'fractions',
               // quiz is a specific type of predefined answers
               predef:
-                sessionType === 'predefined-answers' || sessionType === 'quiz',
+                sessionType === 'predefined-answers' ||
+                sessionType === 'proofing' ||
+                sessionType === 'quiz' ||
+                sessionType === 'poll',
               quiz: sessionType === 'quiz',
+              poll: sessionType === 'poll',
+              proofing: sessionType === 'proofing',
               wordcloud: sessionType === 'wordcloud',
               shapeTypes: JSON.stringify(config.SHAPE_DESCS),
               sessionType,

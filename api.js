@@ -68,8 +68,10 @@ function createClassSession(req, res, next) {
         client.release();
         if (
           req.body.session_type === 'predefined-answers' ||
+          req.body.session_type === 'proofing' ||
           req.body.session_type === 'wordbingo' ||
-          req.body.session_type === 'quiz'
+          req.body.session_type === 'quiz' ||
+          req.body.session_type === 'poll'
         ) {
           return res.redirect(301, '/adm/fasit');
         } else if (req.body.session_type === 'wordcloud') {
@@ -84,14 +86,13 @@ function createClassSession(req, res, next) {
 function setAnswers(req, res, next) {
   if (res.locals.token && res.locals.token.admin) {
     var data = req.body.data;
-    if (res.locals.token.sessionType === 'quiz') {
-      // massage data for quiz
+    if (res.locals.token.sessionType === 'proofing') {
+      // massage data slightly
       data = data.map((item) => {
         const parts = item.split(/\t/g);
         return {
           q: parts[0],
-          a: parts[1],
-          alt: parts.slice(2),
+          alt: parts.slice(1),
         };
       });
     }

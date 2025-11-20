@@ -80,6 +80,11 @@ const SESSION_TYPES = [
     jsFiles: ['/js/predefined-answers.js'],
   },
   {
+    mathType: 'proofing',
+    title: 'Korrekturrommet',
+    jsFiles: ['/js/proofing.js'],
+  },
+  {
     mathType: 'wordcloud',
     title: 'Ordgrupper',
     jsFiles: ['/js/wordcloud.js'],
