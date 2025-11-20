@@ -48,6 +48,11 @@ select {
   font-size: 1.1em;
   line-height: 1.1em;
 }
+.logout-btn {
+  float: right;
+  font-size: 0.3em;
+  border-radius: 80%;
+}
 p,
 .the_task {
   vertical-align: text-bottom;
