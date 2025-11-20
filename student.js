@@ -5,6 +5,7 @@ const router = express.Router({ mergeParams: true });
 const config = require('./config');
 const jwt = require('jsonwebtoken');
 const { decodeToken } = require('./utils');
+const { getPollAndQuizData } = require('./lib/queries');
 
 router.get('/', main);
 router.get('/navn', decodeToken, pickNick);
@@ -23,7 +24,7 @@ function pickNick(req, res, next) {
       Object.assign(
         {
           layout: 'main',
-          nick: req.cookies.nick,
+          nick: res.locals.token.sessionType === 'poll' ? '' : req.cookies.nick,
         },
         res.locals.token
       )
@@ -50,11 +51,18 @@ function classroom(req, res, next) {
           WHERE s.id = $1::integer`,
           [token.id]
         )
-        .then((results) => {
+        .then(async (results) => {
           console.log(results.rows[0]);
-          let sessionType = results.rows[0]['session_type'];
-          if (results.rows[0].data) {
-            results.rows[0].data = JSON.stringify(results.rows[0].data);
+          let sessionType = token.sessionType;
+          if (sessionType === 'poll' || sessionType === 'quiz') {
+            console.log('getting poll/quiz data');
+            results.rows[0].data = JSON.stringify(
+              await getPollAndQuizData(client, results.rows[0].class_id)
+            );
+          } else {
+            if (results.rows[0].data) {
+              results.rows[0].data = JSON.stringify(results.rows[0].data);
+            }
           }
           let taskTypeData = config.types.find(
             (type) => type.mathType === sessionType

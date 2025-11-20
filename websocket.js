@@ -93,11 +93,48 @@ function handleConnection(ws) {
               id: decoded.id,
               name: decoded.nick,
               problem: msg.problem,
+              answer: msg.answer,
               duration: msg.duration,
               predef: true,
             });
           }
+          if (decoded.sessionType === 'poll') {
+            return config.getDatabaseClient().then((client) => {
+              return client
+                .query(
+                  `
+            INSERT INTO poll_results (student_session, question_id, answer_id)
+            VALUES ( $1::integer, $2::integer, $3::integer )
+          `,
+                  [decoded.id, msg.problem, msg.answer]
+                )
+                .then(() => client.release())
+                .then(() => {
+                  if (decoded.sessionType === 'poll') {
+                    // figure out how to send this to only sender
+                    // ws.to(msg.id).emit(...)
+                    // ws.emit('next-task-ready');
+                  }
+                });
+            });
+          }
         });
+    });
+    ws.on('wrong-answer', (msg) => {
+      console.log({ wrong: msg });
+      // increase "wrong answer" counter in session
+      return config.getDatabaseClient().then((client) => {
+        return client
+          .query(
+            `
+            UPDATE student_sessions
+            SET failed_task_count = failed_task_count + 1
+            WHERE id = $1::integer
+          `,
+            [decoded.id]
+          )
+          .finally(() => client.release());
+      });
     });
     // Geometry-bingo-related data
     ws.on('new-bingo-answer', (msg) => {

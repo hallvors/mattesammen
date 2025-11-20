@@ -5,6 +5,7 @@ const router = express.Router({ mergeParams: true });
 const config = require('./config');
 const jwt = require('jsonwebtoken');
 const { decodeToken } = require('./utils');
+const { getPollAndQuizData } = require('./lib/queries');
 
 router.get('/', main);
 router.get('/fasit', decodeToken, defineAnswers);
@@ -35,6 +36,11 @@ function defineAnswers(req, res, next) {
   res.render('admin_define_answers', {
     isBingo: /bingo/.test(res.locals.token.sessionType),
     isQuiz: 'quiz' === res.locals.token.sessionType,
+    isPoll: 'poll' === res.locals.token.sessionType,
+    isPollOrQuiz: ['poll', 'quiz'].includes(res.locals.token.sessionType),
+    isProof: 'proofing' === res.locals.token.sessionType,
+    showSingleEntry: 'predefined-answers' === res.locals.token.sessionType,
+    sessionType: res.locals.token.sessionType,
   });
 }
 
@@ -55,16 +61,22 @@ function status(req, res, next) {
           WHERE sc.id = $1::integer`,
             [token.classId]
           )
-          .then((results) => {
+          .then(async (results) => {
             console.log(results);
             const sessionType = results.rows[0].session_type;
+            let pollData = null;
+            if (['poll', 'quiz'].includes(sessionType)) {
+              pollData = await getPollAndQuizData(client, token.classId);
+            }
             return res.render('admin_school_screen', {
               layout: 'main',
               school: token.school,
               className: token.className,
               classId: token.classId,
               details: results.rows[0],
-              dataJson: JSON.stringify(results.rows[0].data || null),
+              dataJson: JSON.stringify(
+                results.rows[0].data || pollData || null
+              ),
               socketConnectURL:
                 '/?token=' + jwt.sign(res.locals.token, config.jwtSecret),
               tokenStr: jwt.sign(res.locals.token, config.jwtSecret),

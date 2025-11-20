@@ -7,13 +7,25 @@
 
     .quiz-item {
         display: table-row;
+        border-bottom: 1px solid grey;
     }
 
     .quiz-question,
     .quiz-right-answer,
-    .quiz-wrong-answer {
+    .quiz-wrong-answer,
+    .proofing-question,
+    .proofing-right-answer,
+    .proofing-wrong-answer,
+    .poll-question,
+    .poll-right-answer,
+    .poll-wrong-answer {
         display: table-cell;
         font-size: small;
+        padding: 0;
+    }
+
+    .quiz-item button {
+        font-size: 0.3em;
     }
 
     .quiz-right-answer::after {
@@ -23,27 +35,54 @@
     .quiz-wrong-answer::after {
         content: '❌'
     }
+
+    .instructions {
+        font-size: 0.5em;
+    }
+
+    ol,
+    ol li {
+        margin: 0;
+        padding: 0;
+        margin-block: 0;
+        padding-inline: 0;
+    }
 </style>
 {{#if isBingo}}
 <h1>Ord for bingobrett</h1>
-<p>Legg inn ord for å fylle et bingobrett. Antallet må være et kvadrattall, f.eks. 16 ord for 4x4 eller 25 ord for 5x5.
+<p class="instructions">Legg inn ord for å fylle et bingobrett. Antallet må være et kvadrattall, f.eks. 16 ord for 4x4
+    eller 25 ord for 5x5.
     Tips: legg dem inn i rekkefølgen de skal være valgbare i.
 </p>
 {{else}}
 {{#if isQuiz}}
 <h1>Legg inn spørsmål og svar</h1>
-<p>Lim inn fra regneark med følgende spalter: <i>Spørsmål</i>, <i>Riktig svar</i>, og ett eller flere <i>Feil svar</i>.
+<p class="instructions">Lim inn fra regneark med følgende spalter: <i>Spørsmål</i>, <i>Riktig svar</i>, og ett eller
+    flere <i>Feil svar</i>.
 </p>
 
 {{else}}
+{{#if isPoll}}
+<h1>Lag spørsmål</h1>
+<p class="instructions">Lag en spørreundersøkelse ved å lime inn data fra et regneark med spaltene <i>Spørsmål</i> og to
+    eller flere
+    alternativ å velge mellom</p>
+{{else}}
+{{#if isProof}}
+<h1>Legg in feil og fasit</h1>
+<p class="instructions">Lim inn fra et regneark med kolonnene <i>utfordring</i> (ord eller setning med feil) og
+    <i>fasit</i>.
+</p>
+{{else}}
 <h1>Legg inn forberedte svar</h1>
-<p>Legg til svarene du ønsker at elevene skal oppgi i rett rekkefølge.</p>
-
+<p class="instructions">Legg til svarene du ønsker at elevene skal oppgi i rett rekkefølge.</p>
+{{/if}}
+{{/if}}
 {{/if}}
 {{/if}}
 <script>
     var isQuiz = {{ isQuiz }};
-
+    var sessionType = "{{ sessionType }}";
     function addSingleAnswer() {
         var answer = document.getElementsByName('answer')[0].value;
         addAnswer(answer);
@@ -51,9 +90,11 @@
 
     function addManyAnswers() {
         var answers = document.getElementsByName('answers')[0].value.split(/\r?\n/g);
+        console.log(answers)
         for (var i = 0; i < answers.length; i++) {
             addAnswer(answers[i].trim());
         }
+        document.getElementById('list').scrollIntoView();
     }
 
     function addAnswer(answer) {
@@ -65,13 +106,12 @@
         if (isQuiz) {
             li.className = 'quiz-item';
         }
-        li.appendChild(document.createElement('span'));
         if (isQuiz || answer.indexOf('\t') > -1) {
             var parts = answer.split(/\t/g);
-            elm('span', { 'class': 'quiz-question' }, [document.createTextNode(parts[0])], li);
-            elm('span', { 'class': 'quiz-right-answer' }, [document.createTextNode(parts[1])], li);
+            elm('span', { 'class': sessionType + '-question' }, [document.createTextNode(parts[0])], li);
+            elm('span', { 'class': sessionType + '-right-answer' }, [document.createTextNode(parts[1])], li);
             for (var i = 2; i < parts.length; i++) {
-                elm('span', { 'class': 'quiz-wrong-answer' }, [document.createTextNode(parts[i])], li);
+                elm('span', { 'class': sessionType + '-wrong-answer' }, [document.createTextNode(parts[i])], li);
             }
         } else {
             li.firstChild.appendChild(document.createTextNode(answer));
@@ -94,10 +134,8 @@
 
 </script>
 
-<form method="post" action="/api/schools/set-answers">
-    <ol id="list">
-    </ol>
-    {{#unless isQuiz}}
+<form method="post" enctype="multipart/form-data" action="/api/schools/set-answers">
+    {{#if showSingleEntry}}
     <p>
         <input type="text" name="answer" placeholder="Et korrekt svar" maxlength="100" onkeypress="keyCapture(event)">
         <button type="button" class="positive-btn" onclick="addSingleAnswer()">Legg til</button>
@@ -106,11 +144,13 @@
     <p>Eller legg til mange svar samtidig:
         {{else}}
     <p>Lim inn her:</p>
-    {{/unless}}
-    <textarea name="answers" cols="10" rows="20"></textarea>
+    {{/if}}
+    <textarea name="answers" cols="40" rows="15"></textarea>
     <br>
     <button type="button" class="positive-btn" onclick="addManyAnswers()">Legg til mange</button>
     </p>
+    <ol id="list">
+    </ol>
 
 
     <p>Når alle svar er lagt til, gå videre:</p>
@@ -118,4 +158,12 @@
     <p>
         <button type="submit" class="default-btn positive-btn">Lagre svar ✔</button>
     </p>
+
+    {{#if isPollOrQuiz}}
+    <p class="instructions">
+        Du kan også legge til en <label>tittel: <br><input type="text" name="title"
+                placeholder="skriv tittel her"></label><br> og velge et bakgrunnsbilde:<br>
+        <input type="file" name="poll_image" accept="image/*,image/jpg,image/jpeg,image/png">
+    </p>
+    {{/if}}
 </form>

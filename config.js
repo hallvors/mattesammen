@@ -99,6 +99,11 @@ const SESSION_TYPES = [
     title: 'Quiz',
     jsFiles: ['/js/quiz.js'],
   },
+  {
+    mathType: 'poll',
+    title: 'Spørreundersøkelse',
+    jsFiles: ['/js/quiz.js'],
+  },
 ];
 
 const SHAPE_DESCS = {

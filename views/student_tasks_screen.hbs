@@ -1,44 +1,47 @@
-<div class="header">
-<div id="stars">
-  <span class="first">⭐</span>
-  <span class="second">🌟</span>
-  <span class="third">{{class_name}}</span>
-  <span class="fourth">🌟</span>
-  <span class="third">⭐</span>
-</div>
-<p>{{name}}, {{school}}</p>
-</div>
-
-<div id="tasks">
-</div>
-<hr>
-<div id="log">&nbsp;
-</div>
-<div id="count">&nbsp;
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io('{{{socketConnectURL}}}');
-  var name = '{{name}}';
-  var school = '{{school}}';
-  var level = {{#if level}}{{level}}{{else}}0{{/if}};
-  var sessionType = '{{session_type}}';
-  const VERB = '{{verb}}';
-  const SIGN = '{{sign}}';
-  var className = '{{className}}';
-  var id = {{id}};
-  var classId = {{class_id}};
-  var params = {{#if data}}{{{data}}};{{else}}{
-    start: 1,
-    end: level + 2,
-  };{{/if}}
-</script>
-<script type="text/javascript" src="/js/shared.js"></script>
-{{#each jsFiles}}
-<script type="text/javascript" src="{{this}}"></script>
-{{/each}}
+<div id="page-bg"></div>
+<div id="page-content">
   <form method="post" action="/api/quit">
-    <button type="submit" style="float: right;" title="Logg ut">x</button>
+    <button type="submit" class="logout-btn" title="Logg ut">❌</button>
   </form>
-  
+  <div class="header">
+    <div id="stars">
+      <span class="first">⭐</span>
+      <span class="second">🌟</span>
+      <span class="third">{{class_name}}</span>
+      <span class="fourth">🌟</span>
+      <span class="third">⭐</span>
+    </div>
+    <p>{{name}}, {{school}}</p>
+  </div>
+
+  <div id="tasks">
+  </div>
+  <hr>
+  <div id="log">&nbsp;
+  </div>
+  <div id="count">&nbsp;
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io('{{{socketConnectURL}}}');
+    var name = '{{name}}';
+    var school = '{{school}}';
+    var level = {{#if level }}{{ level }} {{else}} 0{{/if}};
+    var sessionType = '{{session_type}}';
+    const VERB = '{{verb}}';
+    const SIGN = '{{sign}}';
+    var className = '{{className}}';
+    var id = {{ id }};
+    var classId = {{ class_id }};
+    var params = {{#if data }}{{{ data }}}; {{else}} {
+      start: 1,
+        end: level + 2,
+}; {{/if}}
+  </script>
+  <script type="text/javascript" src="/js/shared.js"></script>
+  {{#each jsFiles}}
+  <script type="text/javascript" src="{{this}}"></script>
+  {{/each}}
+
+</div>

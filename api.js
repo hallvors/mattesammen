@@ -7,14 +7,24 @@ const jwt = require('jsonwebtoken');
 const { decodeToken } = require('./utils');
 const res = require('express/lib/response');
 var QRCode = require('qrcode');
+const multer = require('multer');
+const { savePollAndQuizData } = require('./lib/queries');
+const storage = multer.memoryStorage();
+const upload = multer({ storage, limits: { fileSize: 1048576 } }); // 1MB limit
 
 router.post('/schools/create', createClassSession);
-router.post('/schools/set-answers', decodeToken, setAnswers);
+router.post(
+  '/schools/set-answers',
+  decodeToken,
+  upload.single('poll_image'),
+  setAnswers
+);
 router.get('/redirect', redirect);
 router.post('/quit', endSession);
 router.post('/student/pin', studentPreInit);
 router.get('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
+router.get('/poll/data/:pollToken', getPollResults);
 
 router.get('/image/qr', function (req, res, next) {
   const classId = req.query.classId;
@@ -97,14 +107,44 @@ function setAnswers(req, res, next) {
       });
     }
     return config.getDatabaseClient().then((client) => {
-      client
-        .query(
-          `
-        UPDATE school_classes SET data = $1::jsonb
-        WHERE id = $2::integer
-      `,
-          [JSON.stringify(data), res.locals.token.classId]
-        )
+      const promises = [];
+      if (['quiz', 'poll'].includes(res.locals.token.sessionType)) {
+        const preparedData = {
+          poll_title: req.body.title,
+          poll_image: req.file.buffer,
+          class_id: res.locals.token.classId,
+          questions: data.map((item, idx) => {
+            const parts = item.split(/\t/g);
+            const question = {
+              q_order: idx,
+              question: parts[0],
+              question_image: null,
+              answers: [],
+            };
+            for (const [aidx, answerTxt] of parts.slice(1).entries()) {
+              question.answers.push({
+                answer: answerTxt,
+                answer_image: null,
+                is_correct:
+                  res.locals.token.sessionType === 'poll' ? null : aidx === 0,
+              });
+            }
+            return question;
+          }),
+        };
+        promises.push(savePollAndQuizData(client, preparedData));
+      } else {
+        promises.push(
+          client.query(
+            `
+          UPDATE school_classes SET data = $1::jsonb
+          WHERE id = $2::integer
+        `,
+            [JSON.stringify(data), res.locals.token.classId]
+          )
+        );
+      }
+      Promise.all(promises)
         .then((result) => {
           res.redirect(301, '/adm/status');
         })
@@ -245,6 +285,29 @@ function qrCode(classId, res) {
       width: 600,
     }
   );
+}
+
+function getPollResults(req, res, next) {
+  if (req.params.pollToken) {
+    let tokenData = jwt.verify(req.params.pollToken, config.jwtSecret);
+
+    return config.getDatabaseClient().then((client) => {
+      return client
+        .query(
+          `
+      SELECT q_text, answer, count(*) AS num FROM poll_results WHERE student_session = $1::integer
+      GROUP BY q_text, answer
+
+    `,
+          [tokenData.classId]
+        )
+        .then((result) => {
+          res.json(result.rows);
+          client.release();
+        });
+    });
+  }
+  next(new Error('not found'));
 }
 
 module.exports = {
