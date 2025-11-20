@@ -129,7 +129,7 @@
       const grid = document.getElementById('grid');
       const timerDisplay = document.getElementById('timer');
       const resetBtn = document.getElementById('reset-btn');
-
+      const storageKey = 'ziq-alleklare';
       let startTime = null;
       let timerInterval = null;
       let elapsed = 0;
@@ -162,53 +162,71 @@
 
       textarea.addEventListener('paste', (e) => {
         setTimeout(() => {
-          const text = textarea.value.trim();
-          const lines = text.split(/\r?\n/);
-
-          grid.innerHTML = ''; // Tøm tidligere grid
-          startTime = null;
-          elapsed = 0;
-          timerDisplay.textContent = `Tid: 0:00`;
-
-          lines.forEach((line) => {
-            const row = document.createElement('div');
-            row.classList.add('row');
-
-            const words = line
-              .split(/\t+| {2,}/)
-              .map((w) => w.trim())
-              .filter((w) => w.length > 0);
-
-            words.forEach((word) => {
-              const div = document.createElement('div');
-              div.textContent = word;
-              div.classList.add('word');
-              div.addEventListener('click', () => {
-                const wasActive = div.classList.contains('active');
-                div.classList.toggle('active');
-
-                const allWords = document.querySelectorAll('.word');
-                const activeWords = document.querySelectorAll('.word.active');
-
-                if (!wasActive && activeWords.length === 1) {
-                  // Første aktivering
-                  startTimer();
-                }
-
-                if (activeWords.length === allWords.length) {
-                  // Siste aktivering
-                  stopTimer();
-                }
-              });
-              row.appendChild(div);
-            });
-
-            grid.appendChild(row);
-          });
+          processTextCreateButtons(textarea.value.trim());
+          localStorage[storageKey] = textarea.value.trim();
         }, 50);
       });
 
+      function processTextCreateButtons(inputText) {
+        const text = inputText;
+        const lines = text.split(/\r?\n/);
+
+        grid.innerHTML = ''; // Tøm tidligere grid
+        startTime = null;
+        elapsed = 0;
+        timerDisplay.textContent = `Tid: 0:00`;
+
+        lines.forEach((line) => {
+          const row = document.createElement('div');
+          row.classList.add('row');
+
+          const words = line
+            .split(/\t+| {2,}|, /g)
+            .map((w) => w.trim())
+            .filter((w) => w.length > 0);
+
+          words.forEach((word) => {
+            const div = document.createElement('div');
+            div.textContent = word;
+            div.classList.add('word');
+            div.addEventListener('click', () => {
+              const wasActive = div.classList.contains('active');
+              div.classList.toggle('active');
+
+              const allWords = document.querySelectorAll('.word');
+              const activeWords = document.querySelectorAll('.word.active');
+
+              if (!wasActive && activeWords.length === 1) {
+                // Første aktivering
+                startTimer();
+              }
+
+              if (activeWords.length === allWords.length) {
+                // Siste aktivering
+                stopTimer();
+              }
+            });
+            row.appendChild(div);
+          });
+
+          grid.appendChild(row);
+        });
+      }
       resetBtn.addEventListener('click', resetButtons);
+      document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+          const url = new URL(location.href);
+          const text =
+            url.searchParams.get('elever') || localStorage[storageKey] || null;
+          if (text) {
+            textarea.value = text;
+            processTextCreateButtons(text);
+            document.getElementById('input-parent').classList.toggle('gone');
+          }
+        },
+        false
+      );
     </script>
   </body>
 </html>
