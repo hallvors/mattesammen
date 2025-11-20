@@ -1,0 +1,24 @@
+services:
+  database:
+    build:
+      context: .
+      dockerfile: postgres/Dockerfile
+    ports:
+      - '6653:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+      ZIQDEV_OWNER_PASSWORD: 'ziq-owner'
+      ZIQDEV_API_PASSWORD: 'ziq-api'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      start_interval: 1s
+      start_period: 10s
+      timeout: 2s
+      retries: 5
+
+volumes:
+  pgdata:
