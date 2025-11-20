@@ -250,7 +250,9 @@ function studentInit(req, res, next) {
           )
         );
         client.release();
-        res.cookie('nick', req.body.nick, { maxAge: 60 * 60 * 24 * 7 * 4 }); // 4 weeks
+        if (res.locals.token.sessionType !== 'poll') {
+          res.cookie('nick', req.body.nick, { maxAge: 60 * 60 * 24 * 7 * 4 }); // 4 weeks
+        }
         res.redirect(302, '/student/klasserom');
       });
     })
