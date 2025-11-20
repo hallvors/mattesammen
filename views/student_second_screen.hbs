@@ -2,7 +2,7 @@
 <form method="post" action="/api/student/access">
   <p>Hva heter du?</p>
   <p>
-    <input type="text" name="nick" placeholder="Fornavn" {{#if nick}}value="{{nick}}" {{/if}} required>
+    <input type="text" name="nick" placeholder="Fornavn" {{#if nick}}value="{{nick}}" {{/if}} maxlength="80" required>
     <input type="hidden" name="pin" value="{{classId}}">
   </p>
   <!--<p>Hvor vanskelige oppgaver vil du begynne med?</p>

@@ -13,10 +13,10 @@ function decodeToken(req, res, next) {
       return next(new Error('Invalid token'));
     }
   } else {
-    res.render('error', {layout: 'main', message: 'mangler token'});
+    res.render('error', { layout: 'main', message: 'mangler token' });
   }
 }
 
 module.exports = {
-  decodeToken
-}
+  decodeToken,
+};
