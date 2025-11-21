@@ -20,7 +20,7 @@ router.post(
   setAnswers
 );
 router.get('/redirect', redirect);
-router.post('/quit', endSession);
+router.post('/quit', decodeToken, endSession);
 router.post('/student/pin', studentPreInit);
 router.get('/student/pin', studentPreInit);
 router.post('/student/access', decodeToken, studentInit);
@@ -263,8 +263,21 @@ function studentInit(req, res, next) {
 }
 
 function endSession(req, res, next) {
-  res.cookie('token', '', { expires: new Date(-1000) });
-  res.redirect(302, req.body.admin ? '/adm' : '/');
+  // For Edvald - delete session so logged-out sessions do not
+  // appear in the list
+  return config.getDatabaseClient().then((client) => {
+    return client
+      .query(`DELETE FROM student_sessions WHERE id = $1`, [
+        res.locals.token.id,
+      ])
+      .then(() => {
+        res.cookie('token', '', { expires: new Date(-1000) });
+        res.redirect(302, req.body.admin ? '/adm' : '/');
+      })
+      .finally(() => {
+        client.release();
+      });
+  });
 }
 
 function redirect(req, res, next) {
