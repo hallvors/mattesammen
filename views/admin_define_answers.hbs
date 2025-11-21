@@ -114,7 +114,7 @@
                 elm('span', { 'class': sessionType + '-wrong-answer' }, [document.createTextNode(parts[i])], li);
             }
         } else {
-            li.firstChild.appendChild(document.createTextNode(answer));
+            (li.firstChild || li).appendChild(document.createTextNode(answer));
         }
         var input = li.appendChild(document.createElement('input'));
         input.type = 'hidden';

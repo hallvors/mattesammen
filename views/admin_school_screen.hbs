@@ -384,6 +384,9 @@
           }
           function updateToplist(durations, currentTaskIndex) {
             var listElm = document.getElementById('top5');
+            if (!listElm) {
+              return;
+            }
             listElm.innerHTML = '';
             var top = getQuizTopList(durations, taskIndex);
             top.forEach(function (id) {
