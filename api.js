@@ -42,7 +42,7 @@ function createClassSession(req, res, next) {
         return client
           .query(
             `SELECT * FROM school_classes
-        WHERE school = $1::text AND class_name = $2::text AND session_type = $3::text`,
+        WHERE school = $1::text AND class_name = $2::text AND session_type = $3::text AND data IS NULL`,
             [req.body.school, req.body.className, req.body.session_type]
           )
           .then((result) => {
