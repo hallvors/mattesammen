@@ -111,7 +111,7 @@ function setAnswers(req, res, next) {
       if (['quiz', 'poll'].includes(res.locals.token.sessionType)) {
         const preparedData = {
           poll_title: req.body.title,
-          poll_image: req.file.buffer,
+          poll_image: req.file?.buffer || null,
           class_id: res.locals.token.classId,
           questions: data.map((item, idx) => {
             const parts = item.split(/\t/g);
