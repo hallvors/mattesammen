@@ -93,10 +93,8 @@ function evtHandler(itemnr) {
 
 socket.on('new-bingo-answer', function (payload) {
   console.log('new-bingo-answer', payload);
-  if (payload.answer) {
-    theAnswer = payload.answer;
-    selectedAlready = false;
-  }
+  theAnswer = payload.answer;
+  selectedAlready = false;
 });
 
 window.onload = init;

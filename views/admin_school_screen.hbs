@@ -69,11 +69,19 @@
       </style>
       <script>function newBingoWord(evt) {
           var word = evt.target.textContent;
-          socket.emit('new-bingo-answer', { answer: word, classId: classId });
-          for (var elms = document.getElementsByClassName('bingo-active'), i = 0; i < elms.length; i++) {
-            elms[i].classList.remove('bingo-active');
+          if (evt.target.classList.contains('bingo-active')) {
+            // de-selecting word
+            socket.emit('new-bingo-answer', { answer: null, classId: classId });
+            for (var elms = document.getElementsByClassName('bingo-active'), i = 0; i < elms.length; i++) {
+              elms[i].classList.remove('bingo-active');
+            }
+          } else {
+            socket.emit('new-bingo-answer', { answer: word, classId: classId });
+            for (var elms = document.getElementsByClassName('bingo-active'), i = 0; i < elms.length; i++) {
+              elms[i].classList.remove('bingo-active');
+            }
+            evt.target.classList.add('bingo-active');
           }
-          evt.target.classList.add('bingo-active')
         }</script>
       {{#each details.data}}
       <button type="button" onclick="newBingoWord(event)" class="bingo-passive">{{this}}</button>
