@@ -124,11 +124,14 @@
 
     <div id="grid"></div>
 
+    <button type="button" id="share-btn">Del</button>
+
     <script>
       const textarea = document.getElementById('input');
       const grid = document.getElementById('grid');
       const timerDisplay = document.getElementById('timer');
       const resetBtn = document.getElementById('reset-btn');
+      const shareBtn = document.getElementById('share-btn');
       const storageKey = 'ziq-alleklare';
       let startTime = null;
       let timerInterval = null;
@@ -227,6 +230,24 @@
         },
         false
       );
+
+      function shareState() {
+        const url = new URL(location.href);
+        url.searchParams.set('elever', localStorage[storageKey]);
+        navigator.clipboard
+          .writeText(url.toString())
+          .then(function () {
+            shareBtn.innerText = 'URL kopiert';
+            setTimeout(function () {
+              shareBtn.innerText = 'Del';
+            }, 3000);
+          })
+          .catch(function (err) {
+            console.error(err);
+            prompt('Kopier dette:', url.toString());
+          });
+      }
+      shareBtn.addEventListener('click', shareState);
     </script>
   </body>
 </html>
